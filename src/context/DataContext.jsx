@@ -345,9 +345,12 @@ export const DataProvider = ({ children }) => {
     setMembers(prev => (prev || []).map(m => m.id === updated.id ? updated : m));
   };
 
-  // Delete Member
+  // Delete Member and ALL associated data (payments, logs)
   const deleteMember = (id) => {
+    const targetMember = (members || []).find(m => m.id === id);
     setMembers(prev => (prev || []).filter(m => m.id !== id));
+    // Cascade delete member's payment transactions
+    setPayments(prev => (prev || []).filter(p => p.member_id !== id && p.member_name !== targetMember?.name));
   };
 
   // Add Channel
@@ -371,9 +374,16 @@ export const DataProvider = ({ children }) => {
     } : ch));
   };
 
-  // Delete Channel
+  // Delete Channel and ALL associated data (shootings, client ledgers)
   const deleteChannel = (id) => {
+    const targetChannel = (channels || []).find(ch => ch.id === id);
     setChannels(prev => (prev || []).filter(ch => ch.id !== id));
+    if (targetChannel) {
+      // Cascade delete all shootings belonging to this channel
+      setShootings(prev => (prev || []).filter(sh => sh.channel !== targetChannel.name));
+      // Cascade delete client ledger matching this channel
+      setClients(prev => (prev || []).filter(c => c.name !== targetChannel.name));
+    }
   };
 
   // Add Director
@@ -396,6 +406,11 @@ export const DataProvider = ({ children }) => {
   // Delete Director
   const deleteDirector = (id) => {
     setDirectors(prev => (prev || []).filter(dir => dir.id !== id));
+  };
+
+  // Delete Shooting and ALL associated data
+  const deleteShooting = (id) => {
+    setShootings(prev => (prev || []).filter(sh => sh.id !== id));
   };
 
   // Reset User Password Service
@@ -483,6 +498,7 @@ export const DataProvider = ({ children }) => {
       resetUserPassword,
       shootings: shootings || [],
       addShooting,
+      deleteShooting,
       payments: payments || [],
       addPayment,
       clients: clients || INITIAL_CLIENTS,

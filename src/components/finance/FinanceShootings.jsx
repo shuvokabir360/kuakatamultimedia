@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Film, Plus, Calendar, MapPin, Tv, User, FileText, Check, X, ChevronRight, ChevronDown, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Film, Plus, Calendar, MapPin, Tv, User, FileText, Check, X, ChevronRight, ChevronDown, CheckCircle2, ShieldCheck, Trash2 } from 'lucide-react';
 import { useData, toBnNum } from '../../context/DataContext';
 
 export default function FinanceShootings({ openAddModalDirectly = false }) {
-  const { shootings = [], members = [], channels = [], directors = [], addShooting } = useData();
+  const { shootings = [], members = [], channels = [], directors = [], addShooting, deleteShooting } = useData();
   const [showAddModal, setShowAddModal] = useState(openAddModalDirectly);
 
   // Dynamic Channels List from context
@@ -107,8 +107,21 @@ export default function FinanceShootings({ openAddModalDirectly = false }) {
                 </div>
               </div>
 
-              <div className="p-2 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs font-black shrink-0">
-                {sh.channel}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <div className="p-2 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs font-black">
+                  {sh.channel}
+                </div>
+                <button
+                  onClick={() => {
+                    if (window.confirm(`আপনি কি "${sh.title}" শুটিংটি ডিলিট করতে চান?`)) {
+                      deleteShooting(sh.id);
+                    }
+                  }}
+                  title="শুটিং ডিলিট করুন"
+                  className="p-2 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
 
