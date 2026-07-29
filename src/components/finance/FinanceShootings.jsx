@@ -6,12 +6,12 @@ export default function FinanceShootings({ openAddModalDirectly = false }) {
   const { shootings = [], members = [], addShooting } = useData();
   const [showAddModal, setShowAddModal] = useState(openAddModalDirectly);
 
-  // Preset Channels List with Logos
+  // Preset Channels List with Categories (Official vs Client)
   const channelsList = [
-    { id: 'ch-1', name: 'Kuakata Multimedia', logo: '/logo.svg' },
-    { id: 'ch-2', name: 'Malbro Entertainment', logo: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=100&auto=format&fit=crop' },
-    { id: 'ch-3', name: 'Mehidi Multimedia', logo: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=100&auto=format&fit=crop' },
-    { id: 'ch-4', name: 'Chorki OTT Platform', logo: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=100&auto=format&fit=crop' }
+    { id: 'ch-1', name: 'Kuakata Multimedia', category: 'official', categoryLabel: 'অফিসিয়াল (নিজেদের)', logo: '/logo.svg' },
+    { id: 'ch-2', name: 'Malbro Entertainment', category: 'client', categoryLabel: 'ক্লায়েন্ট (অন্যের)', logo: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=100&auto=format&fit=crop' },
+    { id: 'ch-3', name: 'Mehidi Multimedia', category: 'client', categoryLabel: 'ক্লায়েন্ট (অন্যের)', logo: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=100&auto=format&fit=crop' },
+    { id: 'ch-4', name: 'Chorki OTT Platform', category: 'client', categoryLabel: 'ক্লায়েন্ট (অন্যের)', logo: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=100&auto=format&fit=crop' }
   ];
 
   // Directors List with Photos
@@ -38,6 +38,7 @@ export default function FinanceShootings({ openAddModalDirectly = false }) {
     director: 'Kabir Hossen Shuvo',
     channel: 'Kuakata Multimedia',
     location: 'মুসুল্লিয়াবাদ',
+    budget: 50000,
     note: ''
   });
 
@@ -55,7 +56,7 @@ export default function FinanceShootings({ openAddModalDirectly = false }) {
       ...formData,
       present_count: 0,
       absent_count: 0,
-      budget: 50000,
+      budget: selectedChannelObj.category === 'client' ? Number(formData.budget) : 0,
       expenses: 12000
     });
 
@@ -66,6 +67,7 @@ export default function FinanceShootings({ openAddModalDirectly = false }) {
       director: 'Kabir Hossen Shuvo',
       channel: 'Kuakata Multimedia',
       location: 'মুসুল্লিয়াবাদ',
+      budget: 50000,
       note: ''
     });
   };
@@ -260,7 +262,16 @@ export default function FinanceShootings({ openAddModalDirectly = false }) {
                         className="w-full h-full object-cover rounded-full"
                       />
                     </div>
-                    <span className="font-black text-slate-900">{formData.channel}</span>
+                    <div className="text-left">
+                      <span className="font-black text-slate-900 block">{formData.channel}</span>
+                      <span className={`text-[9px] font-extrabold px-2 py-0.2 rounded-full inline-block ${
+                        selectedChannelObj?.category === 'client' 
+                          ? 'bg-amber-100 text-amber-800 border border-amber-200' 
+                          : 'bg-rose-100 text-rose-600 border border-rose-200'
+                      }`}>
+                        {selectedChannelObj?.category === 'client' ? 'ক্লায়েন্ট চ্যানেল (অন্যের)' : 'অফিসিয়াল (নিজেদের)'}
+                      </span>
+                    </div>
                   </div>
 
                   <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${channelDropdownOpen ? 'rotate-180' : ''}`} />
@@ -285,7 +296,10 @@ export default function FinanceShootings({ openAddModalDirectly = false }) {
                           <div className="w-8 h-8 rounded-full bg-slate-100 p-1 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden">
                             <img src={ch.logo} alt={ch.name} className="w-full h-full object-cover rounded-full" />
                           </div>
-                          <span className="text-xs font-bold">{ch.name}</span>
+                          <div>
+                            <span className="text-xs font-bold block">{ch.name}</span>
+                            <span className="text-[10px] text-slate-400 block">{ch.categoryLabel}</span>
+                          </div>
                         </div>
 
                         {formData.channel === ch.name && (
@@ -296,6 +310,31 @@ export default function FinanceShootings({ openAddModalDirectly = false }) {
                   </div>
                 )}
               </div>
+
+              {/* 4.1 CONDITIONAL SHOOTING BUDGET (Shown ONLY for Client Channels) */}
+              {selectedChannelObj?.category === 'client' ? (
+                <div className="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-200 space-y-1.5 animate-fade-in">
+                  <label className="block font-black text-amber-900">
+                    ক্লায়েন্ট শুটিং চুক্তি বাজেট (টাকা) <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    placeholder="৫০,০০০"
+                    value={formData.budget}
+                    onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-amber-300 text-xs font-black text-slate-900 shadow-sm focus:ring-2 focus:ring-amber-500/20"
+                  />
+                  <p className="text-[10px] text-amber-700 font-semibold">
+                    ক্লায়েন্ট (অন্যের) চ্যানেলের শুটিংয়ের জন্য চুক্তিকৃত বাজেট সেটিং করার সুযোগ।
+                  </p>
+                </div>
+              ) : (
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-[11px] text-slate-500 font-semibold flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>অফিসিয়াল (নিজেদের) চ্যানেলের শুটিংয়ের ক্ষেত্রে বাজেট সেট করার প্রয়োজন নেই।</span>
+                </div>
+              )}
 
               {/* 5. স্থান */}
               <div>
