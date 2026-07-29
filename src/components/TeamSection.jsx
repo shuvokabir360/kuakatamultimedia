@@ -5,25 +5,31 @@ import { useAuth } from '../context/AuthContext';
 import Team3DCard from './3d/Team3DCard';
 
 export default function TeamSection() {
-  const { members, attendance } = useData();
-  const { user, setActiveTab } = useAuth();
+  const { members = [], attendance = [] } = useData() || {};
+  const { user, setActiveTab } = useAuth() || {};
   const [selectedDept, setSelectedDept] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
   const departments = ['All', '3D & VFX', 'Web Dev', 'Video Production'];
 
-  // Filter members
-  const filteredMembers = members.filter(member => {
+  const safeMembers = members || [];
+  const safeAttendance = attendance || [];
+
+  // Safe Filter members
+  const filteredMembers = safeMembers.filter(member => {
+    if (!member) return false;
     const matchesDept = selectedDept === 'All' || member.dept === selectedDept;
-    const matchesSearch = member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          member.designation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          member.skills?.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()));
+    const nameStr = member.name || '';
+    const desigStr = member.designation || '';
+    const matchesSearch = nameStr.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          desigStr.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (member.skills || []).some(s => (s || '').toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesDept && matchesSearch;
   });
 
   // Calculate attendance rate for each member
   const getMemberAttendanceRate = (memberId) => {
-    const records = attendance.filter(a => a.user_id === memberId);
+    const records = safeAttendance.filter(a => a && a.user_id === memberId);
     if (!records.length) return 95;
     const presents = records.filter(r => r.status === 'Present' || r.status === 'Half-day').length;
     return Math.round((presents / records.length) * 100);
@@ -96,7 +102,7 @@ export default function TeamSection() {
       {user?.role === 'admin' && (
         <div className="mt-12 text-center">
           <button
-            onClick={() => setActiveTab('admin-dashboard')}
+            onClick={() => setActiveTab && setActiveTab('admin-dashboard')}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold bg-brand-cyan/20 text-brand-cyan border border-brand-cyan/40 hover:bg-brand-cyan hover:text-dark-900 transition-colors"
           >
             <Plus className="w-4 h-4" />

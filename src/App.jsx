@@ -14,11 +14,11 @@ import FinanceAppView from './components/finance/FinanceAppView';
 import MemberPortal from './components/member/MemberPortal';
 import { RefreshCw, AlertTriangle } from 'lucide-react';
 
-// Error Boundary Component to prevent Black Screen of Death
+// Error Boundary Component to display exact diagnostic error
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, errorInfo: null };
   }
 
   static getDerivedStateFromError(error) {
@@ -26,7 +26,8 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error("App Rendering Error Caught by Boundary:", error, errorInfo);
+    this.setState({ errorInfo });
+    console.error("App Rendering Error:", error, errorInfo);
   }
 
   handleReset = () => {
@@ -47,9 +48,10 @@ class ErrorBoundary extends React.Component {
           
           <h2 className="text-xl font-black text-white">অ্যাপ লোড হতে সমস্যা হয়েছে</h2>
           
-          <p className="text-xs text-slate-400 max-w-sm">
-            ব্রাউজার ক্যাশে থাকা পুরোনো ডাটা ক্লিন করে রিফ্রেশ বাটনে ক্লিক করুন।
-          </p>
+          <div className="max-w-md w-full p-4 rounded-2xl bg-slate-950 border border-slate-800 text-left space-y-2 text-xs font-mono text-rose-400 overflow-auto max-h-60">
+            <p className="font-bold">{this.state.error && this.state.error.toString()}</p>
+            <pre className="text-[10px] text-slate-500 whitespace-pre-wrap">{this.state.errorInfo?.componentStack}</pre>
+          </div>
 
           <button
             onClick={this.handleReset}

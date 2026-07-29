@@ -3,15 +3,17 @@ import { ExternalLink, Play, Sparkles, ChevronLeft, ChevronRight, Layers } from 
 import { useData } from '../../context/DataContext';
 
 export default function Portfolio3DGallery({ onSelectProject }) {
-  const { projects } = useData();
+  const { projects = [] } = useData() || {};
   const [activeIndex, setActiveIndex] = useState(0);
   const [activeCategory, setActiveCategory] = useState('All');
 
   const categories = ['All', '3D & Web', 'VFX & Motion', '3D Commercial', 'Interactive Web'];
 
+  const safeProjects = projects || [];
+
   const filteredProjects = activeCategory === 'All'
-    ? projects
-    : projects.filter(p => p.category === activeCategory);
+    ? safeProjects
+    : safeProjects.filter(p => p && p.category === activeCategory);
 
   const handlePrev = () => {
     setActiveIndex((prev) => (prev === 0 ? filteredProjects.length - 1 : prev - 1));
@@ -48,7 +50,7 @@ export default function Portfolio3DGallery({ onSelectProject }) {
       </div>
 
       {/* 3D Carousel Stage */}
-      {filteredProjects.length > 0 ? (
+      {currentProject ? (
         <div className="relative max-w-4xl mx-auto px-2 sm:px-4 min-h-[420px] flex items-center justify-center">
           {/* Controls */}
           <button
@@ -75,7 +77,7 @@ export default function Portfolio3DGallery({ onSelectProject }) {
               {/* Image & Overlay */}
               <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-dark-800">
                 <img
-                  src={currentProject.image}
+                  src={currentProject.image || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop'}
                   alt={currentProject.title}
                   className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                 />
@@ -89,7 +91,7 @@ export default function Portfolio3DGallery({ onSelectProject }) {
 
                 {/* Floating Play / Preview Icon */}
                 <button
-                  onClick={() => onSelectProject(currentProject)}
+                  onClick={() => onSelectProject && onSelectProject(currentProject)}
                   className="absolute inset-0 m-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-brand-red text-white flex items-center justify-center opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all shadow-lg shadow-brand-red/50"
                 >
                   <Play className="w-6 h-6 sm:w-7 sm:h-7 fill-white ml-1" />
@@ -123,7 +125,7 @@ export default function Portfolio3DGallery({ onSelectProject }) {
 
                   <button
                     id={`btn-demo-${currentProject.id}`}
-                    onClick={() => onSelectProject(currentProject)}
+                    onClick={() => onSelectProject && onSelectProject(currentProject)}
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-red hover:text-white transition-colors"
                   >
                     <span>৩ডি লাইভ ডেমো দেখুন</span>
