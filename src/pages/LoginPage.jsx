@@ -9,7 +9,7 @@ export default function LoginPage() {
   const { resetUserPassword, members } = useData();
 
   const [loginRoleTab, setLoginRoleTab] = useState('admin');
-  const [mode, setMode] = useState('login'); // 'login' | 'forgot_email' | 'forgot_otp' | 'forgot_reset'
+  const [mode, setMode] = useState('login');
 
   const [email, setEmail] = useState('shuvokuakata27@gmail.com');
   const [password, setPassword] = useState('');
@@ -27,7 +27,7 @@ export default function LoginPage() {
   const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Detect Supabase Email Recovery Link (type=recovery or access_token) from Gmail
+  // Detect Supabase Email Recovery Link
   useEffect(() => {
     const hash = window.location.hash || '';
     const search = window.location.search || '';
@@ -38,7 +38,7 @@ export default function LoginPage() {
     }
   }, []);
 
-  // If already logged in, redirect to respective dashboard
+  // Redirect logged in user
   useEffect(() => {
     if (user && mode === 'login') {
       if (user.role === 'admin') setActiveTab('admin-dashboard');
@@ -92,12 +92,14 @@ export default function LoginPage() {
       return;
     }
 
-    // Trigger Real Email Delivery via Supabase Auth API
+    // Always redirect to live production site URL
+    const liveSiteRedirect = 'https://shuvokabir360.github.io/kuakatamultimedia/#/login';
+
     let sentRealMail = false;
     if (isSupabaseConnected && supabase) {
       try {
         const { error: sbErr } = await supabase.auth.resetPasswordForEmail(target, {
-          redirectTo: `${window.location.origin}/#/login`
+          redirectTo: liveSiteRedirect
         });
         if (!sbErr) sentRealMail = true;
       } catch (err) {
@@ -372,7 +374,7 @@ export default function LoginPage() {
           </>
         )}
 
-        {/* FORGOT PASSWORD FLOW (REAL EMAIL DISPATCH & RECOVERY LINK) */}
+        {/* FORGOT PASSWORD FLOW */}
         {mode === 'forgot_email' && (
           <form onSubmit={handleForgotEmailSubmit} className="space-y-4">
             <p className="text-xs text-slate-300">

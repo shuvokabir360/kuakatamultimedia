@@ -18,24 +18,27 @@ import {
   Copy,
   Check,
   Server,
-  Key
+  Key,
+  RefreshCw
 } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import { SUPABASE_CONFIG, saveCloudCredentials, isCloudConnected } from '../../services/db';
-import { SUPABASE_SQL_SCHEMA } from '../../services/supabaseClient';
+import { supabase, SUPABASE_SQL_SCHEMA } from '../../services/supabaseClient';
 import MemberManagement from './MemberManagement';
 import AttendanceManagement from './AttendanceManagement';
 import SalaryPayrollManagement from './SalaryPayrollManagement';
 import ProjectManagement from './ProjectManagement';
 
 export default function AdminDashboard() {
-  const { members, attendance, salaries, projects, exportAllDataJSON, restoreAllDataJSON, cloudSynced } = useData();
+  const { members, attendance, salaries, projects, exportAllDataJSON, restoreAllDataJSON } = useData();
   const [activeAdminSubTab, setActiveAdminSubTab] = useState('overview');
   
   const [showCloudConfig, setShowCloudConfig] = useState(false);
   const [supabaseUrl, setSupabaseUrl] = useState(SUPABASE_CONFIG.url);
   const [supabaseKey, setSupabaseKey] = useState(SUPABASE_CONFIG.anonKey);
   const [copiedSql, setCopiedSql] = useState(false);
+  const [syncingCloud, setSyncingCloud] = useState(false);
+  const [syncMsg, setSyncMsg] = useState('');
 
   const totalMembers = members.length;
   
@@ -74,6 +77,28 @@ export default function AdminDashboard() {
     setTimeout(() => setCopiedSql(false), 3000);
   };
 
+  const handlePushAllToSupabase = async () => {
+    if (!isCloudConnected() || !supabase) {
+      alert('Supabase এপিআই কানেক্ট করা নেই!');
+      return;
+    }
+
+    setSyncingCloud(true);
+    setSyncMsg('');
+    try {
+      if (members.length > 0) await supabase.from('members').upsert(members);
+      if (projects.length > 0) await supabase.from('projects').upsert(projects);
+      if (attendance.length > 0) await supabase.from('attendance').upsert(attendance);
+      if (salaries.length > 0) await supabase.from('salaries').upsert(salaries);
+
+      setSyncMsg('সমস্ত ডাটা (মেম্বার, হাজিরা, বেতন ও প্রজেক্ট) সফলভাবে Supabase এ লাইভ সেভ করা হয়েছে! 🎉');
+    } catch (err) {
+      setSyncMsg(`সিঙ্ক করতে সমস্যা: ${err.message || 'টেবিলসমূহ Supabase এ আগে তৈরি করুন'}`);
+    } finally {
+      setSyncingCloud(false);
+    }
+  };
+
   return (
     <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-8">
       
@@ -92,7 +117,7 @@ export default function AdminDashboard() {
                 : 'bg-amber-500/20 text-amber-400 border-amber-500/40'
             }`}>
               <Cloud className="w-3.5 h-3.5" />
-              <span>{isCloudConnected() ? 'Supabase Cloud Live Database Connected 🟢' : 'Local Persistence Active 🟠'}</span>
+              <span>{isCloudConnected() ? 'Supabase Live Connected 🟢' : 'Local Persistence Active 🟠'}</span>
             </span>
           </div>
 
@@ -269,7 +294,7 @@ export default function AdminDashboard() {
             <div className="glass-panel p-6 rounded-3xl border border-slate-800 flex flex-col justify-between space-y-4">
               <div>
                 <span className="text-xs font-bold text-brand-amber uppercase tracking-wider block mb-1">পে-রোল & বেতন পরিশোধ</span>
-                <h3 className="text-xl font-bold text-white">মাসিক বেতনের হিসাব ও পেমেন্ট স্ট্যাটাস</h3>
+                <h3 className="text-xl font-bold text-white">মাসিক বেেশনের হিসাব ও পেমেন্ট স্ট্যাটাস</h3>
                 <p className="text-xs text-slate-400 mt-1">
                   মেম্বারদের বেসিক বেতন, বোনাস যোগ করা এবং পেইড/পেন্ডিং স্ট্যাটাস আপডেট করুন।
                 </p>
@@ -296,49 +321,68 @@ export default function AdminDashboard() {
               <div>
                 <span className="text-xs text-emerald-400 font-bold uppercase tracking-wider block mb-1 flex items-center gap-1.5">
                   <Database className="w-4 h-4" />
-                  Supabase (PostgreSQL) অনলাইন ডাটাবেস ইন্টিগ্রেশন
+                  Supabase (PostgreSQL) অনলাইন ডাটাবেস সিঙ্ক
                 </span>
-                <h2 className="text-2xl font-black text-white">Supabase ডাটাবেসের সাথে ২ মিনিটে কানেক্ট করার পদ্ধতি</h2>
+                <h2 className="text-2xl font-black text-white">Supabase ডাটাবেস লাইভ স্ট্যাটাস</h2>
                 <p className="text-xs text-slate-300 mt-1">
-                  সুপাবেসে অ্যাকাউন্ট খুলে নিচের টেস্ট কি-গুলো বসিয়ে সেভ করুন।
+                  আপনার সুপাবেস প্রজেক্টের সাথে ডাটা কানেক্টেড রয়েছে।
                 </p>
               </div>
 
-              <a
-                href="https://supabase.com/dashboard"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-emerald-500 text-dark-900 shadow-lg hover:scale-105 transition-transform flex items-center gap-2"
-              >
-                <span>Supabase ড্যাশবোর্ডে যান</span>
-                <ExternalLink className="w-4 h-4" />
-              </a>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handlePushAllToSupabase}
+                  disabled={syncingCloud}
+                  className="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-emerald-500 text-dark-900 shadow-lg hover:scale-105 transition-transform flex items-center gap-2 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-4 h-4 ${syncingCloud ? 'animate-spin' : ''}`} />
+                  <span>{syncingCloud ? 'ডাটা সিঙ্ক হচ্ছে...' : 'সুপাবেসে ডাটা সিঙ্ক করুন'}</span>
+                </button>
+              </div>
             </div>
 
-            {/* Step by Step Guide */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-              <div className="glass-card p-4 rounded-xl space-y-2 border border-slate-800">
-                <span className="w-6 h-6 rounded-full bg-emerald-500 text-dark-900 font-black flex items-center justify-center">১</span>
-                <h4 className="font-bold text-white">Supabase এ অ্যাকাউন্ট খুলুন</h4>
-                <p className="text-slate-400">
-                  <a href="https://supabase.com/" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline">supabase.com</a> এ গিয়ে বিনামূল্যে অ্যাকাউন্ট খুলুন এবং ১টি নতুন প্রজেক্ট তৈরি করুন।
-                </p>
+            {syncMsg && (
+              <div className="p-4 rounded-2xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                <span>{syncMsg}</span>
               </div>
+            )}
 
-              <div className="glass-card p-4 rounded-xl space-y-2 border border-slate-800">
-                <span className="w-6 h-6 rounded-full bg-emerald-500 text-dark-900 font-black flex items-center justify-center">২</span>
-                <h4 className="font-bold text-white">SQL টেবিল স্ক্রিপ্ট রান করুন</h4>
-                <p className="text-slate-400">
-                  Supabase এর <b>SQL Editor</b> এ গিয়ে নিচের SQL কোডটি Paste করে <b>RUN</b> বাটনে ক্লিক করুন।
-                </p>
-              </div>
+            {/* How to Check Data in Supabase Guide */}
+            <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+              <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                <Server className="w-4 h-4 text-emerald-400" />
+                সুপাবেসে ডাটা কিভাবে চেক করবেন (How to View Saved Data)
+              </h4>
 
-              <div className="glass-card p-4 rounded-xl space-y-2 border border-slate-800">
-                <span className="w-6 h-6 rounded-full bg-emerald-500 text-dark-900 font-black flex items-center justify-center">৩</span>
-                <h4 className="font-bold text-white">Project URL & Key সেভ করুন</h4>
-                <p className="text-slate-400">
-                  Supabase <b>Project Settings ➔ API</b> থেকে URL ও anon key কপি করে নিচের বক্সে সেভ করুন।
-                </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div className="p-4 rounded-xl bg-dark-900/80 border border-slate-800 space-y-2">
+                  <span className="w-6 h-6 rounded-full bg-emerald-500 text-dark-900 font-black flex items-center justify-center text-xs">১</span>
+                  <h5 className="font-bold text-white">Table Editor এ যান</h5>
+                  <p className="text-slate-400">
+                    <a href="https://supabase.com/dashboard/project/wcpdbfuhtvcjcjzxzebs/editor" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline font-semibold flex items-center gap-1">
+                      <span>Supabase Table Editor</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                    অপশনে ক্লিক করুন।
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-dark-900/80 border border-slate-800 space-y-2">
+                  <span className="w-6 h-6 rounded-full bg-emerald-500 text-dark-900 font-black flex items-center justify-center text-xs">২</span>
+                  <h5 className="font-bold text-white">টেবিল সিলেক্ট করুন</h5>
+                  <p className="text-slate-400">
+                    বামদিকের মেনু থেকে <b>members</b>, <b>attendance</b>, <b>salaries</b> বা <b>projects</b> টেবিলে চাপ দিন।
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-dark-900/80 border border-slate-800 space-y-2">
+                  <span className="w-6 h-6 rounded-full bg-emerald-500 text-dark-900 font-black flex items-center justify-center text-xs">৩</span>
+                  <h5 className="font-bold text-white">লাইভ র-ডাটা দেখুন</h5>
+                  <p className="text-slate-400">
+                    সাইট থেকে যুক্ত করা মেম্বার, পিন, দৈনিক হাজিরা ও বেতনের সমস্ত ডাটা রো (Rows) আকারে দেখতে পাবেন!
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -355,7 +399,7 @@ export default function AdminDashboard() {
                   <input
                     type="url"
                     required
-                    placeholder="https://xyzabcdefg.supabase.co"
+                    placeholder="https://wcpdbfuhtvcjcjzxzebs.supabase.co"
                     value={supabaseUrl}
                     onChange={(e) => setSupabaseUrl(e.target.value)}
                     className="w-full px-3 py-2.5 rounded-xl glass-input text-white"
