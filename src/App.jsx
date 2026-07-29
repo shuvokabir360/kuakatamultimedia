@@ -10,7 +10,7 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 import LoginPage from './pages/LoginPage';
-import AdminDashboard from './components/admin/AdminDashboard';
+import FinanceAppView from './components/finance/FinanceAppView';
 import MemberPortal from './components/member/MemberPortal';
 
 function MainContent() {
@@ -38,11 +38,13 @@ function MainContent() {
     };
   }, [setActiveTab]);
 
+  const isFinanceAppActive = activeTab === 'admin-dashboard';
+
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-dark-900 text-slate-100 pb-16 md:pb-0">
+    <div className={`min-h-screen flex flex-col justify-between bg-dark-900 text-slate-100 ${isFinanceAppActive ? '' : 'pb-16 md:pb-0'}`}>
       
-      {/* Top Navbar */}
-      <Navbar onOpenAuthModal={() => setAuthModalOpen(true)} />
+      {/* Show Standard Top Navbar only if not in Finance App view */}
+      {!isFinanceAppActive && <Navbar onOpenAuthModal={() => setAuthModalOpen(true)} />}
 
       {/* Main View Router */}
       <main className="flex-grow">
@@ -62,15 +64,20 @@ function MainContent() {
         {/* Dedicated Standalone /login Route */}
         {activeTab === 'login' && <LoginPage />}
 
-        {activeTab === 'admin-dashboard' && <AdminDashboard />}
+        {/* Admin Dashboard: Full Kuakata Multimedia Finance & Team Management App */}
+        {activeTab === 'admin-dashboard' && <FinanceAppView />}
+        
+        {/* Member Portal */}
         {activeTab === 'member-portal' && <MemberPortal />}
       </main>
 
-      {/* Footer */}
-      <Footer />
-
-      {/* Mobile Floating App Bottom Dock */}
-      <MobileBottomNav />
+      {/* Show Standard Footer & Dock only if not in Finance App View */}
+      {!isFinanceAppActive && (
+        <>
+          <Footer />
+          <MobileBottomNav />
+        </>
+      )}
 
       {/* Auth Modal Quick Fallback */}
       <AuthModal

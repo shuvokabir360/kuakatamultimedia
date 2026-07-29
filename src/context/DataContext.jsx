@@ -3,597 +3,328 @@ import { supabase, isSupabaseConnected } from '../services/supabaseClient';
 
 const DataContext = createContext();
 
-const SUPER_ADMIN_MEMBER = {
-  id: 'super-admin-1',
-  name: 'শুভ (Shuvo)',
-  email: 'shuvokuakata27@gmail.com',
-  password: 'admin',
-  phone: '01711000000',
-  pin: '1234',
-  role: 'admin',
-  isSuperAdmin: true,
-  designation: 'চিফ সিইও & সুপার অ্যাডমিন',
-  dept: 'Executive Board',
-  basic_salary: 100000,
-  join_date: '2022-01-01',
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
-  skills: ['Super Admin', 'Director', '3D Architecture', 'Unreal Engine 5'],
-  status: 'Active'
+// Bengali Number Converter
+export const toBnNum = (num) => {
+  if (num === null || num === undefined) return '০';
+  const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+  return String(num).replace(/\d/g, (digit) => bnDigits[digit]);
 };
 
+// Initial Mock Members matching exact screenshot 5
 const INITIAL_MEMBERS = [
-  SUPER_ADMIN_MEMBER,
   {
-    id: '1',
-    name: 'তানভীর আহমেদ',
-    email: 'admin@kuakatamultimedia.com',
-    password: 'admin',
-    phone: '01711000001',
+    id: 'm1',
+    name: 'Kabir Hossen Shuvo',
+    type: 'মাসিক',
+    designation: 'CEO & Lead Director',
+    dept: 'Management',
+    phone: '01711000000',
     pin: '1234',
-    role: 'admin',
-    isSuperAdmin: false,
-    designation: 'চিফ এনিমেশন ডিরেক্টর',
-    dept: '3D & VFX',
-    basic_salary: 85000,
-    join_date: '2022-01-15',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop',
-    skills: ['Three.js', 'Blender', 'Cinema 4D', 'Unreal Engine'],
-    status: 'Active'
+    email: 'shuvokuakata27@gmail.com',
+    balance: 0,
+    bkash: '01711000000',
+    nagad: '01711000000',
+    bank: 'Dutch-Bangla Bank 2181050023058',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
+    isPinnedTop: true,
+    role: 'admin'
   },
   {
-    id: '2',
-    name: 'রাফি রহমান',
-    email: 'member@kuakatamultimedia.com',
-    password: 'member',
+    id: 'm2',
+    name: 'SM Almas',
+    type: 'দৈনিক',
+    designation: 'Director, Actor, Writer',
+    dept: 'Direction',
     phone: '01822111222',
     pin: '1234',
-    role: 'member',
-    designation: 'সিনিয়র ৩ডি মোশন ডিজাইনার',
-    dept: '3D & VFX',
-    basic_salary: 62000,
-    join_date: '2022-06-10',
+    email: 'almas@kuakatamultimedia.com',
+    balance: 8500,
+    daily_rate: 2500,
+    bkash: '01822111222',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop',
+    role: 'member'
+  },
+  {
+    id: 'm3',
+    name: 'Masud Parves Sagor',
+    type: 'দৈনিক',
+    designation: 'Actor & DOP',
+    dept: 'Acting',
+    phone: '01911222333',
+    pin: '1234',
+    email: 'sagor@kuakatamultimedia.com',
+    balance: 4000,
+    daily_rate: 2000,
+    bank: 'Islami Bank 2181050023054',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop',
-    skills: ['After Effects', 'Blender', 'Octane Render'],
-    status: 'Active'
+    role: 'member'
   },
   {
-    id: '3',
-    name: 'নুসরাত জাহান',
-    email: 'nusrat@kuakatamultimedia.com',
-    password: '123',
-    phone: '01933333444',
+    id: 'm4',
+    name: 'Arif Apon',
+    type: 'দৈনিক',
+    designation: 'Actor',
+    dept: 'Acting',
+    phone: '01611333444',
     pin: '1234',
-    role: 'member',
-    designation: 'লিড ওয়েব & ইউএক্স আর্কিটেক্ট',
-    dept: 'Web Dev',
-    basic_salary: 68000,
-    join_date: '2023-02-01',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop',
-    skills: ['React.js', 'Next.js', 'Three.js', 'Tailwind'],
-    status: 'Active'
+    email: 'apon@kuakatamultimedia.com',
+    balance: 2000,
+    daily_rate: 1500,
+    bkash: '01611333444',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&auto=format&fit=crop',
+    role: 'member'
   },
   {
-    id: '4',
-    name: 'আরিফুল ইসলাম',
-    email: 'arif@kuakatamultimedia.com',
-    password: '123',
-    phone: '01644555666',
+    id: 'm5',
+    name: 'Jafor Howlader',
+    type: 'দৈনিক',
+    designation: 'Actors',
+    dept: 'Acting',
+    phone: '01511444555',
     pin: '1234',
-    role: 'member',
-    designation: 'সিনিয়র ভিএফএক্স অ্যান্ড ভিডিও এডিটর',
-    dept: 'Video Production',
-    basic_salary: 55000,
-    join_date: '2023-05-20',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&auto=format&fit=crop',
-    skills: ['Premiere Pro', 'DaVinci Resolve', 'Nuke'],
-    status: 'Active'
+    email: 'jafor@kuakatamultimedia.com',
+    balance: 1500,
+    daily_rate: 1500,
+    nagad: '01511444555',
+    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&auto=format&fit=crop',
+    role: 'member'
+  },
+  {
+    id: 'm6',
+    name: 'Siraj Musulli',
+    type: 'দৈনিক',
+    designation: 'Actor',
+    dept: 'Acting',
+    phone: '01311555666',
+    pin: '1234',
+    email: 'siraj@kuakatamultimedia.com',
+    balance: 1500,
+    daily_rate: 1500,
+    bkash: '01311555666',
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&auto=format&fit=crop',
+    role: 'member'
+  },
+  {
+    id: 'm7',
+    name: 'Abu Hasan Milon',
+    type: 'দৈনিক',
+    designation: 'Actor & Assistant',
+    dept: 'Acting',
+    phone: '01833444555',
+    pin: '1234',
+    email: 'milon@kuakatamultimedia.com',
+    balance: 1000,
+    daily_rate: 1000,
+    bkash: '01833444555',
+    avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=300&auto=format&fit=crop',
+    role: 'member'
   }
 ];
 
-const INITIAL_PROJECTS = [
+// Initial Shootings History matching screenshot 2
+const INITIAL_SHOOTINGS = [
+  {
+    id: 'sh-1',
+    date: '2026-07-26',
+    title: 'উমাইয়া জামাই',
+    channel: 'Kuakata TV',
+    director: 'Kabir Hossen Shuvo',
+    present_count: 7,
+    absent_count: 13,
+    budget: 45000,
+    expenses: 12500
+  },
+  {
+    id: 'sh-2',
+    date: '2026-07-25',
+    title: 'নেতার লিংক ভাইরাল',
+    channel: 'Gazi Entertainment',
+    director: 'SM Almas',
+    present_count: 15,
+    absent_count: 5,
+    budget: 60000,
+    expenses: 18000
+  },
+  {
+    id: 'sh-3',
+    date: '2026-07-24',
+    title: 'চাচার নিহার বউ তালাক',
+    channel: 'Malbro TV',
+    director: 'Kabir Hossen Shuvo',
+    present_count: 12,
+    absent_count: 9,
+    budget: 50000,
+    expenses: 15000
+  },
+  {
+    id: 'sh-4',
+    date: '2026-07-24',
+    title: 'নেতার লিংক ভাইরাল (পার্ট ২)',
+    channel: 'Gazi Entertainment',
+    director: 'SM Almas',
+    present_count: 1,
+    absent_count: 0,
+    budget: 20000,
+    expenses: 5000
+  }
+];
+
+// Initial Payments matching screenshot 3
+const INITIAL_PAYMENTS = [
   {
     id: 'p1',
-    title: 'কুয়াকাটা বীচ ভার্চুয়াল ৩ডি এক্সপেরিয়েন্স',
-    category: '3D & Web',
-    description: 'কুয়াকাটা সমুদ্র সৈকতের সূর্যোদয় ও সূর্যাস্তের এক মনোরম ৩ডি রিয়েল-টাইম ওয়েব সিমুলেশন।',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop',
-    demo_url: 'https://www.kuakatamultimedia.com/demo/beach3d',
-    tags: ['Three.js', 'WebGL', 'React', 'Audio FX'],
-    featured: true,
-    client: 'কুয়াকাটা ট্যুরিজম ডাইরেক্টরেট'
+    member_name: 'Jakir Kalapara',
+    method: 'বিকাশ',
+    account: '০১৬৪৩৩8৯১৯৫',
+    amount: 2000,
+    date: '29/07/2026',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop'
   },
   {
     id: 'p2',
-    title: 'সাইবারপাঙ্ক ঢাকা মোশন সিগনেচার',
-    category: 'VFX & Motion',
-    description: 'ভবিষ্যতের ঢাকাকে কেন্দ্র করে তৈরি ৩ডি মোশন রিফ্লেকশন ও ভিএফএক্স শট।',
-    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop',
-    demo_url: 'https://www.kuakatamultimedia.com/demo/cyberdhaka',
-    tags: ['Unreal Engine 5', 'Octane', 'After Effects'],
-    featured: true,
-    client: 'ডিজিটাল বাংলাদেশ ভিশন'
-  },
-  {
-    id: 'p3',
-    title: 'রয়েল স্পোর্টস ৩ডি প্রোডাক্ট শোকেস',
-    category: '3D Commercial',
-    description: 'স্পোর্টস শ্যুর ৩ডি ফ্লোটিং আনবক্সিং এবং ডায়নামিক ৩৬০ ক্যামেরা এনিমেশন।',
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop',
-    demo_url: 'https://www.kuakatamultimedia.com/demo/royalsports',
-    tags: ['Cinema 4D', 'Redshift', 'Three.js'],
-    featured: true,
-    client: 'রয়েল ফুটওয়্যার লিমিটেড'
-  },
-  {
-    id: 'p4',
-    title: 'কোস্টাল ওয়েভ ইন্টারেক্টিভ অডিও সিমুলেটর',
-    category: 'Interactive Web',
-    description: 'সমুদ্রের ঢেউ এবং সাউন্ড ওয়েভের সমন্বয়ে তৈরি ইন্টারেক্টিভ অডিও ওয়েব আর্ট।',
-    image: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=600&auto=format&fit=crop',
-    demo_url: 'https://www.kuakatamultimedia.com/demo/waveart',
-    tags: ['Web Audio API', 'React Three Fiber'],
-    featured: false,
-    client: 'সাউন্ড আর্ট ল্যাব'
+    member_name: 'Masud Parves Sagor',
+    method: 'ব্যাংক',
+    account: '২১৮১০৫০০২৩০৫৮',
+    amount: 20500,
+    date: '28/07/2026',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop'
   }
 ];
 
-const generateSeedAttendance = () => {
-  const records = [];
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  
-  for (let i = 1; i <= 20; i++) {
-    const dayStr = String(i).padStart(2, '0');
-    const dateStr = `${year}-${month}-${dayStr}`;
-    
-    INITIAL_MEMBERS.forEach(member => {
-      let status = 'Present';
-      const rand = (i + parseInt(member.id || '1') * 3) % 10;
-      if (rand === 8) status = 'Absent';
-      else if (rand === 9) status = 'Leave';
-      else if (rand === 7) status = 'Half-day';
-      
-      records.push({
-        id: `att-${member.id}-${dateStr}`,
-        user_id: member.id,
-        date: dateStr,
-        status: status,
-        checkIn: status !== 'Absent' ? '09:30 AM' : '-',
-        checkOut: status !== 'Absent' ? '06:00 PM' : '-'
-      });
-    });
+// Initial Client Ledgers matching screenshot 1
+const INITIAL_CLIENTS = [
+  {
+    id: 'c1',
+    name: 'Malbro Entertainment',
+    contract_amount: 84000,
+    received_amount: 60000,
+    due_amount: 24000
+  },
+  {
+    id: 'c2',
+    name: 'Gazi Digital Channel',
+    contract_amount: 150000,
+    received_amount: 110000,
+    due_amount: 40000
   }
-  return records;
-};
-
-const generateSeedSalaries = (members, attendanceRecords) => {
-  const salaries = [];
-  const currentMonth = 'জুলাই ২০২৬';
-  
-  members.forEach(member => {
-    const memberAtt = attendanceRecords.filter(r => r.user_id === member.id);
-    const absentCount = memberAtt.filter(r => r.status === 'Absent').length;
-    const leaveCount = memberAtt.filter(r => r.status === 'Leave').length;
-    const halfDayCount = memberAtt.filter(r => r.status === 'Half-day').length;
-
-    const perDayRate = Math.round(member.basic_salary / 30);
-    const deduction = Math.round((absentCount * perDayRate) + (halfDayCount * perDayRate * 0.5));
-    const bonus = member.role === 'admin' ? 5000 : 2500;
-    const netSalary = member.basic_salary + bonus - deduction;
-
-    salaries.push({
-      id: `sal-${member.id}-2026-07`,
-      user_id: member.id,
-      user_name: member.name,
-      month: currentMonth,
-      month_key: '2026-07',
-      basic_salary: member.basic_salary,
-      bonus: bonus,
-      deductions: deduction,
-      absent_days: absentCount,
-      leave_days: leaveCount,
-      half_days: halfDayCount,
-      net_salary: netSalary,
-      paid_status: 'Paid',
-      payment_date: '2026-07-28',
-      transaction_id: `TXN-KM-${Math.floor(100000 + Math.random() * 900000)}`,
-      note: 'মাসিক পারফরম্যান্স অ্যালাউন্স সহ'
-    });
-  });
-
-  return salaries;
-};
+];
 
 export const DataProvider = ({ children }) => {
   const [members, setMembers] = useState(() => {
-    const saved = localStorage.getItem('km_members');
-    let list = saved ? JSON.parse(saved) : INITIAL_MEMBERS;
-    
-    // Ensure Super Admin shuvokuakata27@gmail.com always exists in state
-    const hasSuperAdmin = list.some(m => m.email.toLowerCase() === 'shuvokuakata27@gmail.com');
-    if (!hasSuperAdmin) {
-      list = [SUPER_ADMIN_MEMBER, ...list];
-    }
-    return list;
+    const saved = localStorage.getItem('km_finance_members');
+    return saved ? JSON.parse(saved) : INITIAL_MEMBERS;
   });
 
-  const [projects, setProjects] = useState(() => {
-    const saved = localStorage.getItem('km_projects');
-    return saved ? JSON.parse(saved) : INITIAL_PROJECTS;
+  const [shootings, setShootings] = useState(() => {
+    const saved = localStorage.getItem('km_finance_shootings');
+    return saved ? JSON.parse(saved) : INITIAL_SHOOTINGS;
   });
 
-  const [attendance, setAttendance] = useState(() => {
-    const saved = localStorage.getItem('km_attendance');
-    return saved ? JSON.parse(saved) : generateSeedAttendance();
+  const [payments, setPayments] = useState(() => {
+    const saved = localStorage.getItem('km_finance_payments');
+    return saved ? JSON.parse(saved) : INITIAL_PAYMENTS;
   });
 
-  const [salaries, setSalaries] = useState(() => {
-    const saved = localStorage.getItem('km_salaries');
-    return saved ? JSON.parse(saved) : generateSeedSalaries(INITIAL_MEMBERS, generateSeedAttendance());
+  const [clients, setClients] = useState(() => {
+    const saved = localStorage.getItem('km_finance_clients');
+    return saved ? JSON.parse(saved) : INITIAL_CLIENTS;
   });
 
-  const [cloudSynced, setCloudSynced] = useState(isSupabaseConnected);
+  const [attendanceLogs, setAttendanceLogs] = useState([]);
 
-  // Sync from Supabase on load if connected
   useEffect(() => {
-    if (!isSupabaseConnected || !supabase) return;
-
-    const fetchFromSupabase = async () => {
-      try {
-        const { data: dbMembers, error: memErr } = await supabase.from('members').select('*');
-        if (dbMembers && dbMembers.length > 0) {
-          const hasSuper = dbMembers.some(m => m.email.toLowerCase() === 'shuvokuakata27@gmail.com');
-          setMembers(hasSuper ? dbMembers : [SUPER_ADMIN_MEMBER, ...dbMembers]);
-        } else if (!memErr) {
-          await supabase.from('members').upsert(INITIAL_MEMBERS);
-        }
-
-        const { data: dbProjects, error: projErr } = await supabase.from('projects').select('*');
-        if (dbProjects && dbProjects.length > 0) {
-          setProjects(dbProjects);
-        } else if (!projErr) {
-          await supabase.from('projects').upsert(INITIAL_PROJECTS);
-        }
-
-        const { data: dbAttendance } = await supabase.from('attendance').select('*');
-        if (dbAttendance && dbAttendance.length > 0) {
-          setAttendance(dbAttendance);
-        }
-
-        const { data: dbSalaries } = await supabase.from('salaries').select('*');
-        if (dbSalaries && dbSalaries.length > 0) {
-          setSalaries(dbSalaries);
-        }
-
-        setCloudSynced(true);
-      } catch (err) {
-        console.warn('Supabase fetch error, fallback to local:', err);
-      }
-    };
-
-    fetchFromSupabase();
-  }, []);
-
-  // LocalStorage Persist
-  useEffect(() => {
-    localStorage.setItem('km_members', JSON.stringify(members));
+    localStorage.setItem('km_finance_members', JSON.stringify(members));
   }, [members]);
 
   useEffect(() => {
-    localStorage.setItem('km_projects', JSON.stringify(projects));
-  }, [projects]);
+    localStorage.setItem('km_finance_shootings', JSON.stringify(shootings));
+  }, [shootings]);
 
   useEffect(() => {
-    localStorage.setItem('km_attendance', JSON.stringify(attendance));
-  }, [attendance]);
+    localStorage.setItem('km_finance_payments', JSON.stringify(payments));
+  }, [payments]);
 
   useEffect(() => {
-    localStorage.setItem('km_salaries', JSON.stringify(salaries));
-  }, [salaries]);
+    localStorage.setItem('km_finance_clients', JSON.stringify(clients));
+  }, [clients]);
 
-  // Google OAuth User Creation
-  const loginOrCreateGoogleUser = (googleProfile) => {
-    const isSuperAdminEmail = googleProfile.email.toLowerCase() === 'shuvokuakata27@gmail.com';
-    const existing = members.find(m => m.email.toLowerCase() === googleProfile.email.toLowerCase());
-
-    if (existing) {
-      if (isSuperAdminEmail && !existing.isSuperAdmin) {
-        const updated = { ...existing, role: 'admin', isSuperAdmin: true };
-        setMembers(prev => prev.map(m => m.id === existing.id ? updated : m));
-        return updated;
-      }
-      return existing;
-    }
-
-    const newMember = {
-      id: `google-${Date.now()}`,
-      name: googleProfile.name || 'Google User',
-      email: googleProfile.email,
-      password: 'google-oauth-login',
-      phone: '01700000000',
-      pin: '1234',
-      role: isSuperAdminEmail ? 'admin' : 'member',
-      isSuperAdmin: isSuperAdminEmail,
-      designation: isSuperAdminEmail ? 'চিফ সিইও & সুপার অ্যাডমিন' : 'টিম ক্রিয়েটর',
-      dept: isSuperAdminEmail ? 'Executive Board' : '3D & VFX',
-      basic_salary: isSuperAdminEmail ? 100000 : 50000,
-      join_date: new Date().toISOString().split('T')[0],
-      avatar: googleProfile.picture || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop',
-      skills: isSuperAdminEmail ? ['Super Admin', 'Executive Director'] : ['3D Motion', 'Content Design'],
-      status: 'Active'
+  // Add Member
+  const addMember = (newMem) => {
+    const memberObj = {
+      ...newMem,
+      id: 'm-' + Date.now(),
+      balance: newMem.balance || 0
     };
-
-    setMembers(prev => [...prev, newMember]);
-
-    const newSal = {
-      id: `sal-${newMember.id}-2026-07`,
-      user_id: newMember.id,
-      user_name: newMember.name,
-      month: 'জুলাই ২০২৬',
-      month_key: '2026-07',
-      basic_salary: newMember.basic_salary,
-      bonus: 0,
-      deductions: 0,
-      absent_days: 0,
-      leave_days: 0,
-      half_days: 0,
-      net_salary: newMember.basic_salary,
-      paid_status: 'Pending',
-      payment_date: null,
-      transaction_id: null,
-      note: 'গুগল মেম্বার স্যালারি অ্যাকাউন্ট'
-    };
-
-    setSalaries(prev => [...prev, newSal]);
-
-    if (isSupabaseConnected && supabase) {
-      supabase.from('members').insert([newMember]).then();
-      supabase.from('salaries').insert([newSal]).then();
-    }
-
-    return newMember;
+    setMembers(prev => [...prev, memberObj]);
   };
 
-  const recalculateMemberSalary = (userId, monthKey = '2026-07') => {
-    const member = members.find(m => m.id === userId);
-    if (!member) return;
+  // Update Member
+  const updateMember = (updated) => {
+    setMembers(prev => prev.map(m => m.id === updated.id ? updated : m));
+  };
 
-    const memberAtt = attendance.filter(r => r.user_id === userId);
-    const absentCount = memberAtt.filter(r => r.status === 'Absent').length;
-    const leaveCount = memberAtt.filter(r => r.status === 'Leave').length;
-    const halfDayCount = memberAtt.filter(r => r.status === 'Half-day').length;
+  // Delete Member
+  const deleteMember = (id) => {
+    setMembers(prev => prev.filter(m => m.id !== id));
+  };
 
-    const perDayRate = Math.round(member.basic_salary / 30);
-    const deduction = Math.round((absentCount * perDayRate) + (halfDayCount * perDayRate * 0.5));
+  // Add Payment & Update Member Balance
+  const addPayment = (paymentData) => {
+    const newPay = {
+      ...paymentData,
+      id: 'pay-' + Date.now(),
+      date: new Date().toLocaleDateString('en-GB')
+    };
 
-    setSalaries(prev => prev.map(sal => {
-      if (sal.user_id === userId && sal.month_key === monthKey) {
-        const net = member.basic_salary + sal.bonus - deduction;
-        const updated = {
-          ...sal,
-          basic_salary: member.basic_salary,
-          absent_days: absentCount,
-          leave_days: leaveCount,
-          half_days: halfDayCount,
-          deductions: deduction,
-          net_salary: net
-        };
+    setPayments(prev => [newPay, ...prev]);
 
-        if (isSupabaseConnected && supabase) {
-          supabase.from('salaries').upsert([updated]).then();
+    // Reduce member due balance
+    if (paymentData.member_id) {
+      setMembers(prev => prev.map(m => {
+        if (m.id === paymentData.member_id) {
+          const newBal = Math.max(0, (m.balance || 0) - paymentData.amount);
+          return { ...m, balance: newBal };
         }
-
-        return updated;
-      }
-      return sal;
-    }));
+        return m;
+      }));
+    }
   };
 
-  const resetUserPassword = (inputEmail, newPassword) => {
-    const targetEmail = inputEmail.trim().toLowerCase();
-    let found = members.find(m => m.email.trim().toLowerCase() === targetEmail);
-
-    // Fallback if super admin was not in list
-    if (!found && targetEmail === 'shuvokuakata27@gmail.com') {
-      found = SUPER_ADMIN_MEMBER;
-      setMembers(prev => [...prev, SUPER_ADMIN_MEMBER]);
-    }
-
-    if (!found) return { success: false, message: 'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি!' };
-
-    const updatedMember = { ...found, password: newPassword, pin: newPassword };
-    setMembers(prev => prev.map(m => m.email.trim().toLowerCase() === targetEmail ? updatedMember : m));
-
-    if (isSupabaseConnected && supabase) {
-      supabase.from('members').upsert([updatedMember]).then();
-    }
-
-    return { success: true, message: 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে!' };
-  };
-
-  const addMember = (newMemberData) => {
-    const newId = String(Date.now());
-    const member = {
-      ...newMemberData,
-      id: newId,
-      password: newMemberData.password || newMemberData.pin || '1234',
-      pin: newMemberData.pin || '1234',
-      status: 'Active',
-      avatar: newMemberData.avatar || `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop`
+  // Add Shooting
+  const addShooting = (shootingData) => {
+    const newSh = {
+      ...shootingData,
+      id: 'sh-' + Date.now(),
+      present_count: 0,
+      absent_count: 0
     };
-
-    setMembers(prev => [...prev, member]);
-
-    const newSal = {
-      id: `sal-${newId}-2026-07`,
-      user_id: newId,
-      user_name: member.name,
-      month: 'জুলাই ২০২৬',
-      month_key: '2026-07',
-      basic_salary: member.basic_salary,
-      bonus: 0,
-      deductions: 0,
-      absent_days: 0,
-      leave_days: 0,
-      half_days: 0,
-      net_salary: member.basic_salary,
-      paid_status: 'Pending',
-      payment_date: null,
-      transaction_id: null,
-      note: 'নতুন মেম্বারের বেতন অ্যাকাউন্ট'
-    };
-
-    setSalaries(prev => [...prev, newSal]);
-
-    if (isSupabaseConnected && supabase) {
-      supabase.from('members').insert([member]).then();
-      supabase.from('salaries').insert([newSal]).then();
-    }
+    setShootings(prev => [newSh, ...prev]);
   };
 
-  const updateMember = (updatedData) => {
-    setMembers(prev => prev.map(m => m.id === updatedData.id ? { ...m, ...updatedData } : m));
-    if (isSupabaseConnected && supabase) {
-      supabase.from('members').upsert([updatedData]).then();
-    }
-    recalculateMemberSalary(updatedData.id);
-  };
+  // Sorted members with Kabir Hossen Shuvo ALWAYS PINNED ON TOP
+  const getSortedMembers = () => {
+    const shuvo = members.find(m => m.isPinnedTop || m.name.toLowerCase().includes('kabir hossen shuvo'));
+    const others = members.filter(m => !(m.isPinnedTop || m.name.toLowerCase().includes('kabir hossen shuvo')));
 
-  const deleteMember = (memberId) => {
-    setMembers(prev => prev.filter(m => m.id !== memberId));
-    setSalaries(prev => prev.filter(s => s.user_id !== memberId));
-    setAttendance(prev => prev.filter(a => a.user_id !== memberId));
+    others.sort((a, b) => (b.balance || 0) - (a.balance || 0));
 
-    if (isSupabaseConnected && supabase) {
-      supabase.from('members').delete().eq('id', memberId).then();
-    }
-  };
-
-  const setDailyAttendance = (userId, dateStr, status) => {
-    const recordId = `att-${userId}-${dateStr}`;
-    const newRecord = {
-      id: recordId,
-      user_id: userId,
-      date: dateStr,
-      status,
-      checkIn: status !== 'Absent' ? '09:30 AM' : '-',
-      checkOut: status !== 'Absent' ? '06:00 PM' : '-'
-    };
-
-    setAttendance(prev => {
-      const existingIdx = prev.findIndex(a => a.user_id === userId && a.date === dateStr);
-      if (existingIdx >= 0) {
-        const updated = [...prev];
-        updated[existingIdx] = newRecord;
-        return updated;
-      } else {
-        return [...prev, newRecord];
-      }
-    });
-
-    if (isSupabaseConnected && supabase) {
-      supabase.from('attendance').upsert([newRecord]).then();
-    }
-
-    setTimeout(() => recalculateMemberSalary(userId), 50);
-  };
-
-  const updateSalaryStatus = (salaryId, newStatus, bonus = null, note = null) => {
-    setSalaries(prev => prev.map(sal => {
-      if (sal.id === salaryId) {
-        const updatedBonus = bonus !== null ? Number(bonus) : sal.bonus;
-        const newNet = sal.basic_salary + updatedBonus - sal.deductions;
-        const isPaid = newStatus === 'Paid';
-
-        const updatedSal = {
-          ...sal,
-          bonus: updatedBonus,
-          net_salary: newNet,
-          paid_status: newStatus,
-          payment_date: isPaid ? new Date().toISOString().split('T')[0] : null,
-          transaction_id: isPaid ? (sal.transaction_id || `TXN-KM-${Math.floor(100000 + Math.random() * 900000)}`) : null,
-          note: note !== null ? note : sal.note
-        };
-
-        if (isSupabaseConnected && supabase) {
-          supabase.from('salaries').upsert([updatedSal]).then();
-        }
-
-        return updatedSal;
-      }
-      return sal;
-    }));
-  };
-
-  const addProject = (projectData) => {
-    const newProj = { ...projectData, id: `p-${Date.now()}` };
-    setProjects(prev => [...prev, newProj]);
-
-    if (isSupabaseConnected && supabase) {
-      supabase.from('projects').insert([newProj]).then();
-    }
-  };
-
-  const deleteProject = (projectId) => {
-    setProjects(prev => prev.filter(p => p.id !== projectId));
-    if (isSupabaseConnected && supabase) {
-      supabase.from('projects').delete().eq('id', projectId).then();
-    }
-  };
-
-  const exportAllDataJSON = () => {
-    const fullBackup = {
-      members,
-      projects,
-      attendance,
-      salaries,
-      export_date: new Date().toISOString(),
-      system: 'Kuakata Multimedia'
-    };
-
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullBackup, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `kuakata_multimedia_backup_${new Date().toISOString().split('T')[0]}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-  };
-
-  const restoreAllDataJSON = (importedObj) => {
-    if (importedObj.members) setMembers(importedObj.members);
-    if (importedObj.projects) setProjects(importedObj.projects);
-    if (importedObj.attendance) setAttendance(importedObj.attendance);
-    if (importedObj.salaries) setSalaries(importedObj.salaries);
-
-    if (isSupabaseConnected && supabase) {
-      if (importedObj.members) supabase.from('members').upsert(importedObj.members).then();
-      if (importedObj.projects) supabase.from('projects').upsert(importedObj.projects).then();
-      if (importedObj.attendance) supabase.from('attendance').upsert(importedObj.attendance).then();
-      if (importedObj.salaries) supabase.from('salaries').upsert(importedObj.salaries).then();
-    }
+    return shuvo ? [shuvo, ...others] : others;
   };
 
   return (
     <DataContext.Provider value={{
       members,
-      projects,
-      attendance,
-      salaries,
+      getSortedMembers,
       addMember,
       updateMember,
       deleteMember,
-      setDailyAttendance,
-      updateSalaryStatus,
-      addProject,
-      deleteProject,
-      resetUserPassword,
-      recalculateMemberSalary,
-      exportAllDataJSON,
-      restoreAllDataJSON,
-      loginOrCreateGoogleUser,
-      cloudSynced
+      shootings,
+      addShooting,
+      payments,
+      addPayment,
+      clients,
+      attendanceLogs,
+      toBnNum
     }}>
       {children}
     </DataContext.Provider>
