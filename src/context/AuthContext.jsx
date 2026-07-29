@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useData } from './DataContext';
+import { supabase, isSupabaseConnected } from '../services/supabaseClient';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const { members, loginOrCreateGoogleUser } = useData();
+  const { members } = useData();
   
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem('km_auth_user');
@@ -21,49 +22,30 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  // Admin Google or Email Login
+  // Strict Admin Email & Password Authentication
   const login = (email, inputPassword) => {
-    const isSuperAdminEmail = email.toLowerCase() === 'shuvokuakata27@gmail.com';
-    const foundMember = members.find(m => m.email.toLowerCase() === email.toLowerCase());
+    const cleanEmail = email.trim().toLowerCase();
+    const foundMember = members.find(m => m.email.trim().toLowerCase() === cleanEmail);
 
-    if (foundMember) {
-      if (foundMember.password && inputPassword && foundMember.password !== inputPassword && foundMember.pin !== inputPassword) {
-        return { success: false, message: 'পাসওয়ার্ডটি সঠিক নয়! আবার চেষ্টা করুন।' };
-      }
-
-      const activeUser = isSuperAdminEmail ? { ...foundMember, role: 'admin', isSuperAdmin: true } : foundMember;
-      setUser(activeUser);
-      setActiveTab(activeUser.role === 'admin' ? 'admin-dashboard' : 'member-portal');
-      return { success: true, user: activeUser };
+    if (!foundMember) {
+      return { success: false, message: 'এই ইমেইল দিয়ে কোনো অ্যাডমিন বা মেম্বার অ্যাকাউন্ট খুঁজে পাওয়া যায়নি!' };
     }
 
-    if (isSuperAdminEmail) {
-      const superAdminObj = {
-        id: 'super-admin-shuvo',
-        name: 'শুভ (Shuvo)',
-        email: 'shuvokuakata27@gmail.com',
-        role: 'admin',
-        isSuperAdmin: true,
-        designation: 'চিফ সিইও & সুপার অ্যাডমিন',
-        dept: 'Executive Board',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop'
-      };
-      setUser(superAdminObj);
-      setActiveTab('admin-dashboard');
-      return { success: true, user: superAdminObj };
+    // Enforce Password Verification (Strict - No Bypass)
+    if (!inputPassword || (foundMember.password && foundMember.password !== inputPassword && foundMember.pin !== inputPassword)) {
+      return { success: false, message: 'আপনার প্রদত্ত পাসওয়ার্ডটি সঠিক নয়! সঠিক পাসওয়ার্ড দিয়ে চেষ্টা করুন।' };
     }
 
-    if (email === 'admin@kuakatamultimedia.com' || email === 'admin') {
-      const adminMember = members.find(m => m.role === 'admin') || members[0];
-      setUser(adminMember);
-      setActiveTab('admin-dashboard');
-      return { success: true, user: adminMember };
-    }
+    const activeUser = foundMember.email.toLowerCase() === 'shuvokuakata27@gmail.com' 
+      ? { ...foundMember, role: 'admin', isSuperAdmin: true } 
+      : foundMember;
 
-    return { success: false, message: 'এই ইমেইল দিয়ে কোনো মেম্বার অ্যাকাউন্ট খুঁজে পাওয়া যায়নি!' };
+    setUser(activeUser);
+    setActiveTab(activeUser.role === 'admin' ? 'admin-dashboard' : 'member-portal');
+    return { success: true, user: activeUser };
   };
 
-  // Member Mobile Phone & PIN Code Login
+  // Strict Member Mobile Phone & Secret PIN Authentication
   const loginWithPhonePin = (inputPhone, inputPin) => {
     const cleanPhone = inputPhone.replace(/\D/g, '');
     const foundMember = members.find(m => {
@@ -75,60 +57,40 @@ export const AuthProvider = ({ children }) => {
       return { success: false, message: 'এই মোবাইল নম্বর দিয়ে কোনো মেম্বার অ্যাকাউন্ট পাওয়া যায়নি!' };
     }
 
-    if ((foundMember.pin && foundMember.pin === inputPin) || (foundMember.password && foundMember.password === inputPin) || inputPin === '1234') {
-      setUser(foundMember);
-      setActiveTab(foundMember.role === 'admin' ? 'admin-dashboard' : 'member-portal');
-      return { success: true, user: foundMember };
+    // Enforce PIN verification strictly
+    if (!inputPin || (foundMember.pin && foundMember.pin !== inputPin && foundMember.password !== inputPin)) {
+      return { success: false, message: 'আপনার গোপন PIN কোডটি সঠিক নয়! সঠিক পিন দিয়ে চেষ্টা করুন।' };
     }
 
-    return { success: false, message: 'আপনার গোপন PIN টি সঠিক নয়! আবার চেষ্টা করুন।' };
+    setUser(foundMember);
+    setActiveTab(foundMember.role === 'admin' ? 'admin-dashboard' : 'member-portal');
+    return { success: true, user: foundMember };
   };
 
-  // Instant 1-Click Google Sign In (Super Admin shuvokuakata27@gmail.com)
-  const loginWithGoogle = async (googleProfile = null) => {
-    const profile = googleProfile || {
-      name: 'Shuvo (Super Admin)',
-      email: 'shuvokuakata27@gmail.com',
-      picture: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop'
-    };
-
-    const authenticatedUser = loginOrCreateGoogleUser(profile);
-    setUser(authenticatedUser);
-    setActiveTab(authenticatedUser.role === 'admin' ? 'admin-dashboard' : 'member-portal');
-    return { success: true, user: authenticatedUser };
+  // Google OAuth Login (Requires Real Google / Supabase Provider)
+  const loginWithGoogle = async () => {
+    if (isSupabaseConnected && supabase) {
+      try {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: 'https://shuvokabir360.github.io/kuakatamultimedia/#/login'
+          }
+        });
+        if (error) {
+          return { success: false, message: `Google Auth Error: ${error.message}` };
+        }
+        return { success: true };
+      } catch (err) {
+        return { success: false, message: 'Google Authentication failed. Please use Email & Password.' };
+      }
+    }
+    return { success: false, message: 'সুপাবেসে Google OAuth সক্রিয় করা প্রয়োজন। অনুগ্রহ করে ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন।' };
   };
 
   const logout = () => {
     setUser(null);
     setActiveTab('home');
-  };
-
-  const switchRoleDemo = (roleType) => {
-    if (roleType === 'superadmin') {
-      const superAdminUser = members.find(m => m.email.toLowerCase() === 'shuvokuakata27@gmail.com') || {
-        id: 'super-admin-shuvo',
-        name: 'শুভ (Shuvo)',
-        email: 'shuvokuakata27@gmail.com',
-        role: 'admin',
-        isSuperAdmin: true,
-        designation: 'চিফ সিইও & সুপার অ্যাডমিন',
-        dept: 'Executive Board',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop'
-      };
-      setUser(superAdminUser);
-      setActiveTab('admin-dashboard');
-    } else if (roleType === 'admin') {
-      const adminUser = members.find(m => m.role === 'admin') || members[0];
-      setUser(adminUser);
-      setActiveTab('admin-dashboard');
-    } else if (roleType === 'member') {
-      const memberUser = members.find(m => m.role === 'member') || members[1];
-      setUser(memberUser);
-      setActiveTab('member-portal');
-    } else {
-      setUser(null);
-      setActiveTab('home');
-    }
   };
 
   return (
@@ -139,8 +101,7 @@ export const AuthProvider = ({ children }) => {
       login,
       loginWithPhonePin,
       loginWithGoogle,
-      logout,
-      switchRoleDemo
+      logout
     }}>
       {children}
     </AuthContext.Provider>
