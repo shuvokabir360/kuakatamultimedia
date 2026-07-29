@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [phone, setPhone] = useState('01822111222');
   const [pin, setPin] = useState('1234');
 
-  const [resetEmail, setResetEmail] = useState('');
+  const [resetEmail, setResetEmail] = useState('shuvokuakata27@gmail.com');
   const [otpInput, setOtpInput] = useState('');
   const [sentOtpCode, setSentOtpCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -67,7 +67,10 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
 
-    const memberExists = members.some(m => m.email.toLowerCase() === resetEmail.toLowerCase());
+    const target = resetEmail.trim().toLowerCase();
+    const isSuperAdminEmail = target === 'shuvokuakata27@gmail.com';
+    const memberExists = isSuperAdminEmail || members.some(m => m.email.trim().toLowerCase() === target);
+    
     if (!memberExists) {
       setError('এই ইমেইল ঠিকানাটি সিস্টেমে নিবন্ধিত নয়!');
       return;
@@ -83,7 +86,6 @@ export default function LoginPage() {
   const handleVerifyOtp = (e) => {
     e.preventDefault();
     setError('');
-    // Confidential verification: matches sent OTP or master verification
     if (otpInput.trim() === sentOtpCode || (sentOtpCode && otpInput.trim() === sentOtpCode)) {
       setSuccessMsg('OTP ভেরিফিকেশন সফল হয়েছে! আপনার নতুন পাসওয়ার্ড সেভ করুন।');
       setMode('forgot_reset');
@@ -339,7 +341,7 @@ export default function LoginPage() {
         {mode === 'forgot_email' && (
           <form onSubmit={handleForgotEmailSubmit} className="space-y-4">
             <p className="text-xs text-slate-300">
-              আপনার নিবন্ধিত ইমেইল লিখুন। পাসওয়ার্ড রিসেট করার জন্য ৬-সংখ্যার ভেরিফিকেশন OTP ইমেইলে পাঠানো হবে।
+              আপনার অ্যাকাউন্টের ইমেইল লিখুন। পাসওয়ার্ড রিসেট করার জন্য ৬-সংখ্যার ভেরিফিকেশন OTP ইমেইলে পাঠানো হবে।
             </p>
 
             <div>

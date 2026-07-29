@@ -3,24 +3,26 @@ import { supabase, isSupabaseConnected } from '../services/supabaseClient';
 
 const DataContext = createContext();
 
+const SUPER_ADMIN_MEMBER = {
+  id: 'super-admin-1',
+  name: 'শুভ (Shuvo)',
+  email: 'shuvokuakata27@gmail.com',
+  password: 'admin',
+  phone: '01711000000',
+  pin: '1234',
+  role: 'admin',
+  isSuperAdmin: true,
+  designation: 'চিফ সিইও & সুপার অ্যাডমিন',
+  dept: 'Executive Board',
+  basic_salary: 100000,
+  join_date: '2022-01-01',
+  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
+  skills: ['Super Admin', 'Director', '3D Architecture', 'Unreal Engine 5'],
+  status: 'Active'
+};
+
 const INITIAL_MEMBERS = [
-  {
-    id: 'super-admin-1',
-    name: 'শুভ (Shuvo)',
-    email: 'shuvokuakata27@gmail.com',
-    password: 'admin',
-    phone: '01711000000',
-    pin: '1234',
-    role: 'admin',
-    isSuperAdmin: true,
-    designation: 'চিফ সিইও & সুপার অ্যাডমিন',
-    dept: 'Executive Board',
-    basic_salary: 100000,
-    join_date: '2022-01-01',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
-    skills: ['Super Admin', 'Director', '3D Architecture', 'Unreal Engine 5'],
-    status: 'Active'
-  },
+  SUPER_ADMIN_MEMBER,
   {
     id: '1',
     name: 'তানভীর আহমেদ',
@@ -206,7 +208,14 @@ const generateSeedSalaries = (members, attendanceRecords) => {
 export const DataProvider = ({ children }) => {
   const [members, setMembers] = useState(() => {
     const saved = localStorage.getItem('km_members');
-    return saved ? JSON.parse(saved) : INITIAL_MEMBERS;
+    let list = saved ? JSON.parse(saved) : INITIAL_MEMBERS;
+    
+    // Ensure Super Admin shuvokuakata27@gmail.com always exists in state
+    const hasSuperAdmin = list.some(m => m.email.toLowerCase() === 'shuvokuakata27@gmail.com');
+    if (!hasSuperAdmin) {
+      list = [SUPER_ADMIN_MEMBER, ...list];
+    }
+    return list;
   });
 
   const [projects, setProjects] = useState(() => {
@@ -234,7 +243,8 @@ export const DataProvider = ({ children }) => {
       try {
         const { data: dbMembers, error: memErr } = await supabase.from('members').select('*');
         if (dbMembers && dbMembers.length > 0) {
-          setMembers(dbMembers);
+          const hasSuper = dbMembers.some(m => m.email.toLowerCase() === 'shuvokuakata27@gmail.com');
+          setMembers(hasSuper ? dbMembers : [SUPER_ADMIN_MEMBER, ...dbMembers]);
         } else if (!memErr) {
           await supabase.from('members').upsert(INITIAL_MEMBERS);
         }
@@ -380,12 +390,20 @@ export const DataProvider = ({ children }) => {
     }));
   };
 
-  const resetUserPassword = (email, newPassword) => {
-    const found = members.find(m => m.email.toLowerCase() === email.toLowerCase());
+  const resetUserPassword = (inputEmail, newPassword) => {
+    const targetEmail = inputEmail.trim().toLowerCase();
+    let found = members.find(m => m.email.trim().toLowerCase() === targetEmail);
+
+    // Fallback if super admin was not in list
+    if (!found && targetEmail === 'shuvokuakata27@gmail.com') {
+      found = SUPER_ADMIN_MEMBER;
+      setMembers(prev => [...prev, SUPER_ADMIN_MEMBER]);
+    }
+
     if (!found) return { success: false, message: 'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি!' };
 
     const updatedMember = { ...found, password: newPassword, pin: newPassword };
-    setMembers(prev => prev.map(m => m.email.toLowerCase() === email.toLowerCase() ? updatedMember : m));
+    setMembers(prev => prev.map(m => m.email.trim().toLowerCase() === targetEmail ? updatedMember : m));
 
     if (isSupabaseConnected && supabase) {
       supabase.from('members').upsert([updatedMember]).then();
