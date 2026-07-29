@@ -16,6 +16,9 @@ export default function Navbar({ onOpenAuthModal }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleNavClick = (tabId) => {
+    if (tabId === 'home') window.location.hash = '';
+    else window.location.hash = `#/${tabId}`;
+    
     setActiveTab(tabId);
     setMobileMenuOpen(false);
   };
@@ -129,21 +132,16 @@ export default function Navbar({ onOpenAuthModal }) {
               </button>
 
               <button
-                id="btn-quick-admin"
-                onClick={() => switchRoleDemo('admin')}
-                className="px-3 py-2 rounded-xl text-[11px] font-semibold text-brand-red glass-panel hover:bg-brand-red/10 border border-brand-red/40 flex items-center gap-1.5"
-              >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>অ্যাডমিন</span>
-              </button>
-
-              <button
-                id="btn-login-modal"
-                onClick={onOpenAuthModal}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-brand-red text-white hover:bg-white hover:text-dark-900 transition-colors shadow-md shadow-brand-red/30"
+                id="btn-login-page"
+                onClick={() => handleNavClick('login')}
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md ${
+                  activeTab === 'login'
+                    ? 'bg-white text-dark-900 shadow-white/30'
+                    : 'bg-brand-red text-white hover:bg-white hover:text-dark-900 shadow-brand-red/30'
+                }`}
               >
                 <LogIn className="w-4 h-4" />
-                <span>লগইন / Google</span>
+                <span>লগইন পেজ (/login)</span>
               </button>
             </div>
           )}
@@ -174,6 +172,9 @@ export default function Navbar({ onOpenAuthModal }) {
           <button onClick={() => handleNavClick('contact')} className="w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800">
             যোগাযোগ (Contact)
           </button>
+          <button onClick={() => handleNavClick('login')} className="w-full text-left px-4 py-2.5 rounded-lg text-sm font-extrabold text-brand-red hover:bg-slate-800">
+            লগইন পেজ (login.html)
+          </button>
 
           <div className="pt-3 border-t border-slate-800 flex flex-col gap-2">
             {user ? (
@@ -184,20 +185,12 @@ export default function Navbar({ onOpenAuthModal }) {
                 {user.isSuperAdmin ? 'সুপার অ্যাডমিন ড্যাশবোর্ড' : user.role === 'admin' ? 'অ্যাডমিন ড্যাশবোর্ড' : 'মেম্বার পোর্টাল'}
               </button>
             ) : (
-              <>
-                <button
-                  onClick={() => { switchRoleDemo('superadmin'); setMobileMenuOpen(false); }}
-                  className="w-full py-2.5 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 text-center"
-                >
-                  সুপার অ্যাডমিন (shuvokuakata27@gmail.com)
-                </button>
-                <button
-                  onClick={() => { switchRoleDemo('admin'); setMobileMenuOpen(false); }}
-                  className="w-full py-2.5 rounded-lg text-xs font-bold bg-brand-red/20 text-brand-red border border-brand-red/30 text-center"
-                >
-                  অ্যাডমিন হিসেবে ডেমো লগইন
-                </button>
-              </>
+              <button
+                onClick={() => { switchRoleDemo('superadmin'); setMobileMenuOpen(false); }}
+                className="w-full py-2.5 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 text-center"
+              >
+                সুপার অ্যাডমিন (shuvokuakata27@gmail.com)
+              </button>
             )}
           </div>
         </div>
