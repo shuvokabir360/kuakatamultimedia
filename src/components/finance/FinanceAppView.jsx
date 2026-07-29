@@ -96,9 +96,9 @@ export default function FinanceAppView() {
       />
 
       {/* ==========================================
-          1. MOBILE VIEW LAYOUT (< lg screens)
+          1. MOBILE VIEW LAYOUT (< md screens)
       ========================================== */}
-      <div className="lg:hidden relative z-10 max-w-md mx-auto min-h-screen bg-slate-50/90 shadow-2xl border-x border-slate-200 pb-20">
+      <div className="md:hidden relative z-10 max-w-md mx-auto min-h-screen bg-slate-50/90 shadow-2xl border-x border-slate-200 pb-20">
         <FinanceHeader onOpenSettings={() => setMoreModalOpen(true)} />
 
         <div className="p-4 sm:p-5">
@@ -131,32 +131,32 @@ export default function FinanceAppView() {
       </div>
 
       {/* ==========================================
-          2. PC / DESKTOP VIEW LAYOUT (>= lg screens)
+          2. PC / DESKTOP VIEW LAYOUT (>= md screens)
       ========================================== */}
-      <div className="hidden lg:flex min-h-screen relative z-10">
+      <div className="hidden md:flex min-h-screen relative z-10">
         
         {/* PC Left Fixed Sidebar */}
-        <aside className="w-72 bg-slate-900 text-slate-100 flex flex-col justify-between fixed top-0 bottom-0 left-0 z-40 border-r border-slate-800 shadow-2xl select-none">
+        <aside className="w-64 lg:w-72 bg-slate-900 text-slate-100 flex flex-col justify-between fixed top-0 bottom-0 left-0 z-40 border-r border-slate-800 shadow-2xl select-none">
           
           <div>
             {/* Sidebar Logo Header */}
-            <div className="p-6 border-b border-slate-800/80 bg-slate-950/60 flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-red-600 to-rose-500 p-2 shadow-lg shadow-red-600/30 flex items-center justify-center shrink-0 border border-white/20">
+            <div className="p-5 lg:p-6 border-b border-slate-800/80 bg-slate-950/60 flex items-center gap-3">
+              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-gradient-to-tr from-red-600 to-rose-500 p-2 shadow-lg shadow-red-600/30 flex items-center justify-center shrink-0 border border-white/20">
                 <img src="/logo.svg" alt="Kuakata Multimedia" className="w-full h-full object-contain filter drop-shadow" />
               </div>
-              <div>
-                <h1 className="text-base font-black text-white tracking-wide leading-tight">
+              <div className="min-w-0">
+                <h1 className="text-sm lg:text-base font-black text-white tracking-wide leading-tight truncate">
                   Kuakata Finance
                 </h1>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span className="text-[11px] font-bold text-slate-400">সুপার অ্যাডমিন অনলাইন</span>
+                  <span className="text-[10px] lg:text-[11px] font-bold text-slate-400 truncate">অনলাইন ড্যাশবোর্ড</span>
                 </div>
               </div>
             </div>
 
             {/* Sidebar Nav Links */}
-            <nav className="p-4 space-y-1.5">
+            <nav className="p-3 lg:p-4 space-y-1">
               <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider px-3 mb-2 block">
                 মূল মেনু
               </span>
@@ -168,28 +168,28 @@ export default function FinanceAppView() {
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
-                    className={`w-full px-4 py-3 rounded-2xl text-left transition-all flex items-center justify-between group ${
+                    className={`w-full px-3.5 py-2.5 lg:px-4 lg:py-3 rounded-2xl text-left transition-all flex items-center justify-between group ${
                       isActive
                         ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold shadow-lg shadow-red-600/25 border border-red-500/30'
                         : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-xl transition-colors ${
+                    <div className="flex items-center gap-2.5 lg:gap-3 min-w-0">
+                      <div className={`p-1.5 lg:p-2 rounded-xl transition-colors shrink-0 ${
                         isActive ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-400 group-hover:text-red-400'
                       }`}>
                         <Icon className="w-4 h-4" />
                       </div>
-                      <div>
-                        <span className="text-xs font-black block leading-tight">{item.label}</span>
-                        <span className={`text-[10px] font-medium block ${isActive ? 'text-red-100' : 'text-slate-500'}`}>
+                      <div className="min-w-0">
+                        <span className="text-xs font-black block leading-tight truncate">{item.label}</span>
+                        <span className={`text-[10px] font-medium block truncate ${isActive ? 'text-red-100' : 'text-slate-500'}`}>
                           {item.subtitle}
                         </span>
                       </div>
                     </div>
 
                     {isActive && (
-                      <span className="w-1.5 h-6 rounded-full bg-white shadow-sm"></span>
+                      <span className="w-1.5 h-6 rounded-full bg-white shadow-sm shrink-0 ml-1"></span>
                     )}
                   </button>
                 );
@@ -198,11 +198,11 @@ export default function FinanceAppView() {
           </div>
 
           {/* Sidebar Footer User Card */}
-          <div className="p-4 border-t border-slate-800 bg-slate-950/70 space-y-3">
+          <div className="p-3 lg:p-4 border-t border-slate-800 bg-slate-950/70 space-y-2.5">
             
-            <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-rose-500 to-red-600 text-white font-black text-xs flex items-center justify-center border border-white/20 shrink-0 shadow-md">
+            <div className="p-2.5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-rose-500 to-red-600 text-white font-black text-xs flex items-center justify-center border border-white/20 shrink-0 shadow-md">
                   KM
                 </div>
                 <div className="min-w-0">
@@ -217,7 +217,7 @@ export default function FinanceAppView() {
             <div className="grid grid-cols-2 gap-2 text-xs">
               <button
                 onClick={() => setMoreModalOpen(true)}
-                className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center justify-center gap-1.5 transition-colors border border-slate-700/60"
+                className="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center justify-center gap-1 transition-colors border border-slate-700/60"
               >
                 <Settings className="w-3.5 h-3.5" />
                 <span>সেটিংস</span>
@@ -225,7 +225,7 @@ export default function FinanceAppView() {
 
               <button
                 onClick={logout}
-                className="py-2.5 px-3 rounded-xl bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white font-bold flex items-center justify-center gap-1.5 transition-colors border border-rose-500/30"
+                className="py-2 px-2.5 rounded-xl bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white font-bold flex items-center justify-center gap-1 transition-colors border border-rose-500/30"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>লগআউট</span>
@@ -237,7 +237,7 @@ export default function FinanceAppView() {
         </aside>
 
         {/* PC Main Content Area */}
-        <main className="ml-72 flex-1 flex flex-col min-h-screen bg-slate-100 text-slate-900">
+        <main className="ml-64 lg:ml-72 flex-1 flex flex-col min-h-screen bg-slate-100 text-slate-900">
           
           {/* PC Top Header Bar */}
           <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-8 py-4 flex items-center justify-between shadow-sm">
