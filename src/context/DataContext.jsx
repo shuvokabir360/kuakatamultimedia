@@ -225,17 +225,30 @@ export const DataProvider = ({ children }) => {
 
     const fetchFromSupabase = async () => {
       try {
-        const { data: dbMembers } = await supabase.from('members').select('*');
-        if (dbMembers && dbMembers.length > 0) setMembers(dbMembers);
+        const { data: dbMembers, error: memErr } = await supabase.from('members').select('*');
+        if (dbMembers && dbMembers.length > 0) {
+          setMembers(dbMembers);
+        } else if (!memErr) {
+          // Table empty, seed initial data to Supabase
+          await supabase.from('members').upsert(INITIAL_MEMBERS);
+        }
 
-        const { data: dbProjects } = await supabase.from('projects').select('*');
-        if (dbProjects && dbProjects.length > 0) setProjects(dbProjects);
+        const { data: dbProjects, error: projErr } = await supabase.from('projects').select('*');
+        if (dbProjects && dbProjects.length > 0) {
+          setProjects(dbProjects);
+        } else if (!projErr) {
+          await supabase.from('projects').upsert(INITIAL_PROJECTS);
+        }
 
         const { data: dbAttendance } = await supabase.from('attendance').select('*');
-        if (dbAttendance && dbAttendance.length > 0) setAttendance(dbAttendance);
+        if (dbAttendance && dbAttendance.length > 0) {
+          setAttendance(dbAttendance);
+        }
 
         const { data: dbSalaries } = await supabase.from('salaries').select('*');
-        if (dbSalaries && dbSalaries.length > 0) setSalaries(dbSalaries);
+        if (dbSalaries && dbSalaries.length > 0) {
+          setSalaries(dbSalaries);
+        }
 
         setCloudSynced(true);
       } catch (err) {
@@ -246,7 +259,7 @@ export const DataProvider = ({ children }) => {
     fetchFromSupabase();
   }, []);
 
-  // Sync to LocalStorage & Supabase
+  // LocalStorage Persist
   useEffect(() => {
     localStorage.setItem('km_members', JSON.stringify(members));
   }, [members]);

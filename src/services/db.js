@@ -1,12 +1,8 @@
-/**
- * Cloud Database Service Adapter for Kuakata Multimedia
- * Supports Supabase (PostgreSQL) and Firebase Cloud DB out of the box.
- */
+import { DEFAULT_SUPABASE_URL, DEFAULT_SUPABASE_ANON_KEY } from './supabaseClient';
 
-// Supabase Configuration Helper
 export const SUPABASE_CONFIG = {
-  url: localStorage.getItem('km_supabase_url') || '',
-  anonKey: localStorage.getItem('km_supabase_key') || ''
+  url: localStorage.getItem('km_supabase_url') || DEFAULT_SUPABASE_URL,
+  anonKey: localStorage.getItem('km_supabase_key') || DEFAULT_SUPABASE_ANON_KEY
 };
 
 export const saveCloudCredentials = (url, anonKey) => {

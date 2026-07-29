@@ -1,8 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Retrieve credentials from localStorage or environment
-const supabaseUrl = localStorage.getItem('km_supabase_url') || import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = localStorage.getItem('km_supabase_key') || import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+// User's Live Supabase Project Credentials
+export const DEFAULT_SUPABASE_URL = 'https://wcpdbfuhtvcjcjzxzebs.supabase.co';
+export const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_s6Q1m0l3ajvuoEWhOViYmA_jgEOhQk9';
+
+const supabaseUrl = localStorage.getItem('km_supabase_url') || import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
+const supabaseAnonKey = localStorage.getItem('km_supabase_key') || import.meta.env.VITE_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY;
 
 export const isSupabaseConnected = Boolean(supabaseUrl && supabaseAnonKey);
 
@@ -10,9 +13,9 @@ export const supabase = isSupabaseConnected
   ? createClient(supabaseUrl, supabaseAnonKey) 
   : null;
 
-// SQL schema for 1-click creation in Supabase SQL Editor
+// SQL schema for Supabase SQL Editor
 export const SUPABASE_SQL_SCHEMA = `-- Kuakata Multimedia Supabase Database Schema
--- Run this script in Supabase SQL Editor (https://supabase.com/dashboard/project/_/sql)
+-- Project Ref: wcpdbfuhtvcjcjzxzebs
 
 -- 1. Create Members Table
 CREATE TABLE IF NOT EXISTS public.members (
