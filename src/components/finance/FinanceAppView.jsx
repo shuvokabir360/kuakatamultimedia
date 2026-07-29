@@ -7,6 +7,10 @@ import FinanceMembers from './FinanceMembers';
 import FinanceShootings from './FinanceShootings';
 import FinanceDirectory from './FinanceDirectory';
 import FinanceClients from './FinanceClients';
+import FinanceReports from './FinanceReports';
+import FinanceChecking from './FinanceChecking';
+import FinanceSMS from './FinanceSMS';
+import FinanceGreetings from './FinanceGreetings';
 import MoreMenuModal from './MoreMenuModal';
 import FinanceBottomBar from './FinanceBottomBar';
 import { useAuth } from '../../context/AuthContext';
@@ -25,7 +29,13 @@ import {
   Bell,
   Search,
   ShieldCheck,
-  ExternalLink
+  ExternalLink,
+  FileText,
+  UserCheck,
+  MessageSquare,
+  Sparkles,
+  Clapperboard,
+  Wallet
 } from 'lucide-react';
 
 export default function FinanceAppView() {
@@ -57,15 +67,19 @@ export default function FinanceAppView() {
     );
   }
 
-  // Navigation Items Config
+  // Navigation Items Config (Includes all 8 items from More Menu + Core items)
   const navItems = [
     { id: 'home', label: 'ড্যাশবোর্ড', subtitle: 'ওভারভিউ ও সামারি', icon: LayoutGrid },
     { id: 'attendance', label: 'দৈনিক হাজিরা', subtitle: 'টিম মেম্বারদের উপস্থিতি', icon: Calendar },
     { id: 'payment', label: 'পেমেন্ট প্যানেল', subtitle: 'বেতন ও লেনদেন', icon: DollarSign },
-    { id: 'members', label: 'সদস্য তালিকা', subtitle: 'টিম মেম্বার প্রোফাইল', icon: Users },
-    { id: 'shootings', label: 'শুটিং শিডিউল', subtitle: 'নাটক ও শুটিং রেকর্ড', icon: Film },
-    { id: 'channels', label: 'ইউটিউব চ্যানেল', subtitle: 'অফিসিয়াল ডিরেক্টরি', icon: Tv },
-    { id: 'clients', label: 'ক্লায়েন্ট হিসাব', subtitle: 'বাইরের চ্যানেলের পাওনা', icon: Briefcase },
+    { id: 'members', label: 'সদস্য', subtitle: 'টিম মেম্বার পরিচিতি', icon: Users },
+    { id: 'shootings', label: 'শুটিং', subtitle: 'নাটক ও শুটিং রেকর্ড', icon: Clapperboard },
+    { id: 'channels', label: 'চ্যানেল/পরিচালক', subtitle: 'ইউটিউব ডিরেক্টরি', icon: Tv },
+    { id: 'clients', label: 'ক্লায়েন্ট হিসাব', subtitle: 'বাইরের চ্যানেলের পাওনা', icon: Wallet },
+    { id: 'reports', label: 'রিপোর্ট/PDF', subtitle: 'আর্থিক স্টেটমেন্ট প্রিন্ট', icon: FileText },
+    { id: 'checking', label: 'অ্যাকাউন্ট চেকিং', subtitle: 'আইডি ও পিন ভেরিফিকেশন', icon: UserCheck },
+    { id: 'sms', label: 'গ্রুপ SMS', subtitle: 'টিমে বাল্ক নোটিশ SMS', icon: MessageSquare },
+    { id: 'greetings', label: 'অভিনন্দন কার্ড', subtitle: 'শুভেচ্ছা ও সম্মাননা পত্র', icon: Sparkles },
   ];
 
   const getPageTitle = () => {
@@ -77,6 +91,10 @@ export default function FinanceAppView() {
       case 'shootings': return { title: 'শুটিং শিডিউল ও বাজেট', subtitle: 'চলতি ও পূর্বের সকল শুটিং রেকর্ড' };
       case 'channels': return { title: 'অফিসিয়াল ডিরেক্টরি', subtitle: 'ইউটিউব চ্যানেল ও পরিচালকবৃন্দ' };
       case 'clients': return { title: 'ক্লায়েন্ট পোর্টাল', subtitle: 'বাইরের মিডিয়া হাউজের পাওনা ও প্রাপ্তি' };
+      case 'reports': return { title: 'রিপোর্ট & PDF সেন্টার', subtitle: 'হিসাব নিকেশ ডাউনলোড ও ফাইল প্রিন্ট' };
+      case 'checking': return { title: 'অ্যাকাউন্ট ভেরিফিকেশন', subtitle: 'মেম্বার আইডি ও সিকিউরিটি পিন সিকিউরিটি' };
+      case 'sms': return { title: 'গ্রুপ SMS ব্রডকাস্ট', subtitle: 'টিম সদস্যদের নোটিফিকেশন মেসেজ' };
+      case 'greetings': return { title: 'অভিনন্দন ও সম্মাননা পত্র', subtitle: 'ডিজিটাল কার্ড মেকার ও শেয়ারিং' };
       default: return { title: 'ড্যাশবোর্ড', subtitle: 'কুয়াকাটা মাল্টিমিডিয়া' };
     }
   };
@@ -109,6 +127,10 @@ export default function FinanceAppView() {
           {activeTab === 'shootings' && <FinanceShootings openAddModalDirectly={shootingModalTrigger} />}
           {activeTab === 'channels' && <FinanceDirectory />}
           {activeTab === 'clients' && <FinanceClients />}
+          {activeTab === 'reports' && <FinanceReports />}
+          {activeTab === 'checking' && <FinanceChecking />}
+          {activeTab === 'sms' && <FinanceSMS />}
+          {activeTab === 'greetings' && <FinanceGreetings />}
         </div>
 
         <FinanceBottomBar
@@ -121,11 +143,7 @@ export default function FinanceAppView() {
           isOpen={moreModalOpen}
           onClose={() => setMoreModalOpen(false)}
           onNavigate={(target) => {
-            if (target === 'members') setActiveTab('members');
-            else if (target === 'shootings') setActiveTab('shootings');
-            else if (target === 'channels') setActiveTab('channels');
-            else if (target === 'clients') setActiveTab('clients');
-            else alert(`${target} প্যানেল প্রস্তুত রয়েছে!`);
+            setActiveTab(target);
           }}
         />
       </div>
@@ -138,9 +156,9 @@ export default function FinanceAppView() {
         {/* PC Left Fixed Sidebar */}
         <aside className="w-64 lg:w-72 bg-slate-900 text-slate-100 flex flex-col justify-between fixed top-0 bottom-0 left-0 z-40 border-r border-slate-800 shadow-2xl select-none">
           
-          <div>
+          <div className="flex flex-col h-full overflow-y-auto custom-scrollbar">
             {/* Sidebar Logo Header */}
-            <div className="p-5 lg:p-6 border-b border-slate-800/80 bg-slate-950/60 flex items-center gap-3">
+            <div className="p-5 lg:p-6 border-b border-slate-800/80 bg-slate-950/60 flex items-center gap-3 shrink-0">
               <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-gradient-to-tr from-red-600 to-rose-500 p-2 shadow-lg shadow-red-600/30 flex items-center justify-center shrink-0 border border-white/20">
                 <img src="/logo.svg" alt="Kuakata Multimedia" className="w-full h-full object-contain filter drop-shadow" />
               </div>
@@ -156,7 +174,7 @@ export default function FinanceAppView() {
             </div>
 
             {/* Sidebar Nav Links */}
-            <nav className="p-3 lg:p-4 space-y-1">
+            <nav className="p-3 lg:p-4 space-y-1 flex-1">
               <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider px-3 mb-2 block">
                 মূল মেনু
               </span>
@@ -168,7 +186,7 @@ export default function FinanceAppView() {
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
-                    className={`w-full px-3.5 py-2.5 lg:px-4 lg:py-3 rounded-2xl text-left transition-all flex items-center justify-between group ${
+                    className={`w-full px-3.5 py-2.5 lg:px-4 lg:py-2.5 rounded-2xl text-left transition-all flex items-center justify-between group ${
                       isActive
                         ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold shadow-lg shadow-red-600/25 border border-red-500/30'
                         : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -189,49 +207,47 @@ export default function FinanceAppView() {
                     </div>
 
                     {isActive && (
-                      <span className="w-1.5 h-6 rounded-full bg-white shadow-sm shrink-0 ml-1"></span>
+                      <span className="w-1.5 h-5 rounded-full bg-white shadow-sm shrink-0 ml-1"></span>
                     )}
                   </button>
                 );
               })}
             </nav>
-          </div>
 
-          {/* Sidebar Footer User Card */}
-          <div className="p-3 lg:p-4 border-t border-slate-800 bg-slate-950/70 space-y-2.5">
-            
-            <div className="p-2.5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-rose-500 to-red-600 text-white font-black text-xs flex items-center justify-center border border-white/20 shrink-0 shadow-md">
-                  KM
+            {/* Sidebar Footer User Card */}
+            <div className="p-3 lg:p-4 border-t border-slate-800 bg-slate-950/70 space-y-2.5 shrink-0">
+              <div className="p-2.5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-rose-500 to-red-600 text-white font-black text-xs flex items-center justify-center border border-white/20 shrink-0 shadow-md">
+                    KM
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-xs font-black text-white truncate">{user?.name || 'Shuvo Kabir'}</h4>
+                    <p className="text-[10px] text-slate-400 truncate">{user?.email || 'shuvokuakata27@gmail.com'}</p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <h4 className="text-xs font-black text-white truncate">{user?.name || 'Shuvo Kabir'}</h4>
-                  <p className="text-[10px] text-slate-400 truncate">{user?.email || 'shuvokuakata27@gmail.com'}</p>
-                </div>
+
+                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
               </div>
 
-              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <button
+                  onClick={() => setMoreModalOpen(true)}
+                  className="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center justify-center gap-1 transition-colors border border-slate-700/60"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  <span>সেটিংস</span>
+                </button>
+
+                <button
+                  onClick={logout}
+                  className="py-2 px-2.5 rounded-xl bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white font-bold flex items-center justify-center gap-1 transition-colors border border-rose-500/30"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>লগআউট</span>
+                </button>
+              </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <button
-                onClick={() => setMoreModalOpen(true)}
-                className="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center justify-center gap-1 transition-colors border border-slate-700/60"
-              >
-                <Settings className="w-3.5 h-3.5" />
-                <span>সেটিংস</span>
-              </button>
-
-              <button
-                onClick={logout}
-                className="py-2 px-2.5 rounded-xl bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white font-bold flex items-center justify-center gap-1 transition-colors border border-rose-500/30"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>লগআউট</span>
-              </button>
-            </div>
-
           </div>
 
         </aside>
@@ -309,6 +325,10 @@ export default function FinanceAppView() {
             {activeTab === 'shootings' && <FinanceShootings openAddModalDirectly={shootingModalTrigger} />}
             {activeTab === 'channels' && <FinanceDirectory />}
             {activeTab === 'clients' && <FinanceClients />}
+            {activeTab === 'reports' && <FinanceReports />}
+            {activeTab === 'checking' && <FinanceChecking />}
+            {activeTab === 'sms' && <FinanceSMS />}
+            {activeTab === 'greetings' && <FinanceGreetings />}
           </div>
 
         </main>
@@ -318,11 +338,7 @@ export default function FinanceAppView() {
           isOpen={moreModalOpen}
           onClose={() => setMoreModalOpen(false)}
           onNavigate={(target) => {
-            if (target === 'members') setActiveTab('members');
-            else if (target === 'shootings') setActiveTab('shootings');
-            else if (target === 'channels') setActiveTab('channels');
-            else if (target === 'clients') setActiveTab('clients');
-            else alert(`${target} প্যানেল প্রস্তুত রয়েছে!`);
+            setActiveTab(target);
           }}
         />
 
@@ -331,4 +347,5 @@ export default function FinanceAppView() {
     </div>
   );
 }
+
 
