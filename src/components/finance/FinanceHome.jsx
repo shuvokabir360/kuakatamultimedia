@@ -191,10 +191,21 @@ export default function FinanceHome({ onNavigate }) {
             </div>
           </div>
 
-          {/* Client List Item */}
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/60 flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-800">Malbro Entertainment</span>
-            <span className="text-xs font-black text-red-600">৳ {toBnNum(totalClientDues)}</span>
+          {/* Dynamic Client List Items with dues */}
+          <div className="space-y-2">
+            {safeClients.filter(c => (c.due_amount || 0) > 0).length > 0 ? (
+              safeClients.filter(c => (c.due_amount || 0) > 0).map(c => (
+                <div key={c.id} className="p-3 rounded-2xl bg-slate-50 border border-slate-200/60 flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-800">{c.name}</span>
+                  <span className="text-xs font-black text-red-600">৳ {toBnNum((c.due_amount || 0).toLocaleString())}</span>
+                </div>
+              ))
+            ) : (
+              <div className="p-3 rounded-2xl bg-emerald-50/60 border border-emerald-100 flex items-center justify-between text-xs font-bold text-emerald-700">
+                <span>কোনো ক্লায়েন্ট বকেয়া নেই</span>
+                <span className="text-emerald-600 font-extrabold">৳ ০</span>
+              </div>
+            )}
           </div>
         </div>
 
