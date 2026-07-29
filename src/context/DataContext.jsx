@@ -255,34 +255,18 @@ const EXACT_MEMBERS_LIST = [
 
 const INITIAL_SHOOTINGS = [];
 const INITIAL_PAYMENTS = [];
-
-const INITIAL_CLIENTS = [
-  {
-    id: 'c1',
-    name: 'Malbro Entertainment',
-    contract_amount: 150000,
-    received_amount: 90000,
-    due_amount: 60000
-  },
-  {
-    id: 'c2',
-    name: 'Mehidi Multimedia',
-    contract_amount: 0,
-    received_amount: 0,
-    due_amount: 0
-  }
-];
+const INITIAL_CLIENTS = [];
 
 const INITIAL_CHANNELS = [
-  { id: 'ch-1', name: 'Kuakata Multimedia', category: 'official', categoryLabel: 'অফিসিয়াল (নিজেদের)', logo: '/logo.svg', shootingCount: 9 },
-  { id: 'ch-2', name: 'Malbro Entertainment', category: 'client', categoryLabel: 'ক্লায়েন্ট চ্যানেল', logo: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=100&auto=format&fit=crop', shootingCount: 14 },
-  { id: 'ch-3', name: 'Mehidi Multimedia', category: 'client', categoryLabel: 'ক্লায়েন্ট চ্যানেল', logo: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=100&auto=format&fit=crop', shootingCount: 3 }
+  { id: 'ch-1', name: 'Kuakata Multimedia', category: 'official', categoryLabel: 'অফিসিয়াল (নিজেদের)', logo: '/logo.svg', shootingCount: 0 },
+  { id: 'ch-2', name: 'Malbro Entertainment', category: 'client', categoryLabel: 'ক্লায়েন্ট চ্যানেল', logo: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=100&auto=format&fit=crop', shootingCount: 0 },
+  { id: 'ch-3', name: 'Mehidi Multimedia', category: 'client', categoryLabel: 'ক্লায়েন্ট চ্যানেল', logo: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=100&auto=format&fit=crop', shootingCount: 0 }
 ];
 
 const INITIAL_DIRECTORS = [
-  { id: 'dir-1', name: 'Kabir Hossen Shuvo', role: 'পরিচালক', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop', shootingCount: 1 },
-  { id: 'dir-2', name: 'Saddam Mal', role: 'পরিচালক', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop', shootingCount: 13 },
-  { id: 'dir-3', name: 'SM Almas', role: 'সহকারী পরিচালক', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop', shootingCount: 12 }
+  { id: 'dir-1', name: 'Kabir Hossen Shuvo', role: 'পরিচালক', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop', shootingCount: 0 },
+  { id: 'dir-2', name: 'Saddam Mal', role: 'পরিচালক', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop', shootingCount: 0 },
+  { id: 'dir-3', name: 'SM Almas', role: 'সহকারী পরিচালক', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop', shootingCount: 0 }
 ];
 
 export const DataProvider = ({ children }) => {
@@ -315,6 +299,39 @@ export const DataProvider = ({ children }) => {
     const saved = localStorage.getItem('km_finance_directors');
     return saved ? JSON.parse(saved) : INITIAL_DIRECTORS;
   });
+
+  // Dynamic Client Accounts based on active client channels and their actual shootings
+  const getClients = () => {
+    const clientChannels = (channels || []).filter(ch => ch.category === 'client');
+    return clientChannels.map(ch => {
+      const chShootings = (shootings || []).filter(sh => sh.channel === ch.name);
+      const contract_amount = chShootings.reduce((sum, sh) => sum + (Number(sh.budget) || 0), 0);
+      const savedClient = (clients || []).find(c => c.name === ch.name);
+      const received_amount = savedClient?.received_amount || 0;
+      const due_amount = Math.max(0, contract_amount - received_amount);
+      return {
+        id: ch.id,
+        name: ch.name,
+        category: ch.category,
+        logo: ch.logo,
+        shootingCount: chShootings.length,
+        contract_amount,
+        received_amount,
+        due_amount
+      };
+    });
+  };
+
+  // Add Client Received Payment
+  const addClientPayment = (clientName, amount) => {
+    setClients(prev => {
+      const existing = (prev || []).find(c => c.name === clientName);
+      if (existing) {
+        return (prev || []).map(c => c.name === clientName ? { ...c, received_amount: (c.received_amount || 0) + Number(amount) } : c);
+      }
+      return [...(prev || []), { id: 'cl-' + Date.now(), name: clientName, received_amount: Number(amount) }];
+    });
+  };
 
   // Always sync to localStorage
   useEffect(() => {
@@ -501,7 +518,8 @@ export const DataProvider = ({ children }) => {
       deleteShooting,
       payments: payments || [],
       addPayment,
-      clients: clients || INITIAL_CLIENTS,
+      clients: getClients(),
+      addClientPayment,
       channels: channels || INITIAL_CHANNELS,
       addChannel,
       updateChannel,
