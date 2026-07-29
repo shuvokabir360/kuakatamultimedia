@@ -10,27 +10,24 @@ export const toBnNum = (num) => {
   return String(num).replace(/\d/g, (digit) => bnDigits[digit]);
 };
 
-// Initial Mock Members matching exact screenshot 5
-const INITIAL_MEMBERS = [
+// Exact 17 Members matching Screenshot 1 & Screenshot 2
+const EXACT_MEMBERS_LIST = [
   {
-    id: 'm1',
+    id: 'm-1',
     name: 'Kabir Hossen Shuvo',
     type: 'মাসিক',
-    designation: 'CEO & Lead Director',
-    dept: 'Management',
+    designation: 'CEO',
+    dept: 'Executive Board',
     phone: '01711000000',
     pin: '1234',
     email: 'shuvokuakata27@gmail.com',
     balance: 0,
-    bkash: '01711000000',
-    nagad: '01711000000',
-    bank: 'Dutch-Bangla Bank 2181050023058',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
     isPinnedTop: true,
     role: 'admin'
   },
   {
-    id: 'm2',
+    id: 'm-2',
     name: 'SM Almas',
     type: 'দৈনিক',
     designation: 'Director, Actor, Writer',
@@ -39,28 +36,24 @@ const INITIAL_MEMBERS = [
     pin: '1234',
     email: 'almas@kuakatamultimedia.com',
     balance: 8500,
-    daily_rate: 2500,
-    bkash: '01822111222',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop',
     role: 'member'
   },
   {
-    id: 'm3',
+    id: 'm-3',
     name: 'Masud Parves Sagor',
     type: 'দৈনিক',
-    designation: 'Actor & DOP',
+    designation: 'Actor',
     dept: 'Acting',
     phone: '01911222333',
     pin: '1234',
     email: 'sagor@kuakatamultimedia.com',
     balance: 4000,
-    daily_rate: 2000,
-    bank: 'Islami Bank 2181050023054',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop',
     role: 'member'
   },
   {
-    id: 'm4',
+    id: 'm-4',
     name: 'Arif Apon',
     type: 'দৈনিক',
     designation: 'Actor',
@@ -69,13 +62,11 @@ const INITIAL_MEMBERS = [
     pin: '1234',
     email: 'apon@kuakatamultimedia.com',
     balance: 2000,
-    daily_rate: 1500,
-    bkash: '01611333444',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&auto=format&fit=crop',
     role: 'member'
   },
   {
-    id: 'm5',
+    id: 'm-5',
     name: 'Jafor Howlader',
     type: 'দৈনিক',
     designation: 'Actors',
@@ -84,13 +75,11 @@ const INITIAL_MEMBERS = [
     pin: '1234',
     email: 'jafor@kuakatamultimedia.com',
     balance: 1500,
-    daily_rate: 1500,
-    nagad: '01511444555',
     avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&auto=format&fit=crop',
     role: 'member'
   },
   {
-    id: 'm6',
+    id: 'm-6',
     name: 'Siraj Musulli',
     type: 'দৈনিক',
     designation: 'Actor',
@@ -99,29 +88,155 @@ const INITIAL_MEMBERS = [
     pin: '1234',
     email: 'siraj@kuakatamultimedia.com',
     balance: 1500,
-    daily_rate: 1500,
-    bkash: '01311555666',
     avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&auto=format&fit=crop',
     role: 'member'
   },
   {
-    id: 'm7',
+    id: 'm-7',
     name: 'Abu Hasan Milon',
     type: 'দৈনিক',
-    designation: 'Actor & Assistant',
+    designation: 'Actor',
     dept: 'Acting',
     phone: '01833444555',
     pin: '1234',
     email: 'milon@kuakatamultimedia.com',
     balance: 1000,
-    daily_rate: 1000,
-    bkash: '01833444555',
     avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=300&auto=format&fit=crop',
+    role: 'member'
+  },
+  {
+    id: 'm-8',
+    name: 'Rimi',
+    type: 'দৈনিক',
+    designation: 'Actoes',
+    dept: 'Acting',
+    phone: '01844555666',
+    pin: '1234',
+    email: 'rimi@kuakatamultimedia.com',
+    balance: 0,
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
+    role: 'member'
+  },
+  {
+    id: 'm-9',
+    name: 'Nizam Uddin',
+    type: 'দৈনিক',
+    designation: 'Actor',
+    dept: 'Acting',
+    phone: '01855666777',
+    pin: '1234',
+    email: 'nizam@kuakatamultimedia.com',
+    balance: 0,
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop',
+    role: 'member'
+  },
+  {
+    id: 'm-10',
+    name: 'Mohsin Mama',
+    type: 'দৈনিক',
+    designation: 'Actor',
+    dept: 'Acting',
+    phone: '01866777888',
+    pin: '1234',
+    email: 'mohsin@kuakatamultimedia.com',
+    balance: 0,
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop',
+    role: 'member'
+  },
+  {
+    id: 'm-11',
+    name: 'Jisan Musulli',
+    type: 'দৈনিক',
+    designation: 'Actors',
+    dept: 'Acting',
+    phone: '01877888999',
+    pin: '1234',
+    email: 'jisan@kuakatamultimedia.com',
+    balance: 0,
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&auto=format&fit=crop',
+    role: 'member'
+  },
+  {
+    id: 'm-12',
+    name: 'Akhinur Noon Nahar',
+    type: 'দৈনিক',
+    designation: 'Actors',
+    dept: 'Acting',
+    phone: '01888999000',
+    pin: '1234',
+    email: 'akhinur@kuakatamultimedia.com',
+    balance: 0,
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
+    role: 'member'
+  },
+  {
+    id: 'm-13',
+    name: 'Ziaur Rahman',
+    type: 'মাসিক',
+    designation: 'Editor & DOP',
+    dept: 'Editing',
+    phone: '01899000111',
+    pin: '1234',
+    email: 'ziaur@kuakatamultimedia.com',
+    balance: 0,
+    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&auto=format&fit=crop',
+    role: 'member'
+  },
+  {
+    id: 'm-14',
+    name: 'Abubakar Abir',
+    type: 'মাসিক',
+    designation: 'Ass. Director, Actors',
+    dept: 'Direction',
+    phone: '01800111222',
+    pin: '1234',
+    email: 'abir@kuakatamultimedia.com',
+    balance: 0,
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&auto=format&fit=crop',
+    role: 'member'
+  },
+  {
+    id: 'm-15',
+    name: 'Sojib Mazi',
+    type: 'দৈনিক',
+    designation: 'Production',
+    dept: 'Production',
+    phone: '01811222333',
+    pin: '1234',
+    email: 'sojib@kuakatamultimedia.com',
+    balance: -200,
+    avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=300&auto=format&fit=crop',
+    role: 'member'
+  },
+  {
+    id: 'm-16',
+    name: 'মালা আক্তার',
+    type: 'দৈনিক',
+    designation: 'অভিনেতা',
+    dept: 'Acting',
+    phone: '01822333444',
+    pin: '1234',
+    email: 'mala@kuakatamultimedia.com',
+    balance: -500,
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
+    role: 'member'
+  },
+  {
+    id: 'm-17',
+    name: 'Emon Molla',
+    type: 'দৈনিক',
+    designation: 'Actor',
+    dept: 'Acting',
+    phone: '01833444555',
+    pin: '1234',
+    email: 'emon@kuakatamultimedia.com',
+    balance: 0,
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop',
     role: 'member'
   }
 ];
 
-// Initial Shootings History matching screenshot 2
+// Initial Shootings History
 const INITIAL_SHOOTINGS = [
   {
     id: 'sh-1',
@@ -155,21 +270,10 @@ const INITIAL_SHOOTINGS = [
     absent_count: 9,
     budget: 50000,
     expenses: 15000
-  },
-  {
-    id: 'sh-4',
-    date: '2026-07-24',
-    title: 'নেতার লিংক ভাইরাল (পার্ট ২)',
-    channel: 'Gazi Entertainment',
-    director: 'SM Almas',
-    present_count: 1,
-    absent_count: 0,
-    budget: 20000,
-    expenses: 5000
   }
 ];
 
-// Initial Payments matching screenshot 3
+// Initial Payments
 const INITIAL_PAYMENTS = [
   {
     id: 'p1',
@@ -191,7 +295,7 @@ const INITIAL_PAYMENTS = [
   }
 ];
 
-// Initial Client Ledgers matching screenshot 1
+// Initial Client Ledgers
 const INITIAL_CLIENTS = [
   {
     id: 'c1',
@@ -202,102 +306,34 @@ const INITIAL_CLIENTS = [
   },
   {
     id: 'c2',
-    name: 'Gazi Digital Channel',
-    contract_amount: 150000,
-    received_amount: 110000,
-    due_amount: 40000
-  }
-];
-
-// Initial Projects
-const INITIAL_PROJECTS = [
-  {
-    id: 'proj-1',
-    title: 'কুয়াকাটা বিচ ভার্চুয়াল ৩ডি ওয়াকথ্রু',
-    client: 'Kuakata Tourism Board',
-    category: '3D & Web',
-    description: 'কুয়াকাটা সমুদ্র সৈকতের অসামান্য ভার্চুয়াল ৩ডি ওয়াকথ্রু প্রজেক্ট।',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop',
-    tags: ['Three.js', 'Blender', 'WebGL']
-  },
-  {
-    id: 'proj-2',
-    title: 'নেতার লিংক ভাইরাল - ৩ডি ভিএফএক্স মোশন',
-    client: 'Gazi Entertainment',
-    category: 'VFX & Motion',
-    description: 'হাই-কোয়ালিটি ৩ডি ভিএফএক্স ও সিনেমাটিক মোশন গ্রাফিক্স টাইটেল।',
-    image: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop',
-    tags: ['After Effects', 'Cinema 4D', 'VFX']
+    name: 'Mehidi Multimedia',
+    contract_amount: 45000,
+    received_amount: 45000,
+    due_amount: 0
   }
 ];
 
 export const DataProvider = ({ children }) => {
   const [members, setMembers] = useState(() => {
-    try {
-      const saved = localStorage.getItem('km_finance_members');
-      return saved ? JSON.parse(saved) : INITIAL_MEMBERS;
-    } catch (e) {
-      return INITIAL_MEMBERS;
-    }
+    return EXACT_MEMBERS_LIST;
   });
 
   const [shootings, setShootings] = useState(() => {
-    try {
-      const saved = localStorage.getItem('km_finance_shootings');
-      return saved ? JSON.parse(saved) : INITIAL_SHOOTINGS;
-    } catch (e) {
-      return INITIAL_SHOOTINGS;
-    }
+    return INITIAL_SHOOTINGS;
   });
 
   const [payments, setPayments] = useState(() => {
-    try {
-      const saved = localStorage.getItem('km_finance_payments');
-      return saved ? JSON.parse(saved) : INITIAL_PAYMENTS;
-    } catch (e) {
-      return INITIAL_PAYMENTS;
-    }
+    return INITIAL_PAYMENTS;
   });
 
   const [clients, setClients] = useState(() => {
-    try {
-      const saved = localStorage.getItem('km_finance_clients');
-      return saved ? JSON.parse(saved) : INITIAL_CLIENTS;
-    } catch (e) {
-      return INITIAL_CLIENTS;
-    }
+    return INITIAL_CLIENTS;
   });
 
-  const [projects, setProjects] = useState(() => {
-    try {
-      const saved = localStorage.getItem('km_finance_projects');
-      return saved ? JSON.parse(saved) : INITIAL_PROJECTS;
-    } catch (e) {
-      return INITIAL_PROJECTS;
-    }
-  });
-
-  const [attendance, setAttendance] = useState([]);
-
+  // Always persist clean list
   useEffect(() => {
     try { localStorage.setItem('km_finance_members', JSON.stringify(members)); } catch(e){}
   }, [members]);
-
-  useEffect(() => {
-    try { localStorage.setItem('km_finance_shootings', JSON.stringify(shootings)); } catch(e){}
-  }, [shootings]);
-
-  useEffect(() => {
-    try { localStorage.setItem('km_finance_payments', JSON.stringify(payments)); } catch(e){}
-  }, [payments]);
-
-  useEffect(() => {
-    try { localStorage.setItem('km_finance_clients', JSON.stringify(clients)); } catch(e){}
-  }, [clients]);
-
-  useEffect(() => {
-    try { localStorage.setItem('km_finance_projects', JSON.stringify(projects)); } catch(e){}
-  }, [projects]);
 
   // Add Member
   const addMember = (newMem) => {
@@ -354,18 +390,38 @@ export const DataProvider = ({ children }) => {
 
   // Sorted members with Kabir Hossen Shuvo ALWAYS PINNED ON TOP
   const getSortedMembers = () => {
-    const safeMembers = members || INITIAL_MEMBERS;
+    const safeMembers = members || EXACT_MEMBERS_LIST;
     const shuvo = safeMembers.find(m => m.isPinnedTop || (m.name && m.name.toLowerCase().includes('kabir hossen shuvo')));
     const others = safeMembers.filter(m => !(m.isPinnedTop || (m.name && m.name.toLowerCase().includes('kabir hossen shuvo'))));
 
-    others.sort((a, b) => (b.balance || 0) - (a.balance || 0));
+    // Sort remaining members strictly according to exact screenshot order
+    const orderMap = {
+      'SM Almas': 1,
+      'Masud Parves Sagor': 2,
+      'Arif Apon': 3,
+      'Jafor Howlader': 4,
+      'Siraj Musulli': 5,
+      'Abu Hasan Milon': 6,
+      'Rimi': 7,
+      'Nizam Uddin': 8,
+      'Mohsin Mama': 9,
+      'Jisan Musulli': 10,
+      'Akhinur Noon Nahar': 11,
+      'Ziaur Rahman': 12,
+      'Abubakar Abir': 13,
+      'Sojib Mazi': 14,
+      'মালা আক্তার': 15,
+      'Emon Molla': 16
+    };
+
+    others.sort((a, b) => (orderMap[a.name] || 99) - (orderMap[b.name] || 99));
 
     return shuvo ? [shuvo, ...others] : others;
   };
 
   return (
     <DataContext.Provider value={{
-      members: members || INITIAL_MEMBERS,
+      members: members || EXACT_MEMBERS_LIST,
       getSortedMembers,
       addMember,
       updateMember,
@@ -375,9 +431,6 @@ export const DataProvider = ({ children }) => {
       payments: payments || INITIAL_PAYMENTS,
       addPayment,
       clients: clients || INITIAL_CLIENTS,
-      projects: projects || INITIAL_PROJECTS,
-      attendance: attendance || [],
-      salaries: [],
       toBnNum
     }}>
       {children}
