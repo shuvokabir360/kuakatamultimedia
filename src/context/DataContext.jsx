@@ -1,0 +1,392 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+const DataContext = createContext();
+
+const INITIAL_MEMBERS = [
+  {
+    id: '1',
+    name: 'তানভীর আহমেদ',
+    email: 'admin@kuakatamultimedia.com',
+    phone: '+880 1711-000001',
+    role: 'admin',
+    designation: 'চিফ এনিমেশন ডিরেক্টর & সিইও',
+    dept: '3D & VFX',
+    basic_salary: 85000,
+    join_date: '2022-01-15',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
+    skills: ['Three.js', 'Blender', 'Cinema 4D', 'Unreal Engine'],
+    status: 'Active'
+  },
+  {
+    id: '2',
+    name: 'রাফি রহমান',
+    email: 'member@kuakatamultimedia.com',
+    phone: '+880 1822-111222',
+    role: 'member',
+    designation: 'সিনিয়র ৩ডি মোশন ডিজাইনার',
+    dept: '3D & VFX',
+    basic_salary: 62000,
+    join_date: '2022-06-10',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop',
+    skills: ['After Effects', 'Blender', 'Octane Render'],
+    status: 'Active'
+  },
+  {
+    id: '3',
+    name: 'নুসরাত জাহান',
+    email: 'nusrat@kuakatamultimedia.com',
+    phone: '+880 1933-333444',
+    role: 'member',
+    designation: 'লিড ওয়েব & ইউএক্স আর্কিটেক্ট',
+    dept: 'Web Dev',
+    basic_salary: 68000,
+    join_date: '2023-02-01',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop',
+    skills: ['React.js', 'Next.js', 'Three.js', 'Tailwind'],
+    status: 'Active'
+  },
+  {
+    id: '4',
+    name: 'আরিফুল ইসলাম',
+    email: 'arif@kuakatamultimedia.com',
+    phone: '+880 1644-555666',
+    role: 'member',
+    designation: 'সিনিয়র ভিএফএক্স অ্যান্ড ভিডিও এডিটর',
+    dept: 'Video Production',
+    basic_salary: 55000,
+    join_date: '2023-05-20',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop',
+    skills: ['Premiere Pro', 'DaVinci Resolve', 'Nuke'],
+    status: 'Active'
+  },
+  {
+    id: '5',
+    name: 'সামিরা খান',
+    email: 'samira@kuakatamultimedia.com',
+    phone: '+880 1555-777888',
+    role: 'member',
+    designation: 'কনসেপ্ট আর্ট & ৩ডি ক্যারেক্টার মডেলার',
+    dept: '3D & VFX',
+    basic_salary: 58000,
+    join_date: '2023-09-12',
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&auto=format&fit=crop',
+    skills: ['ZBrush', 'Substance Painter', 'Maya'],
+    status: 'Active'
+  }
+];
+
+const INITIAL_PROJECTS = [
+  {
+    id: 'p1',
+    title: 'কুয়াকাটা বীচ ভার্চুয়াল ৩ডি এক্সপেরিয়েন্স',
+    category: '3D & Web',
+    description: 'কুয়াকাটা সমুদ্র সৈকতের সূর্যোদয় ও সূর্যাস্তের এক মনোরম ৩ডি রিয়েল-টাইম ওয়েব সিমুলেশন।',
+    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop',
+    demo_url: 'https://www.kuakatamultimedia.com/demo/beach3d',
+    tags: ['Three.js', 'WebGL', 'React', 'Audio FX'],
+    featured: true,
+    client: 'কুয়াকাটা ট্যুরিজম ডাইরেক্টরেট'
+  },
+  {
+    id: 'p2',
+    title: 'সাইবারপাঙ্ক ঢাকা মোশন সিগনেচার',
+    category: 'VFX & Motion',
+    description: 'ভবিষ্যতের ঢাকাকে কেন্দ্র করে তৈরি ৩ডি মোশন রিফ্লেকশন ও ভিএফএক্স শট।',
+    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop',
+    demo_url: 'https://www.kuakatamultimedia.com/demo/cyberdhaka',
+    tags: ['Unreal Engine 5', 'Octane', 'After Effects'],
+    featured: true,
+    client: 'ডিজিটাল বাংলাদেশ ভিশন'
+  },
+  {
+    id: 'p3',
+    title: 'রয়েল স্পোর্টস ৩ডি প্রোডাক্ট শোকেস',
+    category: '3D Commercial',
+    description: 'স্পোর্টস শ্যুর ৩ডি ফ্লোটিং আনবক্সিং এবং ডায়নামিক ৩৬০ ক্যামেরা এনিমেশন।',
+    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop',
+    demo_url: 'https://www.kuakatamultimedia.com/demo/royalsports',
+    tags: ['Cinema 4D', 'Redshift', 'Three.js'],
+    featured: true,
+    client: 'রয়েল ফুটওয়্যার লিমিটেড'
+  },
+  {
+    id: 'p4',
+    title: 'কোস্টাল ওয়েভ ইন্টারেক্টিভ অডিও সিমুলেটর',
+    category: 'Interactive Web',
+    description: 'সমুদ্রের ঢেউ এবং সাউন্ড ওয়েভের সমন্বয়ে তৈরি ইন্টারেক্টিভ অডিও ওয়েব আর্ট।',
+    image: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=600&auto=format&fit=crop',
+    demo_url: 'https://www.kuakatamultimedia.com/demo/waveart',
+    tags: ['Web Audio API', 'React Three Fiber'],
+    featured: false,
+    client: 'সাউন্ড আর্ট ল্যাব'
+  }
+];
+
+// Helper to generate initial attendance records for current month
+const generateSeedAttendance = () => {
+  const records = [];
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  
+  // Generate for last 15 days
+  for (let i = 1; i <= 20; i++) {
+    const dayStr = String(i).padStart(2, '0');
+    const dateStr = `${year}-${month}-${dayStr}`;
+    
+    INITIAL_MEMBERS.forEach(member => {
+      // Deterministic pseudo-random status
+      let status = 'Present';
+      const rand = (i + parseInt(member.id) * 3) % 10;
+      if (rand === 8) status = 'Absent';
+      else if (rand === 9) status = 'Leave';
+      else if (rand === 7) status = 'Half-day';
+      
+      records.push({
+        id: `att-${member.id}-${dateStr}`,
+        user_id: member.id,
+        date: dateStr,
+        status: status, // Present, Absent, Leave, Half-day
+        checkIn: status !== 'Absent' ? '09:30 AM' : '-',
+        checkOut: status !== 'Absent' ? '06:00 PM' : '-'
+      });
+    });
+  }
+  return records;
+};
+
+// Helper to generate initial salary records for current month
+const generateSeedSalaries = (members, attendanceRecords) => {
+  const salaries = [];
+  const currentMonth = 'জুলাই ২০২৬';
+  
+  members.forEach(member => {
+    // Count absences
+    const memberAtt = attendanceRecords.filter(r => r.user_id === member.id);
+    const absentCount = memberAtt.filter(r => r.status === 'Absent').length;
+    const leaveCount = memberAtt.filter(r => r.status === 'Leave').length;
+    const halfDayCount = memberAtt.filter(r => r.status === 'Half-day').length;
+
+    const perDayRate = Math.round(member.basic_salary / 30);
+    const deduction = Math.round((absentCount * perDayRate) + (halfDayCount * perDayRate * 0.5));
+    const bonus = member.role === 'admin' ? 5000 : 2500;
+    const netSalary = member.basic_salary + bonus - deduction;
+
+    salaries.push({
+      id: `sal-${member.id}-2026-07`,
+      user_id: member.id,
+      user_name: member.name,
+      month: currentMonth,
+      month_key: '2026-07',
+      basic_salary: member.basic_salary,
+      bonus: bonus,
+      deductions: deduction,
+      absent_days: absentCount,
+      leave_days: leaveCount,
+      half_days: halfDayCount,
+      net_salary: netSalary,
+      paid_status: parseInt(member.id) % 2 === 1 ? 'Paid' : 'Pending',
+      payment_date: parseInt(member.id) % 2 === 1 ? '2026-07-28' : null,
+      transaction_id: parseInt(member.id) % 2 === 1 ? `TXN-KM-${Math.floor(100000 + Math.random() * 900000)}` : null,
+      note: 'মাসিক পারফরম্যান্স অ্যালাউন্স সহ'
+    });
+  });
+
+  return salaries;
+};
+
+export const DataProvider = ({ children }) => {
+  const [members, setMembers] = useState(() => {
+    const saved = localStorage.getItem('km_members');
+    return saved ? JSON.parse(saved) : INITIAL_MEMBERS;
+  });
+
+  const [projects, setProjects] = useState(() => {
+    const saved = localStorage.getItem('km_projects');
+    return saved ? JSON.parse(saved) : INITIAL_PROJECTS;
+  });
+
+  const [attendance, setAttendance] = useState(() => {
+    const saved = localStorage.getItem('km_attendance');
+    return saved ? JSON.parse(saved) : generateSeedAttendance();
+  });
+
+  const [salaries, setSalaries] = useState(() => {
+    const saved = localStorage.getItem('km_salaries');
+    return saved ? JSON.parse(saved) : generateSeedSalaries(INITIAL_MEMBERS, generateSeedAttendance());
+  });
+
+  // Sync to localStorage
+  useEffect(() => {
+    localStorage.setItem('km_members', JSON.stringify(members));
+  }, [members]);
+
+  useEffect(() => {
+    localStorage.setItem('km_projects', JSON.stringify(projects));
+  }, [projects]);
+
+  useEffect(() => {
+    localStorage.setItem('km_attendance', JSON.stringify(attendance));
+  }, [attendance]);
+
+  useEffect(() => {
+    localStorage.setItem('km_salaries', JSON.stringify(salaries));
+  }, [salaries]);
+
+  // Recalculate salary for a member
+  const recalculateMemberSalary = (userId, monthKey = '2026-07') => {
+    const member = members.find(m => m.id === userId);
+    if (!member) return;
+
+    const memberAtt = attendance.filter(r => r.user_id === userId);
+    const absentCount = memberAtt.filter(r => r.status === 'Absent').length;
+    const leaveCount = memberAtt.filter(r => r.status === 'Leave').length;
+    const halfDayCount = memberAtt.filter(r => r.status === 'Half-day').length;
+
+    const perDayRate = Math.round(member.basic_salary / 30);
+    const deduction = Math.round((absentCount * perDayRate) + (halfDayCount * perDayRate * 0.5));
+
+    setSalaries(prev => prev.map(sal => {
+      if (sal.user_id === userId && sal.month_key === monthKey) {
+        const net = member.basic_salary + sal.bonus - deduction;
+        return {
+          ...sal,
+          basic_salary: member.basic_salary,
+          absent_days: absentCount,
+          leave_days: leaveCount,
+          half_days: halfDayCount,
+          deductions: deduction,
+          net_salary: net
+        };
+      }
+      return sal;
+    }));
+  };
+
+  // Member CRUD
+  const addMember = (newMemberData) => {
+    const newId = String(Date.now());
+    const member = {
+      ...newMemberData,
+      id: newId,
+      status: 'Active',
+      avatar: newMemberData.avatar || `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop`
+    };
+
+    setMembers(prev => [...prev, member]);
+
+    // Create salary record for new member
+    const newSal = {
+      id: `sal-${newId}-2026-07`,
+      user_id: newId,
+      user_name: member.name,
+      month: 'জুলাই ২০২৬',
+      month_key: '2026-07',
+      basic_salary: member.basic_salary,
+      bonus: 0,
+      deductions: 0,
+      absent_days: 0,
+      leave_days: 0,
+      half_days: 0,
+      net_salary: member.basic_salary,
+      paid_status: 'Pending',
+      payment_date: null,
+      transaction_id: null,
+      note: 'নতুন মেম্বারের বেতন অ্যাকাউন্ট'
+    };
+
+    setSalaries(prev => [...prev, newSal]);
+  };
+
+  const updateMember = (updatedData) => {
+    setMembers(prev => prev.map(m => m.id === updatedData.id ? { ...m, ...updatedData } : m));
+    recalculateMemberSalary(updatedData.id);
+  };
+
+  const deleteMember = (memberId) => {
+    setMembers(prev => prev.filter(m => m.id !== memberId));
+    setSalaries(prev => prev.filter(s => s.user_id !== memberId));
+    setAttendance(prev => prev.filter(a => a.user_id !== memberId));
+  };
+
+  // Attendance update function
+  const setDailyAttendance = (userId, dateStr, status) => {
+    setAttendance(prev => {
+      const existingIdx = prev.findIndex(a => a.user_id === userId && a.date === dateStr);
+      if (existingIdx >= 0) {
+        const updated = [...prev];
+        updated[existingIdx] = {
+          ...updated[existingIdx],
+          status,
+          checkIn: status !== 'Absent' ? '09:30 AM' : '-',
+          checkOut: status !== 'Absent' ? '06:00 PM' : '-'
+        };
+        return updated;
+      } else {
+        return [...prev, {
+          id: `att-${userId}-${dateStr}`,
+          user_id: userId,
+          date: dateStr,
+          status,
+          checkIn: status !== 'Absent' ? '09:30 AM' : '-',
+          checkOut: status !== 'Absent' ? '06:00 PM' : '-'
+        }];
+      }
+    });
+
+    // Automatically recalculate salary deduction after attendance change
+    setTimeout(() => recalculateMemberSalary(userId), 50);
+  };
+
+  // Salary status update
+  const updateSalaryStatus = (salaryId, newStatus, bonus = null, note = null) => {
+    setSalaries(prev => prev.map(sal => {
+      if (sal.id === salaryId) {
+        const updatedBonus = bonus !== null ? Number(bonus) : sal.bonus;
+        const newNet = sal.basic_salary + updatedBonus - sal.deductions;
+        const isPaid = newStatus === 'Paid';
+
+        return {
+          ...sal,
+          bonus: updatedBonus,
+          net_salary: newNet,
+          paid_status: newStatus,
+          payment_date: isPaid ? new Date().toISOString().split('T')[0] : null,
+          transaction_id: isPaid ? (sal.transaction_id || `TXN-KM-${Math.floor(100000 + Math.random() * 900000)}`) : null,
+          note: note !== null ? note : sal.note
+        };
+      }
+      return sal;
+    }));
+  };
+
+  // Project CRUD
+  const addProject = (projectData) => {
+    setProjects(prev => [...prev, { ...projectData, id: `p-${Date.now()}` }]);
+  };
+
+  const deleteProject = (projectId) => {
+    setProjects(prev => prev.filter(p => p.id !== projectId));
+  };
+
+  return (
+    <DataContext.Provider value={{
+      members,
+      projects,
+      attendance,
+      salaries,
+      addMember,
+      updateMember,
+      deleteMember,
+      setDailyAttendance,
+      updateSalaryStatus,
+      addProject,
+      deleteProject,
+      recalculateMemberSalary
+    }}>
+      {children}
+    </DataContext.Provider>
+  );
+};
+
+export const useData = () => useContext(DataContext);

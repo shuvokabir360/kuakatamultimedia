@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Red Headphone & Text Gradient -->
+    <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff1a35" />
+      <stop offset="50%" stop-color="#e50914" />
+      <stop offset="100%" stop-color="#990012" />
+    </linearGradient>
+
+    <!-- Dark Badge Gradient -->
+    <linearGradient id="badgeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7a000d" />
+      <stop offset="50%" stop-color="#3b0006" />
+      <stop offset="100%" stop-color="#7a000d" />
+    </linearGradient>
+
+    <!-- Drop Shadow for 3D effect -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#ff0022" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- Outer Headphone Arc -->
+  <path d="M 90 260 A 160 160 0 0 1 410 260" fill="none" stroke="url(#redGradient)" stroke-width="32" stroke-linecap="round" filter="url(#glow)" />
+
+  <!-- Left Ear Cup -->
+  <path d="M 75 250 C 60 250, 50 270, 50 310 C 50 350, 60 370, 75 370 C 100 370, 115 340, 115 310 C 115 280, 100 250, 75 250 Z" fill="url(#redGradient)" />
+  <path d="M 68 275 C 60 275, 56 290, 56 310 C 56 330, 60 345, 68 345 C 80 345, 85 330, 85 310 C 85 290, 80 275, 68 275 Z" fill="#ffffff" opacity="0.9" />
+
+  <!-- Right Ear Cup -->
+  <path d="M 425 250 C 440 250, 450 270, 450 310 C 450 350, 440 370, 425 370 C 400 370, 385 340, 385 310 C 385 280, 400 250, 425 250 Z" fill="url(#redGradient)" />
+  <path d="M 432 275 C 440 275, 444 290, 444 310 C 444 330, 440 345, 432 345 C 420 345, 415 330, 415 310 C 415 290, 420 275, 432 275 Z" fill="#ffffff" opacity="0.9" />
+
+  <!-- Cameraman Silhouette -->
+  <g fill="url(#redGradient)" transform="translate(180, 160) scale(0.7)">
+    <!-- Head/Cap -->
+    <path d="M 85 25 C 80 15, 65 15, 55 22 C 45 28, 40 40, 45 50 C 50 60, 65 62, 75 58 C 85 54, 90 35, 85 25 Z" />
+    <path d="M 80 20 L 115 28 L 85 33 Z" /> <!-- Cap brim -->
+    
+    <!-- Body/Shirt -->
+    <path d="M 45 55 C 35 70, 25 100, 20 140 L 45 210 L 70 210 L 80 130 L 95 130 L 105 100 L 90 65 Z" />
+    
+    <!-- Camera Arms & Tripod -->
+    <path d="M 80 70 L 120 75 L 130 95 L 90 90 Z" />
+    <rect x="115" y="70" width="30" height="20" rx="3" fill="url(#redGradient)" /> <!-- Camera Body -->
+    <polygon points="145,72 165,65 165,95 145,88" /> <!-- Lens -->
+    
+    <!-- Tripod Stand -->
+    <line x1="130" y1="90" x2="90" y2="210" stroke="url(#redGradient)" stroke-width="8" stroke-linecap="round" />
+    <line x1="130" y1="90" x2="130" y2="210" stroke="url(#redGradient)" stroke-width="8" stroke-linecap="round" />
+    <line x1="130" y1="90" x2="170" y2="210" stroke="url(#redGradient)" stroke-width="8" stroke-linecap="round" />
+  </g>
+
+  <!-- KUAKATA Badge -->
+  <rect x="155" y="325" width="190" height="36" rx="8" fill="url(#badgeGradient)" stroke="#ff0022" stroke-width="1.5" />
+  <text x="250" y="349" font-family="'Inter', sans-serif" font-weight="900" font-size="20" fill="#ffffff" text-anchor="middle" letter-spacing="3">KUAKATA</text>
+
+  <!-- MULTIMEDIA Text -->
+  <text x="250" y="398" font-family="'Inter', sans-serif" font-weight="900" font-size="34" fill="#ff0022" text-anchor="middle" letter-spacing="1" filter="url(#glow)">MULTIMEDIA</text>
+</svg>
