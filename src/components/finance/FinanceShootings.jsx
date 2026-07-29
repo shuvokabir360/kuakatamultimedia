@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Film, Plus, Calendar, MapPin, Tv, User, FileText, Check, X, ChevronRight, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { Film, Plus, Calendar, MapPin, Tv, User, FileText, Check, X, ChevronRight, ChevronDown, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { useData, toBnNum } from '../../context/DataContext';
 
 export default function FinanceShootings({ openAddModalDirectly = false }) {
