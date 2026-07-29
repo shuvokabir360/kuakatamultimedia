@@ -1,6 +1,7 @@
 import React from 'react';
-import { Users, ArrowUpRight, ChevronRight, Plus } from 'lucide-react';
+import { Users, ArrowUpRight, ChevronRight, Plus, TrendingUp } from 'lucide-react';
 import { useData, toBnNum } from '../../context/DataContext';
+import ShootingCalendar from './ShootingCalendar';
 
 export default function FinanceHome({ onNavigate }) {
   const { members = [], clients = [] } = useData() || {};
@@ -12,13 +13,12 @@ export default function FinanceHome({ onNavigate }) {
     if (hour >= 6 && hour < 12) return { text: 'শুভ সকাল', icon: '☀️' };
     if (hour >= 12 && hour < 15) return { text: 'শুভ দুপুর', icon: '🌤️' };
     if (hour >= 15 && hour < 18) return { text: 'শুভ বিকাল', icon: '⛅' };
-    if (hour >= 18 && hour < 20) return { text: 'শুভ সন্ধ্যা', icon: '<ctrl42>' };
+    if (hour >= 18 && hour < 20) return { text: 'শুভ সন্ধ্যা', icon: '🌆' };
     return { text: 'শুভ রাত্রি', icon: '🌙' };
   };
 
   const greeting = getGreeting();
 
-  // Total calculation with safe optional chaining
   const safeMembers = members || [];
   const safeClients = clients || [];
 
@@ -53,7 +53,7 @@ export default function FinanceHome({ onNavigate }) {
         </div>
       </div>
 
-      {/* 1. MAIN CARD: মোট বকেয়া (Red Card matching Screenshot 1) */}
+      {/* 1. MAIN CARD: মোট বকেয়া */}
       <div className="bg-gradient-to-br from-red-500 via-rose-600 to-red-600 text-white rounded-3xl p-5 shadow-xl shadow-red-500/20 space-y-4 relative overflow-hidden">
         
         <div className="flex items-center justify-between">
@@ -110,7 +110,7 @@ export default function FinanceHome({ onNavigate }) {
 
       </div>
 
-      {/* 2. CARD: ক্লায়েন্ট হিসাব (Client Ledger matching Screenshot 1) */}
+      {/* 2. CARD: ক্লায়েন্ট হিসাব */}
       <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-md space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
@@ -152,17 +152,17 @@ export default function FinanceHome({ onNavigate }) {
         </div>
       </div>
 
-      {/* 3. CARD: মোট খরচ (Total Expenses matching Screenshot 1) */}
+      {/* 3. CARD: মোট খরচ (Matching Screenshot) */}
       <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-md space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-red-500 font-black">📈</span>
+            <TrendingUp className="w-4 h-4 text-red-500" />
             <h3 className="text-sm font-black text-slate-800">মোট খরচ</h3>
           </div>
 
           <button
             onClick={() => alert('নতুন খরচ যোগ করার ফর্ম')}
-            className="px-3.5 py-1.5 rounded-xl bg-red-600 text-white text-xs font-bold flex items-center gap-1 shadow-sm hover:bg-red-700 transition-colors"
+            className="px-3.5 py-1.5 rounded-full bg-red-600 text-white text-xs font-black flex items-center gap-1 shadow-sm hover:bg-red-700 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>খরচ যোগ</span>
@@ -171,22 +171,48 @@ export default function FinanceHome({ onNavigate }) {
 
         {/* Filter Dropdowns */}
         <div className="grid grid-cols-2 gap-2 text-xs">
-          <select className="px-3 py-2 rounded-xl bg-slate-100 border border-slate-200 font-semibold text-slate-700">
+          <select className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-semibold text-slate-700">
             <option>মাস অনুযায়ী</option>
             <option>তারিখ অনুযায়ী</option>
           </select>
 
-          <select className="px-3 py-2 rounded-xl bg-slate-100 border border-slate-200 font-semibold text-slate-700">
+          <select className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-semibold text-slate-700">
             <option>জুলাই ২০২৬</option>
             <option>জুন ২০২৬</option>
           </select>
         </div>
 
-        <div className="p-4 rounded-2xl bg-rose-50/50 border border-rose-100">
-          <span className="text-[11px] text-slate-500 font-bold block">মোট খরচ</span>
-          <span className="text-2xl font-black text-red-600">৳ {toBnNum(180000)}</span>
+        {/* Main Expense Breakdowns (Matching Screenshot) */}
+        <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-100 space-y-3">
+          <div>
+            <span className="text-[10px] text-slate-500 font-bold block mb-0.5">মোট খরচ</span>
+            <span className="text-2xl font-black text-red-600">৳ {toBnNum((102020).toLocaleString())}</span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 pt-2 border-t border-rose-200/60">
+            <div className="bg-white p-2.5 rounded-xl border border-rose-100">
+              <span className="text-[10px] text-slate-500 font-semibold block">হাজিরা খরচ</span>
+              <span className="text-xs font-extrabold text-slate-800">৳ {toBnNum((95200).toLocaleString())}</span>
+            </div>
+
+            <div className="bg-white p-2.5 rounded-xl border border-rose-100">
+              <span className="text-[10px] text-slate-500 font-semibold block">অন্যান্য খরচ</span>
+              <span className="text-xs font-extrabold text-slate-800">৳ {toBnNum((6820).toLocaleString())}</span>
+              <span className="text-[9px] font-bold text-red-500 block mt-0.5 cursor-pointer hover:underline">
+                বিস্তারিত দেখুন →
+              </span>
+            </div>
+          </div>
+
+          <div className="text-[10px] text-slate-500 font-bold pt-1">
+            {toBnNum(9)} টি শুটিং অন্তর্ভুক্ত
+          </div>
         </div>
+
       </div>
+
+      {/* 4. SHOOTING CALENDAR & SUMMARY COMPONENT (Matching Screenshot) */}
+      <ShootingCalendar />
 
     </div>
   );
