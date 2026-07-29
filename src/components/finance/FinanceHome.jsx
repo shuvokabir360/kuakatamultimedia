@@ -1,10 +1,21 @@
-import React from 'react';
-import { Users, ArrowUpRight, ChevronRight, Plus, TrendingUp } from 'lucide-react';
+import React, { useState } from 'react';
+import { Users, ArrowUpRight, ChevronRight, Plus, TrendingUp, DollarSign } from 'lucide-react';
 import { useData, toBnNum } from '../../context/DataContext';
 import ShootingCalendar from './ShootingCalendar';
 
 export default function FinanceHome({ onNavigate }) {
   const { members = [], clients = [], payments = [], shootings = [] } = useData() || {};
+
+  const [expensesList, setExpensesList] = useState(() => {
+    try {
+      const saved = localStorage.getItem('km_finance_extra_expenses');
+      return saved ? JSON.parse(saved) : [];
+    } catch(e) { return []; }
+  });
+
+  const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
+  const [expenseTitle, setExpenseTitle] = useState('');
+  const [expenseAmount, setExpenseAmount] = useState('');
 
   // Calculate dynamic greeting based on Bangladesh time
   const getGreeting = () => {
@@ -13,7 +24,7 @@ export default function FinanceHome({ onNavigate }) {
     if (hour >= 6 && hour < 12) return { text: 'শুভ সকাল', icon: '☀️' };
     if (hour >= 12 && hour < 15) return { text: 'শুভ দুপুর', icon: '🌤️' };
     if (hour >= 15 && hour < 18) return { text: 'শুভ বিকাল', icon: '⛅' };
-    if (hour >= 18 && hour < 20) return { text: 'শুভ সন্ধ্যা', icon: '<ctrl42>' };
+    if (hour >= 18 && hour < 20) return { text: 'শুভ সন্ধ্যা', icon: '🌆' };
     return { text: 'শুভ রাত্রি', icon: '🌙' };
   };
 
@@ -24,7 +35,7 @@ export default function FinanceHome({ onNavigate }) {
   const safePayments = payments || [];
   const safeShootings = shootings || [];
 
-  // All Dynamic ZERO Calculations
+  // DYNAMIC CALCULATIONS (Starts at 0, updates live & stays saved!)
   const totalDues = safeMembers.reduce((sum, m) => sum + Math.max(0, m?.balance || 0), 0);
   const prevDues = 0;
   const currentMonthDues = totalDues;
@@ -36,9 +47,29 @@ export default function FinanceHome({ onNavigate }) {
   const totalClientReceived = safeClients.reduce((sum, c) => sum + (c?.received_amount || 0), 0);
 
   // Expense calculations
-  const totalExpenses = 0;
-  const attendanceExpense = 0;
-  const otherExpense = 0;
+  const attendanceExpense = safeShootings.reduce((sum, s) => sum + (s?.expenses || 0), 0);
+  const otherExpense = expensesList.reduce((sum, e) => sum + (e?.amount || 0), 0);
+  const totalExpenses = attendanceExpense + otherExpense;
+
+  const handleAddExpenseSubmit = (e) => {
+    e.preventDefault();
+    if (!expenseAmount || Number(expenseAmount) <= 0) return;
+
+    const newExp = {
+      id: 'exp-' + Date.now(),
+      title: expenseTitle || 'সাধারণ খরচ',
+      amount: Number(expenseAmount),
+      date: new Date().toLocaleDateString('en-GB')
+    };
+
+    const updated = [newExp, ...expensesList];
+    setExpensesList(updated);
+    try { localStorage.setItem('km_finance_extra_expenses', JSON.stringify(updated)); } catch(e){}
+
+    setShowAddExpenseModal(false);
+    setExpenseTitle('');
+    setExpenseAmount('');
+  };
 
   return (
     <div className="space-y-6 pb-8 animate-fade-in">
@@ -61,7 +92,7 @@ export default function FinanceHome({ onNavigate }) {
         </div>
       </div>
 
-      {/* 1. MAIN CARD: মোট বকেয়া (Set to Zero 0) */}
+      {/* 1. MAIN CARD: মোট বকেয়া (Dynamic & Live Saved) */}
       <div className="bg-gradient-to-br from-red-500 via-rose-600 to-red-600 text-white rounded-3xl p-5 shadow-xl shadow-red-500/20 space-y-4 relative overflow-hidden">
         
         <div className="flex items-center justify-between">
@@ -160,7 +191,7 @@ export default function FinanceHome({ onNavigate }) {
         </div>
       </div>
 
-      {/* 3. CARD: মোট খরচ (Set to Zero 0) */}
+      {/* 3. CARD: মোট খরচ */}
       <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-md space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -169,7 +200,7 @@ export default function FinanceHome({ onNavigate }) {
           </div>
 
           <button
-            onClick={() => alert('নতুন খরচ যোগ করার ফর্ম')}
+            onClick={() => setShowAddExpenseModal(true)}
             className="px-3.5 py-1.5 rounded-full bg-red-600 text-white text-xs font-black flex items-center gap-1 shadow-sm hover:bg-red-700 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -190,7 +221,7 @@ export default function FinanceHome({ onNavigate }) {
           </select>
         </div>
 
-        {/* Main Expense Breakdowns (Set to Zero 0) */}
+        {/* Main Expense Breakdowns */}
         <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-100 space-y-3">
           <div>
             <span className="text-[10px] text-slate-500 font-bold block mb-0.5">মোট খরচ</span>
@@ -206,9 +237,6 @@ export default function FinanceHome({ onNavigate }) {
             <div className="bg-white p-2.5 rounded-xl border border-rose-100">
               <span className="text-[10px] text-slate-500 font-semibold block">অন্যান্য খরচ</span>
               <span className="text-xs font-extrabold text-slate-800">৳ {toBnNum(otherExpense.toLocaleString())}</span>
-              <span className="text-[9px] font-bold text-red-500 block mt-0.5 cursor-pointer hover:underline">
-                বিস্তারিত দেখুন →
-              </span>
             </div>
           </div>
 
@@ -221,6 +249,53 @@ export default function FinanceHome({ onNavigate }) {
 
       {/* 4. SHOOTING CALENDAR & SUMMARY COMPONENT */}
       <ShootingCalendar />
+
+      {/* ADD EXPENSE MODAL */}
+      {showAddExpenseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-sm bg-white rounded-3xl p-6 border border-slate-200 shadow-2xl space-y-4">
+            
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h3 className="text-base font-black text-slate-900">নতুন খরচ যোগ করুন</h3>
+              <button onClick={() => setShowAddExpenseModal(false)} className="text-slate-400 hover:text-slate-600">✕</button>
+            </div>
+
+            <form onSubmit={handleAddExpenseSubmit} className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-600 font-bold mb-1">খরচের বিবরণ/খাত</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="যেমন: ক্যামেরা রেন্ট বা নাস্তা খরচ"
+                  value={expenseTitle}
+                  onChange={(e) => setExpenseTitle(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 font-semibold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-600 font-bold mb-1">পরিমাণ (টাকা)</label>
+                <input
+                  type="number"
+                  required
+                  placeholder="0"
+                  value={expenseAmount}
+                  onChange={(e) => setExpenseAmount(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 font-bold"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3 rounded-xl bg-red-600 text-white font-black shadow-md"
+              >
+                খরচ সেভ করুন
+              </button>
+            </form>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );
