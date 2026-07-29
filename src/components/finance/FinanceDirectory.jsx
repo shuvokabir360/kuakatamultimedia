@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Tv, User, Search, ChevronRight, ShieldCheck, Briefcase, Plus, X, Check } from 'lucide-react';
+import { Tv, User, Search, ChevronRight, ShieldCheck, Briefcase, Plus, X, Check, Edit3, Trash2 } from 'lucide-react';
 import { useData, toBnNum } from '../../context/DataContext';
 
 export default function FinanceDirectory() {
-  const { channels = [], addChannel, directors = [], addDirector } = useData();
+  const { channels = [], addChannel, updateChannel, deleteChannel, directors = [], addDirector, updateDirector, deleteDirector } = useData();
   const [activeTab, setActiveTab] = useState('channels'); // 'channels' | 'directors'
   const [channelCategoryFilter, setChannelCategoryFilter] = useState('all'); // 'all' | 'official' | 'client'
   const [searchQuery, setSearchQuery] = useState('');
@@ -11,6 +11,10 @@ export default function FinanceDirectory() {
   // Modals state
   const [showChannelModal, setShowChannelModal] = useState(false);
   const [showDirectorModal, setShowDirectorModal] = useState(false);
+
+  // Edit Modals state
+  const [editingChannel, setEditingChannel] = useState(null);
+  const [editingDirector, setEditingDirector] = useState(null);
 
   // New Channel Form State
   const [channelForm, setChannelForm] = useState({
@@ -40,6 +44,19 @@ export default function FinanceDirectory() {
     setChannelForm({ name: '', category: 'official', logo: '' });
   };
 
+  const handleEditChannelSubmit = (e) => {
+    e.preventDefault();
+    if (!editingChannel || !editingChannel.name.trim()) return;
+
+    updateChannel({
+      ...editingChannel,
+      name: editingChannel.name.trim(),
+      logo: editingChannel.logo.trim() || '/logo.svg'
+    });
+
+    setEditingChannel(null);
+  };
+
   const handleAddDirectorSubmit = (e) => {
     e.preventDefault();
     if (!directorForm.name.trim()) return;
@@ -52,6 +69,20 @@ export default function FinanceDirectory() {
 
     setShowDirectorModal(false);
     setDirectorForm({ name: '', role: 'পরিচালক', avatar: '' });
+  };
+
+  const handleEditDirectorSubmit = (e) => {
+    e.preventDefault();
+    if (!editingDirector || !editingDirector.name.trim()) return;
+
+    updateDirector({
+      ...editingDirector,
+      name: editingDirector.name.trim(),
+      role: editingDirector.role.trim() || 'পরিচালক',
+      avatar: editingDirector.avatar.trim() || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop'
+    });
+
+    setEditingDirector(null);
   };
 
   const filteredChannels = (channels || []).filter(c => {
@@ -188,15 +219,15 @@ export default function FinanceDirectory() {
               key={ch.id}
               className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-sm flex items-center justify-between transition-transform hover:scale-[1.01]"
             >
-              <div className="flex items-center gap-3.5">
+              <div className="flex items-center gap-3.5 min-w-0">
                 <div className="w-12 h-12 rounded-full bg-slate-100 p-1.5 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
                   <img src={ch.logo || '/logo.svg'} alt={ch.name} className="w-full h-full object-cover rounded-full" />
                 </div>
 
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-black text-slate-900">{ch.name}</h3>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold ${
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-sm font-black text-slate-900 truncate">{ch.name}</h3>
+                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold shrink-0 ${
                       ch.category === 'official'
                         ? 'bg-rose-100 text-rose-600 border border-rose-200'
                         : 'bg-amber-100 text-amber-800 border border-amber-200'
@@ -211,7 +242,27 @@ export default function FinanceDirectory() {
                 </div>
               </div>
 
-              <ChevronRight className="w-5 h-5 text-slate-400 shrink-0" />
+              {/* Action Buttons (Edit & Delete) */}
+              <div className="flex items-center gap-1 shrink-0 ml-2">
+                <button
+                  onClick={() => setEditingChannel({ ...ch })}
+                  title="এডিট চ্যানেল"
+                  className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors border border-slate-200"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => {
+                    if (window.confirm(`আপনি কি "${ch.name}" চ্যানেলটি ডিলিট করতে চান?`)) {
+                      deleteChannel(ch.id);
+                    }
+                  }}
+                  title="ডিলিট চ্যানেল"
+                  className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors border border-rose-200"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -225,22 +276,42 @@ export default function FinanceDirectory() {
               key={dir.id}
               className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-sm flex items-center justify-between transition-transform hover:scale-[1.01]"
             >
-              <div className="flex items-center gap-3.5">
+              <div className="flex items-center gap-3.5 min-w-0">
                 <img
                   src={dir.avatar}
                   alt={dir.name}
                   className="w-12 h-12 rounded-full object-cover border border-slate-200 shrink-0 shadow-sm"
                 />
 
-                <div>
-                  <h3 className="text-sm font-black text-slate-900">{dir.name}</h3>
-                  <span className="text-[11px] text-slate-500 font-semibold block mt-0.5">
+                <div className="min-w-0">
+                  <h3 className="text-sm font-black text-slate-900 truncate">{dir.name}</h3>
+                  <span className="text-[11px] text-slate-500 font-semibold block mt-0.5 truncate">
                     {dir.role || 'পরিচালক'} • {toBnNum(dir.shootingCount || 0)} টি শুটিং
                   </span>
                 </div>
               </div>
 
-              <ChevronRight className="w-5 h-5 text-slate-400 shrink-0" />
+              {/* Action Buttons (Edit & Delete) */}
+              <div className="flex items-center gap-1 shrink-0 ml-2">
+                <button
+                  onClick={() => setEditingDirector({ ...dir })}
+                  title="এডিট পরিচালক"
+                  className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors border border-slate-200"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => {
+                    if (window.confirm(`আপনি কি "${dir.name}" পরিচালককে ডিলিট করতে চান?`)) {
+                      deleteDirector(dir.id);
+                    }
+                  }}
+                  title="ডিলিট পরিচালক"
+                  className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors border border-rose-200"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -306,6 +377,72 @@ export default function FinanceDirectory() {
                 >
                   <Check className="w-4 h-4" />
                   <span>চ্যানেল সেভ করুন</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 1.1 EDIT CHANNEL MODAL */}
+      {editingChannel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-sm bg-white rounded-3xl p-6 border border-slate-200 shadow-2xl space-y-4">
+            
+            <button
+              onClick={() => setEditingChannel(null)}
+              className="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:text-slate-600"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center">
+              <h3 className="text-lg font-black text-slate-900">চ্যানেল এডিট করুন</h3>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">লোগো ও নাম আপডেট করুন</p>
+            </div>
+
+            <form onSubmit={handleEditChannelSubmit} className="space-y-3 text-xs">
+              <div>
+                <label className="block font-black text-slate-700 mb-1">চ্যানেলের নাম *</label>
+                <input
+                  type="text"
+                  required
+                  value={editingChannel.name}
+                  onChange={(e) => setEditingChannel({ ...editingChannel, name: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 font-bold text-slate-800"
+                />
+              </div>
+
+              <div>
+                <label className="block font-black text-slate-700 mb-1">ক্যাটাগরি</label>
+                <select
+                  value={editingChannel.category}
+                  onChange={(e) => setEditingChannel({ ...editingChannel, category: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 font-bold text-slate-800"
+                >
+                  <option value="official">অফিসিয়াল (নিজেদের চ্যানেল)</option>
+                  <option value="client">ক্লায়েন্ট (অন্যের চ্যানেল)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-black text-slate-700 mb-1">লোগো ছবি (URL)</label>
+                <input
+                  type="text"
+                  placeholder="https://..."
+                  value={editingChannel.logo || ''}
+                  onChange={(e) => setEditingChannel({ ...editingChannel, logo: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 font-semibold text-slate-800"
+                />
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-md shadow-red-500/20 flex items-center justify-center gap-1.5"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>আপডেট সেভ করুন</span>
                 </button>
               </div>
             </form>
@@ -379,8 +516,73 @@ export default function FinanceDirectory() {
         </div>
       )}
 
+      {/* 2.1 EDIT DIRECTOR MODAL */}
+      {editingDirector && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-sm bg-white rounded-3xl p-6 border border-slate-200 shadow-2xl space-y-4">
+            
+            <button
+              onClick={() => setEditingDirector(null)}
+              className="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:text-slate-600"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center">
+              <h3 className="text-lg font-black text-slate-900">পরিচালক এডিট করুন</h3>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">ছবি ও বিস্তারিত আপডেট করুন</p>
+            </div>
+
+            <form onSubmit={handleEditDirectorSubmit} className="space-y-3 text-xs">
+              <div>
+                <label className="block font-black text-slate-700 mb-1">পরিচালকের নাম *</label>
+                <input
+                  type="text"
+                  required
+                  value={editingDirector.name}
+                  onChange={(e) => setEditingDirector({ ...editingDirector, name: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 font-bold text-slate-800"
+                />
+              </div>
+
+              <div>
+                <label className="block font-black text-slate-700 mb-1">পদবি / রোল</label>
+                <input
+                  type="text"
+                  value={editingDirector.role || ''}
+                  onChange={(e) => setEditingDirector({ ...editingDirector, role: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 font-bold text-slate-800"
+                />
+              </div>
+
+              <div>
+                <label className="block font-black text-slate-700 mb-1">প্রোফাইল ছবি (URL)</label>
+                <input
+                  type="text"
+                  placeholder="https://..."
+                  value={editingDirector.avatar || ''}
+                  onChange={(e) => setEditingDirector({ ...editingDirector, avatar: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 font-semibold text-slate-800"
+                />
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs shadow-md flex items-center justify-center gap-1.5"
+                >
+                  <Check className="w-4 h-4 text-emerald-400" />
+                  <span>আপডেট সেভ করুন</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
+
 
 

@@ -362,6 +362,20 @@ export const DataProvider = ({ children }) => {
     setChannels(prev => [...(prev || []), chObj]);
   };
 
+  // Update Channel
+  const updateChannel = (updated) => {
+    setChannels(prev => (prev || []).map(ch => ch.id === updated.id ? {
+      ...ch,
+      ...updated,
+      categoryLabel: updated.category === 'official' ? 'অফিসিয়াল (নিজেদের)' : 'ক্লায়েন্ট চ্যানেল'
+    } : ch));
+  };
+
+  // Delete Channel
+  const deleteChannel = (id) => {
+    setChannels(prev => (prev || []).filter(ch => ch.id !== id));
+  };
+
   // Add Director
   const addDirector = (newDirector) => {
     const dirObj = {
@@ -372,6 +386,16 @@ export const DataProvider = ({ children }) => {
       avatar: newDirector.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop'
     };
     setDirectors(prev => [...(prev || []), dirObj]);
+  };
+
+  // Update Director
+  const updateDirector = (updated) => {
+    setDirectors(prev => (prev || []).map(dir => dir.id === updated.id ? { ...dir, ...updated } : dir));
+  };
+
+  // Delete Director
+  const deleteDirector = (id) => {
+    setDirectors(prev => (prev || []).filter(dir => dir.id !== id));
   };
 
   // Reset User Password Service
@@ -464,8 +488,12 @@ export const DataProvider = ({ children }) => {
       clients: clients || INITIAL_CLIENTS,
       channels: channels || INITIAL_CHANNELS,
       addChannel,
+      updateChannel,
+      deleteChannel,
       directors: directors || INITIAL_DIRECTORS,
       addDirector,
+      updateDirector,
+      deleteDirector,
       toBnNum
     }}>
       {children}
