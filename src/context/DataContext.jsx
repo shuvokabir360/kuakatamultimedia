@@ -10,7 +10,7 @@ export const toBnNum = (num) => {
   return String(num).replace(/\d/g, (digit) => bnDigits[digit]);
 };
 
-// Exact 17 Members matching Screenshot 1 & Screenshot 2
+// Exact 17 Members matching Screenshot 1 & Screenshot 2 - ALL BALANCES SET TO ZERO (0)
 const EXACT_MEMBERS_LIST = [
   {
     id: 'm-1',
@@ -22,6 +22,7 @@ const EXACT_MEMBERS_LIST = [
     pin: '1234',
     email: 'shuvokuakata27@gmail.com',
     balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
     isPinnedTop: true,
     role: 'admin'
@@ -35,7 +36,8 @@ const EXACT_MEMBERS_LIST = [
     phone: '01822111222',
     pin: '1234',
     email: 'almas@kuakatamultimedia.com',
-    balance: 8500,
+    balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop',
     role: 'member'
   },
@@ -48,7 +50,8 @@ const EXACT_MEMBERS_LIST = [
     phone: '01911222333',
     pin: '1234',
     email: 'sagor@kuakatamultimedia.com',
-    balance: 4000,
+    balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop',
     role: 'member'
   },
@@ -61,7 +64,8 @@ const EXACT_MEMBERS_LIST = [
     phone: '01611333444',
     pin: '1234',
     email: 'apon@kuakatamultimedia.com',
-    balance: 2000,
+    balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&auto=format&fit=crop',
     role: 'member'
   },
@@ -74,7 +78,8 @@ const EXACT_MEMBERS_LIST = [
     phone: '01511444555',
     pin: '1234',
     email: 'jafor@kuakatamultimedia.com',
-    balance: 1500,
+    balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&auto=format&fit=crop',
     role: 'member'
   },
@@ -87,7 +92,8 @@ const EXACT_MEMBERS_LIST = [
     phone: '01311555666',
     pin: '1234',
     email: 'siraj@kuakatamultimedia.com',
-    balance: 1500,
+    balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&auto=format&fit=crop',
     role: 'member'
   },
@@ -100,7 +106,8 @@ const EXACT_MEMBERS_LIST = [
     phone: '01833444555',
     pin: '1234',
     email: 'milon@kuakatamultimedia.com',
-    balance: 1000,
+    balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=300&auto=format&fit=crop',
     role: 'member'
   },
@@ -114,6 +121,7 @@ const EXACT_MEMBERS_LIST = [
     pin: '1234',
     email: 'rimi@kuakatamultimedia.com',
     balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
     role: 'member'
   },
@@ -127,6 +135,7 @@ const EXACT_MEMBERS_LIST = [
     pin: '1234',
     email: 'nizam@kuakatamultimedia.com',
     balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop',
     role: 'member'
   },
@@ -140,6 +149,7 @@ const EXACT_MEMBERS_LIST = [
     pin: '1234',
     email: 'mohsin@kuakatamultimedia.com',
     balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop',
     role: 'member'
   },
@@ -153,6 +163,7 @@ const EXACT_MEMBERS_LIST = [
     pin: '1234',
     email: 'jisan@kuakatamultimedia.com',
     balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&auto=format&fit=crop',
     role: 'member'
   },
@@ -166,6 +177,7 @@ const EXACT_MEMBERS_LIST = [
     pin: '1234',
     email: 'akhinur@kuakatamultimedia.com',
     balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
     role: 'member'
   },
@@ -179,6 +191,7 @@ const EXACT_MEMBERS_LIST = [
     pin: '1234',
     email: 'ziaur@kuakatamultimedia.com',
     balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&auto=format&fit=crop',
     role: 'member'
   },
@@ -192,6 +205,7 @@ const EXACT_MEMBERS_LIST = [
     pin: '1234',
     email: 'abir@kuakatamultimedia.com',
     balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&auto=format&fit=crop',
     role: 'member'
   },
@@ -204,7 +218,8 @@ const EXACT_MEMBERS_LIST = [
     phone: '01811222333',
     pin: '1234',
     email: 'sojib@kuakatamultimedia.com',
-    balance: -200,
+    balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=300&auto=format&fit=crop',
     role: 'member'
   },
@@ -217,7 +232,8 @@ const EXACT_MEMBERS_LIST = [
     phone: '01822333444',
     pin: '1234',
     email: 'mala@kuakatamultimedia.com',
-    balance: -500,
+    balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
     role: 'member'
   },
@@ -231,6 +247,7 @@ const EXACT_MEMBERS_LIST = [
     pin: '1234',
     email: 'emon@kuakatamultimedia.com',
     balance: 0,
+    daily_rate: 0,
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop',
     role: 'member'
   }
@@ -239,19 +256,21 @@ const EXACT_MEMBERS_LIST = [
 // Clean empty shootings and payments
 const INITIAL_SHOOTINGS = [];
 const INITIAL_PAYMENTS = [];
+
+// Client Ledgers ALL SET TO ZERO (0)
 const INITIAL_CLIENTS = [
   {
     id: 'c1',
     name: 'Malbro Entertainment',
-    contract_amount: 84000,
-    received_amount: 60000,
-    due_amount: 24000
+    contract_amount: 0,
+    received_amount: 0,
+    due_amount: 0
   },
   {
     id: 'c2',
     name: 'Mehidi Multimedia',
-    contract_amount: 45000,
-    received_amount: 45000,
+    contract_amount: 0,
+    received_amount: 0,
     due_amount: 0
   }
 ];
@@ -279,8 +298,9 @@ export const DataProvider = ({ children }) => {
       localStorage.setItem('km_finance_members', JSON.stringify(members));
       localStorage.setItem('km_finance_shootings', JSON.stringify(shootings));
       localStorage.setItem('km_finance_payments', JSON.stringify(payments));
+      localStorage.setItem('km_finance_clients', JSON.stringify(clients));
     } catch(e){}
-  }, [members, shootings, payments]);
+  }, [members, shootings, payments, clients]);
 
   // Add Member
   const addMember = (newMem) => {

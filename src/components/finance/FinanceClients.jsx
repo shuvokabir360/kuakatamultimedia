@@ -5,36 +5,16 @@ import { useData, toBnNum } from '../../context/DataContext';
 export default function FinanceClients() {
   const { clients = [] } = useData();
 
-  // Mock Detailed Clients matching exact screenshot
-  const detailedClients = [
-    {
-      id: 'c1',
-      name: 'Malbro Entertainment',
-      logo: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=100&auto=format&fit=crop',
-      shootingCount: 14,
-      receivable: 39000,
-      received: 15000,
-      due: 24000
-    },
-    {
-      id: 'c2',
-      name: 'Mehidi Multimedia',
-      logo: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=100&auto=format&fit=crop',
-      shootingCount: 3,
-      receivable: 45000,
-      received: 45000,
-      due: 0
-    }
-  ];
+  const safeClients = clients || [];
 
-  const totalReceivable = 84000;
-  const totalReceived = 60000;
-  const totalDue = 24000;
+  const totalReceivable = safeClients.reduce((sum, c) => sum + (c?.contract_amount || 0), 0);
+  const totalReceived = safeClients.reduce((sum, c) => sum + (c?.received_amount || 0), 0);
+  const totalDue = safeClients.reduce((sum, c) => sum + (c?.due_amount || 0), 0);
 
   return (
     <div className="space-y-6 pb-8 animate-fade-in">
       
-      {/* Header (Matching Screenshot) */}
+      {/* Header */}
       <div>
         <h2 className="text-2xl font-black text-slate-900">ক্লায়েন্ট হিসাব</h2>
         <p className="text-xs text-slate-500 font-medium mt-0.5">
@@ -42,7 +22,7 @@ export default function FinanceClients() {
         </p>
       </div>
 
-      {/* 3 Top Stat Cards (Matching Screenshot) */}
+      {/* 3 Top Stat Cards */}
       <div className="grid grid-cols-3 gap-2.5">
         
         {/* 1. মোট পাওনা */}
@@ -80,25 +60,23 @@ export default function FinanceClients() {
 
       </div>
 
-      {/* Client List Cards (Matching Screenshot) */}
+      {/* Client List Cards */}
       <div className="space-y-3">
-        {detailedClients.map((client) => (
+        {safeClients.map((client) => (
           <div
             key={client.id}
             className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-sm space-y-3 transition-transform hover:scale-[1.01]"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3.5">
-                <img
-                  src={client.logo}
-                  alt={client.name}
-                  className="w-12 h-12 rounded-full object-cover border border-slate-200 shrink-0 shadow-sm"
-                />
+                <div className="w-12 h-12 rounded-full bg-slate-100 p-1 border border-slate-200 flex items-center justify-center shrink-0">
+                  <span className="text-xs font-black text-slate-700">{client.name.charAt(0)}</span>
+                </div>
 
                 <div>
                   <h3 className="text-sm font-black text-slate-900">{client.name}</h3>
                   <span className="text-[11px] text-slate-500 font-semibold block mt-0.5">
-                    {toBnNum(client.shootingCount)} টি শুটিং • পাওনা ৳ {toBnNum(client.receivable.toLocaleString())}
+                    {toBnNum(0)} টি শুটিং • পাওনা ৳ {toBnNum((client.contract_amount || 0).toLocaleString())}
                   </span>
                 </div>
               </div>
@@ -109,11 +87,11 @@ export default function FinanceClients() {
             {/* Received & Due Row */}
             <div className="flex items-center gap-4 text-xs font-bold pt-2 border-t border-slate-100">
               <span className="text-emerald-600">
-                প্রাপ্ত ৳ {toBnNum(client.received.toLocaleString())}
+                প্রাপ্ত ৳ {toBnNum((client.received_amount || 0).toLocaleString())}
               </span>
 
-              <span className={client.due > 0 ? 'text-rose-600' : 'text-slate-500'}>
-                বকেয়া ৳ {toBnNum(client.due.toLocaleString())}
+              <span className={(client.due_amount || 0) > 0 ? 'text-rose-600' : 'text-slate-500'}>
+                বকেয়া ৳ {toBnNum((client.due_amount || 0).toLocaleString())}
               </span>
             </div>
           </div>
