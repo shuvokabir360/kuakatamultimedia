@@ -84,23 +84,13 @@ export const AuthProvider = ({ children }) => {
     return { success: false, message: 'আপনার গোপন PIN টি সঠিক নয়! আবার চেষ্টা করুন।' };
   };
 
-  // Direct Seamless Google Login (Super Admin & User Profiles)
+  // Instant 1-Click Google Sign In (Super Admin shuvokuakata27@gmail.com)
   const loginWithGoogle = async (googleProfile = null) => {
-    let profile = googleProfile;
-    
-    if (!profile) {
-      const promptedEmail = window.prompt("আপনার Google ইমেইল লিখুন (বা Enter চাপুন Super Admin shuvokuakata27@gmail.com এর জন্য):", "shuvokuakata27@gmail.com");
-      if (promptedEmail === null) return { success: false }; // cancelled
-
-      const cleanEmail = (promptedEmail || 'shuvokuakata27@gmail.com').trim();
-      const isSuper = cleanEmail.toLowerCase() === 'shuvokuakata27@gmail.com';
-
-      profile = {
-        name: isSuper ? 'Shuvo (Super Admin)' : cleanEmail.split('@')[0],
-        email: cleanEmail,
-        picture: isSuper ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop' : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop'
-      };
-    }
+    const profile = googleProfile || {
+      name: 'Shuvo (Super Admin)',
+      email: 'shuvokuakata27@gmail.com',
+      picture: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop'
+    };
 
     const authenticatedUser = loginOrCreateGoogleUser(profile);
     setUser(authenticatedUser);
