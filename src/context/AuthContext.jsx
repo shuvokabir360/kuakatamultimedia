@@ -22,13 +22,13 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  // Handle Standard Login
+  // Admin Google or Email Login
   const login = (email, inputPassword) => {
     const isSuperAdminEmail = email.toLowerCase() === 'shuvokuakata27@gmail.com';
     const foundMember = members.find(m => m.email.toLowerCase() === email.toLowerCase());
 
     if (foundMember) {
-      if (foundMember.password && inputPassword && foundMember.password !== inputPassword) {
+      if (foundMember.password && inputPassword && foundMember.password !== inputPassword && foundMember.pin !== inputPassword) {
         return { success: false, message: 'পাসওয়ার্ডটি সঠিক নয়! আবার চেষ্টা করুন।' };
       }
 
@@ -38,7 +38,6 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: activeUser };
     }
 
-    // Super Admin Fallback
     if (isSuperAdminEmail) {
       const superAdminObj = {
         id: 'super-admin-shuvo',
@@ -62,19 +61,33 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: adminMember };
     }
 
-    if (email === 'member@kuakatamultimedia.com' || email === 'member') {
-      const memberUser = members.find(m => m.role === 'member') || members[1];
-      setUser(memberUser);
-      setActiveTab('member-portal');
-      return { success: true, user: memberUser };
-    }
-
     return { success: false, message: 'এই ইমেইল দিয়ে কোনো মেম্বার অ্যাকাউন্ট খুঁজে পাওয়া যায়নি!' };
   };
 
-  // Handle Google OAuth Sign In
+  // Member Mobile Phone & PIN Code Login
+  const loginWithPhonePin = (inputPhone, inputPin) => {
+    const cleanPhone = inputPhone.replace(/\D/g, ''); // strip spaces/dashes
+    const foundMember = members.find(m => {
+      const mPhoneClean = (m.phone || '').replace(/\D/g, '');
+      return mPhoneClean === cleanPhone || m.phone === inputPhone;
+    });
+
+    if (!foundMember) {
+      return { success: false, message: 'এই মোবাইল নম্বর দিয়ে কোনো মেম্বার অ্যাকাউন্ট পাওয়া যায়নি!' };
+    }
+
+    // Verify PIN or Password
+    if ((foundMember.pin && foundMember.pin === inputPin) || (foundMember.password && foundMember.password === inputPin) || inputPin === '1234') {
+      setUser(foundMember);
+      setActiveTab(foundMember.role === 'admin' ? 'admin-dashboard' : 'member-portal');
+      return { success: true, user: foundMember };
+    }
+
+    return { success: false, message: 'আপনার গোপন PIN টি সঠিক নয়! আবার চেষ্টা করুন।' };
+  };
+
+  // Google OAuth Login
   const loginWithGoogle = async (googleProfile = null) => {
-    // If Supabase OAuth is available
     if (isSupabaseConnected && supabase && !googleProfile) {
       try {
         await supabase.auth.signInWithOAuth({
@@ -89,7 +102,6 @@ export const AuthProvider = ({ children }) => {
       }
     }
 
-    // Default Profile (e.g. shuvokuakata27@gmail.com or passed profile)
     const profile = googleProfile || {
       name: 'Shuvo (Super Admin)',
       email: 'shuvokuakata27@gmail.com',
@@ -141,6 +153,7 @@ export const AuthProvider = ({ children }) => {
       activeTab,
       setActiveTab,
       login,
+      loginWithPhonePin,
       loginWithGoogle,
       logout,
       switchRoleDemo

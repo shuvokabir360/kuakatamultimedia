@@ -9,7 +9,8 @@ const INITIAL_MEMBERS = [
     name: 'শুভ (Shuvo)',
     email: 'shuvokuakata27@gmail.com',
     password: 'admin',
-    phone: '+880 1711-000000',
+    phone: '01711000000',
+    pin: '1234',
     role: 'admin',
     isSuperAdmin: true,
     designation: 'চিফ সিইও & সুপার অ্যাডমিন',
@@ -25,7 +26,8 @@ const INITIAL_MEMBERS = [
     name: 'তানভীর আহমেদ',
     email: 'admin@kuakatamultimedia.com',
     password: 'admin',
-    phone: '+880 1711-000001',
+    phone: '01711000001',
+    pin: '1234',
     role: 'admin',
     isSuperAdmin: false,
     designation: 'চিফ এনিমেশন ডিরেক্টর',
@@ -41,7 +43,8 @@ const INITIAL_MEMBERS = [
     name: 'রাফি রহমান',
     email: 'member@kuakatamultimedia.com',
     password: 'member',
-    phone: '+880 1822-111222',
+    phone: '01822111222',
+    pin: '1234',
     role: 'member',
     designation: 'সিনিয়র ৩ডি মোশন ডিজাইনার',
     dept: '3D & VFX',
@@ -56,7 +59,8 @@ const INITIAL_MEMBERS = [
     name: 'নুসরাত জাহান',
     email: 'nusrat@kuakatamultimedia.com',
     password: '123',
-    phone: '+880 1933-333444',
+    phone: '01933333444',
+    pin: '1234',
     role: 'member',
     designation: 'লিড ওয়েব & ইউএক্স আর্কিটেক্ট',
     dept: 'Web Dev',
@@ -71,7 +75,8 @@ const INITIAL_MEMBERS = [
     name: 'আরিফুল ইসলাম',
     email: 'arif@kuakatamultimedia.com',
     password: '123',
-    phone: '+880 1644-555666',
+    phone: '01644555666',
+    pin: '1234',
     role: 'member',
     designation: 'সিনিয়র ভিএফএক্স অ্যান্ড ভিডিও এডিটর',
     dept: 'Video Production',
@@ -277,13 +282,12 @@ export const DataProvider = ({ children }) => {
     localStorage.setItem('km_salaries', JSON.stringify(salaries));
   }, [salaries]);
 
-  // Handle Google Auth Profile User Creation
+  // Google OAuth User Creation
   const loginOrCreateGoogleUser = (googleProfile) => {
     const isSuperAdminEmail = googleProfile.email.toLowerCase() === 'shuvokuakata27@gmail.com';
     const existing = members.find(m => m.email.toLowerCase() === googleProfile.email.toLowerCase());
 
     if (existing) {
-      // Update super admin flag if matching email
       if (isSuperAdminEmail && !existing.isSuperAdmin) {
         const updated = { ...existing, role: 'admin', isSuperAdmin: true };
         setMembers(prev => prev.map(m => m.id === existing.id ? updated : m));
@@ -292,13 +296,13 @@ export const DataProvider = ({ children }) => {
       return existing;
     }
 
-    // Create new Google User
     const newMember = {
       id: `google-${Date.now()}`,
       name: googleProfile.name || 'Google User',
       email: googleProfile.email,
       password: 'google-oauth-login',
-      phone: '+880 1700-000000',
+      phone: '01700000000',
+      pin: '1234',
       role: isSuperAdminEmail ? 'admin' : 'member',
       isSuperAdmin: isSuperAdminEmail,
       designation: isSuperAdminEmail ? 'চিফ সিইও & সুপার অ্যাডমিন' : 'টিম ক্রিয়েটর',
@@ -380,7 +384,7 @@ export const DataProvider = ({ children }) => {
     const found = members.find(m => m.email.toLowerCase() === email.toLowerCase());
     if (!found) return { success: false, message: 'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি!' };
 
-    const updatedMember = { ...found, password: newPassword };
+    const updatedMember = { ...found, password: newPassword, pin: newPassword };
     setMembers(prev => prev.map(m => m.email.toLowerCase() === email.toLowerCase() ? updatedMember : m));
 
     if (isSupabaseConnected && supabase) {
@@ -395,7 +399,8 @@ export const DataProvider = ({ children }) => {
     const member = {
       ...newMemberData,
       id: newId,
-      password: newMemberData.password || '123456',
+      password: newMemberData.password || newMemberData.pin || '1234',
+      pin: newMemberData.pin || '1234',
       status: 'Active',
       avatar: newMemberData.avatar || `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop`
     };
