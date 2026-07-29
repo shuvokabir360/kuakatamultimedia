@@ -64,9 +64,9 @@ export default function FinanceShootings({ openAddModalDirectly = false }) {
       </div>
 
       {/* Shooting Items List */}
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {shootings.map((sh) => (
-          <div key={sh.id} className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-sm space-y-3">
+          <div key={sh.id} className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-sm space-y-3 flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-base font-black text-slate-900">{sh.title}</h3>
@@ -82,7 +82,7 @@ export default function FinanceShootings({ openAddModalDirectly = false }) {
                 </div>
               </div>
 
-              <div className="p-2 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs font-black">
+              <div className="p-2 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs font-black shrink-0">
                 {sh.channel}
               </div>
             </div>

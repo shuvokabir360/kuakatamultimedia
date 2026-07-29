@@ -79,7 +79,7 @@ export default function FinanceAttendance() {
 
       {/* Active Member Attendance Sheet */}
       {selectedShooting ? (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {dailyAttendanceState.map((member) => (
             <div
               key={member.id}
@@ -107,7 +107,7 @@ export default function FinanceAttendance() {
               {/* Attendance Toggle Button */}
               <button
                 onClick={() => toggleAttendance(member.id)}
-                className={`px-4 py-2 rounded-full text-xs font-black transition-all flex items-center gap-1.5 border ${
+                className={`px-4 py-2 rounded-full text-xs font-black transition-all flex items-center gap-1.5 border shrink-0 ${
                   member.status === 'present'
                     ? 'bg-emerald-50 text-emerald-600 border-emerald-500 hover:bg-emerald-100'
                     : 'bg-rose-50 text-rose-600 border-rose-400 hover:bg-rose-100'

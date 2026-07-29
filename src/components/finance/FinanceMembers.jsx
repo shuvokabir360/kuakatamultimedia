@@ -87,7 +87,7 @@ export default function FinanceMembers() {
       </div>
 
       {/* Member Cards List (Clicking opens MemberProfileModal) */}
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredMembers.map((member) => (
           <div
             key={member.id}
@@ -130,7 +130,7 @@ export default function FinanceMembers() {
               </div>
             </div>
 
-            <ChevronRight className="w-5 h-5 text-slate-400" />
+            <ChevronRight className="w-5 h-5 text-slate-400 shrink-0" />
           </div>
         ))}
       </div>

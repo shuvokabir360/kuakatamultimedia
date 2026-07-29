@@ -87,7 +87,7 @@ export default function FinanceDirectory() {
 
       {/* CHANNELS LIST (Matching Screenshot) */}
       {activeTab === 'channels' && (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredChannels.map((ch) => (
             <div
               key={ch.id}
@@ -106,7 +106,7 @@ export default function FinanceDirectory() {
                 </div>
               </div>
 
-              <ChevronRight className="w-5 h-5 text-slate-400" />
+              <ChevronRight className="w-5 h-5 text-slate-400 shrink-0" />
             </div>
           ))}
         </div>
@@ -114,7 +114,7 @@ export default function FinanceDirectory() {
 
       {/* DIRECTORS LIST (Matching Screenshot) */}
       {activeTab === 'directors' && (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredDirectors.map((dir) => (
             <div
               key={dir.id}
@@ -135,7 +135,7 @@ export default function FinanceDirectory() {
                 </div>
               </div>
 
-              <ChevronRight className="w-5 h-5 text-slate-400" />
+              <ChevronRight className="w-5 h-5 text-slate-400 shrink-0" />
             </div>
           ))}
         </div>

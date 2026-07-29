@@ -61,11 +61,11 @@ export default function FinanceClients() {
       </div>
 
       {/* Client List Cards */}
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {safeClients.map((client) => (
           <div
             key={client.id}
-            className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-sm space-y-3 transition-transform hover:scale-[1.01]"
+            className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-sm space-y-3 transition-transform hover:scale-[1.01] flex flex-col justify-between"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3.5">
@@ -81,11 +81,11 @@ export default function FinanceClients() {
                 </div>
               </div>
 
-              <ChevronRight className="w-5 h-5 text-slate-400" />
+              <ChevronRight className="w-5 h-5 text-slate-400 shrink-0" />
             </div>
 
             {/* Received & Due Row */}
-            <div className="flex items-center gap-4 text-xs font-bold pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-between text-xs font-bold pt-2 border-t border-slate-100">
               <span className="text-emerald-600">
                 প্রাপ্ত ৳ {toBnNum((client.received_amount || 0).toLocaleString())}
               </span>
