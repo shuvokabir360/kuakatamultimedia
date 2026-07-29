@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { DataProvider } from './context/DataContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
+import MobileBottomNav from './components/MobileBottomNav';
 import HeroSection from './components/HeroSection';
 import TeamSection from './components/TeamSection';
 import PortfolioSection from './components/PortfolioSection';
@@ -38,7 +39,7 @@ function MainContent() {
   }, [setActiveTab]);
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-dark-900 text-slate-100">
+    <div className="min-h-screen flex flex-col justify-between bg-dark-900 text-slate-100 pb-16 md:pb-0">
       
       {/* Top Navbar */}
       <Navbar onOpenAuthModal={() => setAuthModalOpen(true)} />
@@ -67,6 +68,9 @@ function MainContent() {
 
       {/* Footer */}
       <Footer />
+
+      {/* Mobile Floating App Bottom Dock */}
+      <MobileBottomNav />
 
       {/* Auth Modal Quick Fallback */}
       <AuthModal

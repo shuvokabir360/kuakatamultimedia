@@ -25,8 +25,9 @@ export default function Portfolio3DGallery({ onSelectProject }) {
 
   return (
     <div className="relative w-full py-6">
-      {/* Category Filters */}
-      <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+      
+      {/* Horizontally Scrollable Category Filter Chips for Mobile App Experience */}
+      <div className="flex items-center gap-2 mb-8 overflow-x-auto no-scrollbar pb-2 px-2 max-w-full justify-start sm:justify-center">
         {categories.map((cat) => (
           <button
             key={cat}
@@ -35,7 +36,7 @@ export default function Portfolio3DGallery({ onSelectProject }) {
               setActiveCategory(cat);
               setActiveIndex(0);
             }}
-            className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${
+            className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-all ${
               activeCategory === cat
                 ? 'bg-gradient-to-r from-brand-red via-brand-crimson to-brand-flame text-white shadow-lg shadow-brand-red/30 scale-105'
                 : 'glass-panel text-slate-300 hover:text-white hover:border-brand-red/40'
@@ -48,24 +49,24 @@ export default function Portfolio3DGallery({ onSelectProject }) {
 
       {/* 3D Carousel Stage */}
       {filteredProjects.length > 0 ? (
-        <div className="relative max-w-4xl mx-auto px-4 min-h-[420px] flex items-center justify-center">
+        <div className="relative max-w-4xl mx-auto px-2 sm:px-4 min-h-[420px] flex items-center justify-center">
           {/* Controls */}
           <button
             id="btn-portfolio-prev"
             onClick={handlePrev}
             aria-label="Previous project"
-            className="absolute left-0 z-30 p-3 rounded-full glass-panel hover:bg-brand-red/20 border border-slate-700 text-white hover:border-brand-red transition-all transform hover:-translate-x-1"
+            className="absolute left-1 sm:left-0 z-30 p-2.5 sm:p-3 rounded-full glass-panel hover:bg-brand-red/20 border border-slate-700 text-white hover:border-brand-red transition-all transform hover:-translate-x-1"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
 
           <button
             id="btn-portfolio-next"
             onClick={handleNext}
             aria-label="Next project"
-            className="absolute right-0 z-30 p-3 rounded-full glass-panel hover:bg-brand-red/20 border border-slate-700 text-white hover:border-brand-red transition-all transform hover:translate-x-1"
+            className="absolute right-1 sm:right-0 z-30 p-2.5 sm:p-3 rounded-full glass-panel hover:bg-brand-red/20 border border-slate-700 text-white hover:border-brand-red transition-all transform hover:translate-x-1"
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
 
           {/* Active 3D Card Display */}
@@ -89,32 +90,32 @@ export default function Portfolio3DGallery({ onSelectProject }) {
                 {/* Floating Play / Preview Icon */}
                 <button
                   onClick={() => onSelectProject(currentProject)}
-                  className="absolute inset-0 m-auto w-16 h-16 rounded-full bg-brand-red text-white flex items-center justify-center opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all shadow-lg shadow-brand-red/50"
+                  className="absolute inset-0 m-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-brand-red text-white flex items-center justify-center opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all shadow-lg shadow-brand-red/50"
                 >
-                  <Play className="w-7 h-7 fill-white ml-1" />
+                  <Play className="w-6 h-6 sm:w-7 sm:h-7 fill-white ml-1" />
                 </button>
               </div>
 
               {/* Card Details */}
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-2xl font-bold text-white group-hover:text-brand-red transition-colors">
+              <div className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start gap-1 sm:gap-0 mb-2">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white group-hover:text-brand-red transition-colors">
                     {currentProject.title}
                   </h3>
-                  <span className="text-xs text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded border border-slate-700">
+                  <span className="text-[11px] text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded border border-slate-700">
                     ক্লায়েন্ট: {currentProject.client}
                   </span>
                 </div>
 
-                <p className="text-slate-300 text-sm mb-4 leading-relaxed">
+                <p className="text-slate-300 text-xs sm:text-sm mb-4 leading-relaxed">
                   {currentProject.description}
                 </p>
 
                 {/* Tech tags */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-slate-800">
                   <div className="flex flex-wrap gap-1.5">
                     {currentProject.tags?.map((t, idx) => (
-                      <span key={idx} className="px-2 py-0.5 rounded text-xs font-medium bg-brand-red/10 text-brand-red border border-brand-red/20">
+                      <span key={idx} className="px-2 py-0.5 rounded text-[11px] font-medium bg-brand-red/10 text-brand-red border border-brand-red/20">
                         #{t}
                       </span>
                     ))}
