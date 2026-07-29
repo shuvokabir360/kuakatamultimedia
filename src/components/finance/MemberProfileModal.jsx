@@ -28,12 +28,14 @@ export default function MemberProfileModal({ member, isOpen, onClose }) {
   const [formData, setFormData] = useState({
     name: member?.name || '',
     designation: member?.designation || '',
-    phone: member?.phone || '01713953527',
-    type: member?.type || 'মাসিক',
+    phone: member?.phone || '',
+    type: member?.type || 'দৈনিক',
     daily_rate: member?.daily_rate || 0,
+    monthly_salary: member?.monthly_salary || 0,
     bkash: member?.bkash || '',
     nagad: member?.nagad || '',
-    bank: member?.bank || ''
+    bank: member?.bank || '',
+    pin: member?.pin || '1234'
   });
 
   if (!isOpen || !member) return null;
@@ -48,13 +50,26 @@ export default function MemberProfileModal({ member, isOpen, onClose }) {
 
   const handleSaveEdit = (e) => {
     e.preventDefault();
+    
+    // Validate 11-digit BD Phone
+    const cleanPhone = (formData.phone || '').trim();
+    if (!/^01[3-9]\d{8}$/.test(cleanPhone)) {
+      alert('১১ ডিজিটের সঠিক বাংলাদেশী মোবাইল নম্বর লিখুন! (যেমন: 01700000000)');
+      return;
+    }
+
     updateMember({
       ...member,
       name: formData.name,
       designation: formData.designation,
-      phone: formData.phone,
+      phone: cleanPhone,
       type: formData.type,
-      daily_rate: Number(formData.daily_rate)
+      daily_rate: Number(formData.daily_rate) || 0,
+      monthly_salary: Number(formData.monthly_salary) || 0,
+      bkash: formData.bkash.trim(),
+      nagad: formData.nagad.trim(),
+      bank: formData.bank.trim(),
+      pin: formData.pin.trim() || '1234'
     });
     setShowEditModal(false);
     alert('প্রোফাইল তথ্য সফলভাবে আপডেট করা হয়েছে!');
@@ -341,40 +356,58 @@ export default function MemberProfileModal({ member, isOpen, onClose }) {
                     onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                     className="w-full bg-transparent font-black text-slate-900 outline-none text-xs"
                   >
-                    <option value="মাসিক">মাসিক</option>
-                    <option value="দৈনিক">দৈনিক</option>
+                    <option value="দৈনিক">দৈনিক বেতন</option>
+                    <option value="মাসিক">মাসিক বেতন</option>
                   </select>
                 </div>
                 <Pencil className="w-4 h-4 text-slate-400 shrink-0" />
               </div>
 
-              {/* 5. মাসিক বেতন/দৈনিক রেট */}
+              {/* 5. বেতন পরিমাণ (দৈনিক রেট / মাসিক বেতন) */}
               <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
                 <div className="w-full">
-                  <label className="block text-[10px] text-slate-400 font-bold mb-0.5">মাসিক বেতন (টাকা)</label>
+                  <label className="block text-[10px] text-slate-400 font-bold mb-0.5">
+                    {formData.type === 'দৈনিক' ? 'দৈনিক রেট (৳/দিন)' : 'মাসিক বেতন (৳/মাস)'}
+                  </label>
                   <input
                     type="number"
-                    value={formData.daily_rate}
-                    onChange={(e) => setFormData({ ...formData, daily_rate: e.target.value })}
+                    value={formData.type === 'দৈনিক' ? formData.daily_rate : formData.monthly_salary}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      [formData.type === 'দৈনিক' ? 'daily_rate' : 'monthly_salary']: e.target.value
+                    })}
                     className="w-full bg-transparent font-black text-slate-900 outline-none text-xs"
                   />
                 </div>
                 <Pencil className="w-4 h-4 text-slate-400 shrink-0" />
               </div>
 
-              {/* ব্যাংক ও পেমেন্ট অ্যাকাউন্ট Section */}
+              {/* মোবাইল পেমেন্ট অ্যাকাউন্টসমূহ (bKash / Nagad / Bank) */}
               <div className="pt-2 space-y-2">
-                <span className="text-xs font-black text-slate-800 block">ব্যাংক ও পেমেন্ট অ্যাকাউন্ট</span>
+                <span className="text-xs font-black text-slate-800 block">ব্যাংক ও মোবাইল ব্যাংকিং অ্যাকাউন্ট</span>
                 
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-900">পেমেন্ট অ্যাকাউন্ট</span>
-                    <button type="button" className="px-3 py-1 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 flex items-center gap-1">
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>যোগ</span>
-                    </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-[10px] text-rose-600 font-bold mb-0.5">বিকাশ (bKash)</label>
+                    <input
+                      type="text"
+                      placeholder="01700000000"
+                      value={formData.bkash}
+                      onChange={(e) => setFormData({ ...formData, bkash: e.target.value })}
+                      className="w-full bg-transparent font-bold text-slate-800 outline-none text-xs font-mono"
+                    />
                   </div>
-                  <p className="text-[11px] text-slate-400 font-medium">এখনও কোনো অ্যাকাউন্ট যোগ করা হয়নি</p>
+
+                  <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-[10px] text-amber-600 font-bold mb-0.5">নগদ (Nagad)</label>
+                    <input
+                      type="text"
+                      placeholder="01700000000"
+                      value={formData.nagad}
+                      onChange={(e) => setFormData({ ...formData, nagad: e.target.value })}
+                      className="w-full bg-transparent font-bold text-slate-800 outline-none text-xs font-mono"
+                    />
+                  </div>
                 </div>
               </div>
 
