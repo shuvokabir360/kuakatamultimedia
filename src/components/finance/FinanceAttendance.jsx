@@ -11,23 +11,20 @@ export default function FinanceAttendance() {
   const safeMembers = members || [];
   const safeShootings = shootings || [];
 
-  // Filter shootings matching selected date
+  // Filter shootings strictly matching selected date
   const dateShootings = safeShootings.filter(s => s.date === selectedDate);
-  const activeShootingList = dateShootings.length > 0 ? dateShootings : safeShootings;
 
-  // Selected Shooting Object
-  const currentShooting = safeShootings.find(s => s.id === selectedShootingId) || activeShootingList[0];
+  // Selected Shooting Object (Strictly from selected date only!)
+  const currentShooting = dateShootings.find(s => s.id === selectedShootingId) || dateShootings[0] || null;
 
   // Auto select valid shooting when date changes
   useEffect(() => {
     if (dateShootings.length > 0) {
       setSelectedShootingId(dateShootings[0].id);
-    } else if (safeShootings.length > 0) {
-      setSelectedShootingId(safeShootings[0].id);
     } else {
       setSelectedShootingId('');
     }
-  }, [selectedDate, safeShootings.length]);
+  }, [selectedDate, dateShootings.length]);
 
   // Attendance Sheet state
   const [attendanceMap, setAttendanceMap] = useState({});
@@ -143,22 +140,21 @@ export default function FinanceAttendance() {
               <span>শুটিং নির্বাচন করুন</span>
             </label>
             
-            {safeShootings.length > 0 ? (
+            {dateShootings.length > 0 ? (
               <select
                 value={selectedShootingId}
                 onChange={(e) => setSelectedShootingId(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20"
               >
-                {dateShootings.length > 0 && <option disabled className="font-bold">-- এই তারিখের শুটিংসমূহ --</option>}
-                {activeShootingList.map(s => (
+                {dateShootings.map(s => (
                   <option key={s.id} value={s.id}>
-                    🎬 {s.title} ({s.channel}) {s.date === selectedDate ? '• [আজকের শুটিং]' : ''}
+                    🎬 {s.title} ({s.channel})
                   </option>
                 ))}
               </select>
             ) : (
-              <div className="px-4 py-2.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs font-bold text-amber-800">
-                কোনো শুটিং পাওয়া যায়নি
+              <div className="px-4 py-2.5 rounded-2xl bg-rose-50 border border-rose-200 text-xs font-bold text-rose-700 flex items-center justify-between">
+                <span>⚠️ এই সিলেক্ট করা তারিখে কোনো শুটিং নেই</span>
               </div>
             )}
           </div>
