@@ -4,6 +4,9 @@ import FinanceHome from './FinanceHome';
 import FinanceAttendance from './FinanceAttendance';
 import FinancePayment from './FinancePayment';
 import FinanceMembers from './FinanceMembers';
+import FinanceShootings from './FinanceShootings';
+import FinanceDirectory from './FinanceDirectory';
+import FinanceClients from './FinanceClients';
 import MoreMenuModal from './MoreMenuModal';
 import FinanceBottomBar from './FinanceBottomBar';
 import { useAuth } from '../../context/AuthContext';
@@ -58,6 +61,9 @@ export default function FinanceAppView() {
           {activeTab === 'attendance' && <FinanceAttendance />}
           {activeTab === 'payment' && <FinancePayment />}
           {activeTab === 'members' && <FinanceMembers />}
+          {activeTab === 'shootings' && <FinanceShootings openAddModalDirectly={false} />}
+          {activeTab === 'channels' && <FinanceDirectory />}
+          {activeTab === 'clients' && <FinanceClients />}
         </div>
 
         {/* Bottom Navigation Dock */}
@@ -73,8 +79,9 @@ export default function FinanceAppView() {
           onClose={() => setMoreModalOpen(false)}
           onNavigate={(target) => {
             if (target === 'members') setActiveTab('members');
-            else if (target === 'shootings') setActiveTab('attendance');
-            else if (target === 'clients') setActiveTab('home');
+            else if (target === 'shootings') setActiveTab('shootings');
+            else if (target === 'channels') setActiveTab('channels');
+            else if (target === 'clients') setActiveTab('clients');
             else alert(`${target} প্যানেল প্রস্তুত রয়েছে!`);
           }}
         />
