@@ -253,18 +253,16 @@ const EXACT_MEMBERS_LIST = [
   }
 ];
 
-// Clean empty shootings and payments
 const INITIAL_SHOOTINGS = [];
 const INITIAL_PAYMENTS = [];
 
-// Client Ledgers ALL SET TO ZERO (0)
 const INITIAL_CLIENTS = [
   {
     id: 'c1',
     name: 'Malbro Entertainment',
-    contract_amount: 0,
-    received_amount: 0,
-    due_amount: 0
+    contract_amount: 150000,
+    received_amount: 90000,
+    due_amount: 60000
   },
   {
     id: 'c2',
@@ -275,21 +273,47 @@ const INITIAL_CLIENTS = [
   }
 ];
 
+const INITIAL_CHANNELS = [
+  { id: 'ch-1', name: 'Kuakata Multimedia', category: 'official', categoryLabel: 'অফিসিয়াল (নিজেদের)', logo: '/logo.svg', shootingCount: 9 },
+  { id: 'ch-2', name: 'Malbro Entertainment', category: 'client', categoryLabel: 'ক্লায়েন্ট চ্যানেল', logo: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=100&auto=format&fit=crop', shootingCount: 14 },
+  { id: 'ch-3', name: 'Mehidi Multimedia', category: 'client', categoryLabel: 'ক্লায়েন্ট চ্যানেল', logo: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=100&auto=format&fit=crop', shootingCount: 3 }
+];
+
+const INITIAL_DIRECTORS = [
+  { id: 'dir-1', name: 'Kabir Hossen Shuvo', role: 'পরিচালক', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop', shootingCount: 1 },
+  { id: 'dir-2', name: 'Saddam Mal', role: 'পরিচালক', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop', shootingCount: 13 },
+  { id: 'dir-3', name: 'SM Almas', role: 'সহকারী পরিচালক', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop', shootingCount: 12 }
+];
+
 export const DataProvider = ({ children }) => {
   const [members, setMembers] = useState(() => {
-    return EXACT_MEMBERS_LIST;
+    const saved = localStorage.getItem('km_finance_members');
+    return saved ? JSON.parse(saved) : EXACT_MEMBERS_LIST;
   });
 
   const [shootings, setShootings] = useState(() => {
-    return INITIAL_SHOOTINGS;
+    const saved = localStorage.getItem('km_finance_shootings');
+    return saved ? JSON.parse(saved) : INITIAL_SHOOTINGS;
   });
 
   const [payments, setPayments] = useState(() => {
-    return INITIAL_PAYMENTS;
+    const saved = localStorage.getItem('km_finance_payments');
+    return saved ? JSON.parse(saved) : INITIAL_PAYMENTS;
   });
 
   const [clients, setClients] = useState(() => {
-    return INITIAL_CLIENTS;
+    const saved = localStorage.getItem('km_finance_clients');
+    return saved ? JSON.parse(saved) : INITIAL_CLIENTS;
+  });
+
+  const [channels, setChannels] = useState(() => {
+    const saved = localStorage.getItem('km_finance_channels');
+    return saved ? JSON.parse(saved) : INITIAL_CHANNELS;
+  });
+
+  const [directors, setDirectors] = useState(() => {
+    const saved = localStorage.getItem('km_finance_directors');
+    return saved ? JSON.parse(saved) : INITIAL_DIRECTORS;
   });
 
   // Always sync to localStorage
@@ -299,8 +323,10 @@ export const DataProvider = ({ children }) => {
       localStorage.setItem('km_finance_shootings', JSON.stringify(shootings));
       localStorage.setItem('km_finance_payments', JSON.stringify(payments));
       localStorage.setItem('km_finance_clients', JSON.stringify(clients));
+      localStorage.setItem('km_finance_channels', JSON.stringify(channels));
+      localStorage.setItem('km_finance_directors', JSON.stringify(directors));
     } catch(e){}
-  }, [members, shootings, payments, clients]);
+  }, [members, shootings, payments, clients, channels, directors]);
 
   // Add Member
   const addMember = (newMem) => {
@@ -322,6 +348,30 @@ export const DataProvider = ({ children }) => {
   // Delete Member
   const deleteMember = (id) => {
     setMembers(prev => (prev || []).filter(m => m.id !== id));
+  };
+
+  // Add Channel
+  const addChannel = (newChannel) => {
+    const chObj = {
+      ...newChannel,
+      id: 'ch-' + Date.now(),
+      categoryLabel: newChannel.category === 'official' ? 'অফিসিয়াল (নিজেদের)' : 'ক্লায়েন্ট চ্যানেল',
+      shootingCount: 0,
+      logo: newChannel.logo || '/logo.svg'
+    };
+    setChannels(prev => [...(prev || []), chObj]);
+  };
+
+  // Add Director
+  const addDirector = (newDirector) => {
+    const dirObj = {
+      ...newDirector,
+      id: 'dir-' + Date.now(),
+      role: newDirector.role || 'পরিচালক',
+      shootingCount: 0,
+      avatar: newDirector.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop'
+    };
+    setDirectors(prev => [...(prev || []), dirObj]);
   };
 
   // Reset User Password Service
@@ -412,6 +462,10 @@ export const DataProvider = ({ children }) => {
       payments: payments || [],
       addPayment,
       clients: clients || INITIAL_CLIENTS,
+      channels: channels || INITIAL_CHANNELS,
+      addChannel,
+      directors: directors || INITIAL_DIRECTORS,
+      addDirector,
       toBnNum
     }}>
       {children}

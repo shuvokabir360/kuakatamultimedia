@@ -3,28 +3,23 @@ import { Film, Plus, Calendar, MapPin, Tv, User, FileText, Check, X, ChevronRigh
 import { useData, toBnNum } from '../../context/DataContext';
 
 export default function FinanceShootings({ openAddModalDirectly = false }) {
-  const { shootings = [], members = [], addShooting } = useData();
+  const { shootings = [], members = [], channels = [], directors = [], addShooting } = useData();
   const [showAddModal, setShowAddModal] = useState(openAddModalDirectly);
 
-  // Preset Channels List with Categories (Official vs Client)
-  const channelsList = [
-    { id: 'ch-1', name: 'Kuakata Multimedia', category: 'official', categoryLabel: 'অফিসিয়াল (নিজেদের)', logo: '/logo.svg' },
-    { id: 'ch-2', name: 'Malbro Entertainment', category: 'client', categoryLabel: 'ক্লায়েন্ট (অন্যের)', logo: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=100&auto=format&fit=crop' },
-    { id: 'ch-3', name: 'Mehidi Multimedia', category: 'client', categoryLabel: 'ক্লায়েন্ট (অন্যের)', logo: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=100&auto=format&fit=crop' },
-    { id: 'ch-4', name: 'Chorki OTT Platform', category: 'client', categoryLabel: 'ক্লায়েন্ট (অন্যের)', logo: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=100&auto=format&fit=crop' }
-  ];
+  // Dynamic Channels List from context
+  const channelsList = channels || [];
 
-  // Directors List with Photos
+  // Dynamic Directors List from context + member directors
   const directorsList = [
-    { id: 'dir-1', name: 'Kabir Hossen Shuvo', role: 'পরিচালক', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop' },
-    { id: 'dir-2', name: 'Saddam Mal', role: 'পরিচালক', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop' },
-    { id: 'dir-3', name: 'SM Almas', role: 'সহকারী পরিচালক', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop' },
-    ...(members || []).map(m => ({
-      id: m.id,
-      name: m.name,
-      role: m.designation || 'টিম ডিরেক্টর',
-      avatar: m.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop'
-    }))
+    ...(directors || []),
+    ...(members || [])
+      .filter(m => !directors.some(d => d.name === m.name))
+      .map(m => ({
+        id: m.id,
+        name: m.name,
+        role: m.designation || 'টিম ডিরেক্টর',
+        avatar: m.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop'
+      }))
   ];
 
   // Dropdown Open/Close states
