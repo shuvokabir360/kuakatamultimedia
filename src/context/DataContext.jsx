@@ -476,12 +476,13 @@ export const DataProvider = ({ children }) => {
     setShootings(prev => [newSh, ...(prev || [])]);
   };
 
-  // Update Shooting Attendance & Expenses (called ONLY when director completes attendance)
-  const updateShootingAttendance = (shootingId, presentCount, absentCount, expenses) => {
+  // Update Shooting Attendance & Expenses (persistently saves present member IDs and calculated expense)
+  const updateShootingAttendance = (shootingId, presentMemberIds, presentCount, absentCount, expenses) => {
     setShootings(prev => (prev || []).map(sh => {
       if (sh.id === shootingId) {
         return {
           ...sh,
+          presentMemberIds: presentMemberIds || [],
           present_count: presentCount,
           absent_count: absentCount,
           expenses: expenses || 0

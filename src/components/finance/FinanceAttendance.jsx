@@ -11,6 +11,9 @@ export default function FinanceAttendance() {
   const safeMembers = members || [];
   const safeShootings = shootings || [];
 
+  // Filter ONLY daily wage members for manual attendance sheet (Monthly members are exempt/auto-counted)
+  const dailyMembers = safeMembers.filter(m => m.type === 'দৈনিক' || !m.type || m.type === 'daily');
+
   // Filter shootings strictly matching selected date
   const dateShootings = safeShootings.filter(s => s.date === selectedDate);
 
@@ -26,17 +29,17 @@ export default function FinanceAttendance() {
     }
   }, [selectedDate, dateShootings.length]);
 
-  // Attendance Sheet state
+  // Attendance Sheet state (Loaded persistently from saved currentShooting.presentMemberIds)
   const [attendanceMap, setAttendanceMap] = useState({});
 
   useEffect(() => {
-    // Reset attendance map when selected shooting changes
+    const savedPresentIds = currentShooting?.presentMemberIds || [];
     const initialMap = {};
-    safeMembers.forEach(m => {
-      initialMap[m.id] = false; // default absent
+    dailyMembers.forEach(m => {
+      initialMap[m.id] = savedPresentIds.includes(m.id);
     });
     setAttendanceMap(initialMap);
-  }, [selectedShootingId, safeMembers.length]);
+  }, [selectedShootingId, currentShooting?.id, currentShooting?.presentMemberIds?.join(','), dailyMembers.length]);
 
   const toggleMemberAttendance = (id) => {
     setAttendanceMap(prev => ({
@@ -45,12 +48,12 @@ export default function FinanceAttendance() {
     }));
   };
 
-  // Calculations
-  const presentMembers = safeMembers.filter(m => attendanceMap[m.id]);
+  // Calculations for daily members
+  const presentMembers = dailyMembers.filter(m => attendanceMap[m.id]);
   const presentCount = presentMembers.length;
-  const absentCount = safeMembers.length - presentCount;
+  const absentCount = dailyMembers.length - presentCount;
   
-  // Total calculated expense for present members (daily rate or default 1500)
+  // Total calculated expense for present daily members (daily rate or default 1500)
   const totalAttendanceExpense = presentMembers.reduce((sum, m) => sum + (Number(m.daily_rate) || 1500), 0);
 
   // Save / Update Attendance Handler
@@ -60,8 +63,9 @@ export default function FinanceAttendance() {
       return;
     }
 
-    updateShootingAttendance(currentShooting.id, presentCount, absentCount, totalAttendanceExpense);
-    alert(`🎉 হাজিরা ও খরচ সফলভাবে আপডেট করা হয়েছে!\nউপস্থিত: ${presentCount} জন\nহাজিরা খরচ: ৳ ${totalAttendanceExpense.toLocaleString()} টাকা`);
+    const presentMemberIds = presentMembers.map(m => m.id);
+    updateShootingAttendance(currentShooting.id, presentMemberIds, presentCount, absentCount, totalAttendanceExpense);
+    alert(`🎉 হাজিরা ও খরচ সফলভাবে সেভ ও আপডেট করা হয়েছে!\nউপস্থিত (দৈনিক): ${presentCount} জন\nহাজিরা খরচ: ৳ ${totalAttendanceExpense.toLocaleString()} টাকা`);
   };
 
   // 5-Second Timer Countdown Delete Modal State
@@ -87,7 +91,7 @@ export default function FinanceAttendance() {
 
   const confirmDeleteAttendance = () => {
     if (!targetShootingToDelete) return;
-    updateShootingAttendance(targetShootingToDelete.id, 0, 0, 0);
+    updateShootingAttendance(targetShootingToDelete.id, [], 0, 0, 0);
     setDeleteModalOpen(false);
     setTargetShootingToDelete(null);
   };
@@ -100,7 +104,7 @@ export default function FinanceAttendance() {
         <div>
           <h2 className="text-2xl font-black text-slate-900">দৈনিক হাজিরা শট</h2>
           <p className="text-xs text-slate-500 font-medium mt-0.5">
-            টিম মেম্বারদের উপস্থিতি পর্যবেক্ষণ ও হাজিরা খরচ ট্র্যাকিং
+            দৈনিক কর্মীদের উপস্থিতি পর্যবেক্ষণ ও হাজিরা খরচ ট্র্যাকিং (মাসিক কর্মীদের অটো-হাজিরা)
           </p>
         </div>
 
@@ -175,9 +179,9 @@ export default function FinanceAttendance() {
 
             <div className="flex items-center gap-4 text-xs font-bold">
               <div className="text-right">
-                <span className="text-[10px] text-slate-400 block">উপস্থিত কর্মীবৃন্দ</span>
+                <span className="text-[10px] text-slate-400 block">উপস্থিত দৈনিক কর্মী</span>
                 <span className="text-emerald-400 font-black text-sm">
-                  {toBnNum(presentCount)}/{toBnNum(safeMembers.length)} জন
+                  {toBnNum(presentCount)}/{toBnNum(dailyMembers.length)} জন
                 </span>
               </div>
 
@@ -207,18 +211,18 @@ export default function FinanceAttendance() {
 
       </div>
 
-      {/* Member Attendance Toggle Grid */}
+      {/* Member Attendance Toggle Grid (Only Daily Members) */}
       {currentShooting ? (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-black text-slate-900">টিম মেম্বার হাজিরা তালিকা</h3>
+            <h3 className="text-sm font-black text-slate-900">দৈনিক কর্মীদের হাজিরা তালিকা ({toBnNum(dailyMembers.length)} জন)</h3>
             <span className="text-xs font-bold text-slate-500">
-              হাজিরা থাকলে সবুজ বাটনে ক্লিক করুন
+              মাসিক কর্মীদের অটো-হাজিরা গণ্য হয়
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {safeMembers.map((member) => {
+            {dailyMembers.map((member) => {
               const isPresent = attendanceMap[member.id];
               return (
                 <div
