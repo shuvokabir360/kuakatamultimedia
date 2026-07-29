@@ -7,6 +7,7 @@ const INITIAL_MEMBERS = [
     id: '1',
     name: 'তানভীর আহমেদ',
     email: 'admin@kuakatamultimedia.com',
+    password: 'admin',
     phone: '+880 1711-000001',
     role: 'admin',
     designation: 'চিফ এনিমেশন ডিরেক্টর & সিইও',
@@ -21,6 +22,7 @@ const INITIAL_MEMBERS = [
     id: '2',
     name: 'রাফি রহমান',
     email: 'member@kuakatamultimedia.com',
+    password: 'member',
     phone: '+880 1822-111222',
     role: 'member',
     designation: 'সিনিয়র ৩ডি মোশন ডিজাইনার',
@@ -35,6 +37,7 @@ const INITIAL_MEMBERS = [
     id: '3',
     name: 'নুসরাত জাহান',
     email: 'nusrat@kuakatamultimedia.com',
+    password: '123',
     phone: '+880 1933-333444',
     role: 'member',
     designation: 'লিড ওয়েব & ইউএক্স আর্কিটেক্ট',
@@ -49,6 +52,7 @@ const INITIAL_MEMBERS = [
     id: '4',
     name: 'আরিফুল ইসলাম',
     email: 'arif@kuakatamultimedia.com',
+    password: '123',
     phone: '+880 1644-555666',
     role: 'member',
     designation: 'সিনিয়র ভিএফএক্স অ্যান্ড ভিডিও এডিটর',
@@ -63,6 +67,7 @@ const INITIAL_MEMBERS = [
     id: '5',
     name: 'সামিরা খান',
     email: 'samira@kuakatamultimedia.com',
+    password: '123',
     phone: '+880 1555-777888',
     role: 'member',
     designation: 'কনসেপ্ট আর্ট & ৩ডি ক্যারেক্টার মডেলার',
@@ -122,20 +127,17 @@ const INITIAL_PROJECTS = [
   }
 ];
 
-// Helper to generate initial attendance records for current month
 const generateSeedAttendance = () => {
   const records = [];
   const today = new Date();
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, '0');
   
-  // Generate for last 15 days
   for (let i = 1; i <= 20; i++) {
     const dayStr = String(i).padStart(2, '0');
     const dateStr = `${year}-${month}-${dayStr}`;
     
     INITIAL_MEMBERS.forEach(member => {
-      // Deterministic pseudo-random status
       let status = 'Present';
       const rand = (i + parseInt(member.id) * 3) % 10;
       if (rand === 8) status = 'Absent';
@@ -146,7 +148,7 @@ const generateSeedAttendance = () => {
         id: `att-${member.id}-${dateStr}`,
         user_id: member.id,
         date: dateStr,
-        status: status, // Present, Absent, Leave, Half-day
+        status: status,
         checkIn: status !== 'Absent' ? '09:30 AM' : '-',
         checkOut: status !== 'Absent' ? '06:00 PM' : '-'
       });
@@ -155,13 +157,11 @@ const generateSeedAttendance = () => {
   return records;
 };
 
-// Helper to generate initial salary records for current month
 const generateSeedSalaries = (members, attendanceRecords) => {
   const salaries = [];
   const currentMonth = 'জুলাই ২০২৬';
   
   members.forEach(member => {
-    // Count absences
     const memberAtt = attendanceRecords.filter(r => r.user_id === member.id);
     const absentCount = memberAtt.filter(r => r.status === 'Absent').length;
     const leaveCount = memberAtt.filter(r => r.status === 'Leave').length;
@@ -216,7 +216,6 @@ export const DataProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : generateSeedSalaries(INITIAL_MEMBERS, generateSeedAttendance());
   });
 
-  // Sync to localStorage
   useEffect(() => {
     localStorage.setItem('km_members', JSON.stringify(members));
   }, [members]);
@@ -263,19 +262,28 @@ export const DataProvider = ({ children }) => {
     }));
   };
 
+  // Reset password for an email
+  const resetUserPassword = (email, newPassword) => {
+    const found = members.find(m => m.email.toLowerCase() === email.toLowerCase());
+    if (!found) return { success: false, message: 'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি!' };
+
+    setMembers(prev => prev.map(m => m.email.toLowerCase() === email.toLowerCase() ? { ...m, password: newPassword } : m));
+    return { success: true, message: 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে!' };
+  };
+
   // Member CRUD
   const addMember = (newMemberData) => {
     const newId = String(Date.now());
     const member = {
       ...newMemberData,
       id: newId,
+      password: newMemberData.password || '123456',
       status: 'Active',
       avatar: newMemberData.avatar || `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop`
     };
 
     setMembers(prev => [...prev, member]);
 
-    // Create salary record for new member
     const newSal = {
       id: `sal-${newId}-2026-07`,
       user_id: newId,
@@ -309,7 +317,6 @@ export const DataProvider = ({ children }) => {
     setAttendance(prev => prev.filter(a => a.user_id !== memberId));
   };
 
-  // Attendance update function
   const setDailyAttendance = (userId, dateStr, status) => {
     setAttendance(prev => {
       const existingIdx = prev.findIndex(a => a.user_id === userId && a.date === dateStr);
@@ -334,11 +341,9 @@ export const DataProvider = ({ children }) => {
       }
     });
 
-    // Automatically recalculate salary deduction after attendance change
     setTimeout(() => recalculateMemberSalary(userId), 50);
   };
 
-  // Salary status update
   const updateSalaryStatus = (salaryId, newStatus, bonus = null, note = null) => {
     setSalaries(prev => prev.map(sal => {
       if (sal.id === salaryId) {
@@ -360,13 +365,39 @@ export const DataProvider = ({ children }) => {
     }));
   };
 
-  // Project CRUD
   const addProject = (projectData) => {
     setProjects(prev => [...prev, { ...projectData, id: `p-${Date.now()}` }]);
   };
 
   const deleteProject = (projectId) => {
     setProjects(prev => prev.filter(p => p.id !== projectId));
+  };
+
+  // Full System Export & Import
+  const exportAllDataJSON = () => {
+    const fullBackup = {
+      members,
+      projects,
+      attendance,
+      salaries,
+      export_date: new Date().toISOString(),
+      system: 'Kuakata Multimedia'
+    };
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullBackup, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `kuakata_multimedia_backup_${new Date().toISOString().split('T')[0]}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
+
+  const restoreAllDataJSON = (importedObj) => {
+    if (importedObj.members) setMembers(importedObj.members);
+    if (importedObj.projects) setProjects(importedObj.projects);
+    if (importedObj.attendance) setAttendance(importedObj.attendance);
+    if (importedObj.salaries) setSalaries(importedObj.salaries);
   };
 
   return (
@@ -382,7 +413,10 @@ export const DataProvider = ({ children }) => {
       updateSalaryStatus,
       addProject,
       deleteProject,
-      recalculateMemberSalary
+      resetUserPassword,
+      recalculateMemberSalary,
+      exportAllDataJSON,
+      restoreAllDataJSON
     }}>
       {children}
     </DataContext.Provider>

@@ -6,13 +6,12 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const { members } = useData();
   
-  // Current user state (null if not logged in)
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem('km_auth_user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  const [activeTab, setActiveTab] = useState('home'); // home, team, portfolio, admin-dashboard, member-portal, contact
+  const [activeTab, setActiveTab] = useState('home');
 
   useEffect(() => {
     if (user) {
@@ -22,12 +21,15 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  // Login handler
-  const login = (email, password) => {
-    // Demo auto-fill or exact match
+  const login = (email, inputPassword) => {
     const foundMember = members.find(m => m.email.toLowerCase() === email.toLowerCase());
 
     if (foundMember) {
+      // Check password if set
+      if (foundMember.password && inputPassword && foundMember.password !== inputPassword) {
+        return { success: false, message: 'পাসওয়ার্ডটি সঠিক নয়! আবার চেষ্টা করুন।' };
+      }
+
       setUser(foundMember);
       if (foundMember.role === 'admin') {
         setActiveTab('admin-dashboard');
@@ -37,7 +39,6 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: foundMember };
     }
 
-    // Default admin fallback
     if (email === 'admin@kuakatamultimedia.com' || email === 'admin') {
       const adminMember = members.find(m => m.role === 'admin') || members[0];
       setUser(adminMember);
@@ -45,7 +46,6 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: adminMember };
     }
 
-    // Default member fallback
     if (email === 'member@kuakatamultimedia.com' || email === 'member') {
       const memberUser = members.find(m => m.role === 'member') || members[1];
       setUser(memberUser);
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: memberUser };
     }
 
-    return { success: false, message: 'ইমেইল অথবা পাসওয়ার্ড সঠিক নয়' };
+    return { success: false, message: 'এই ইমেইল দিয়ে কোনো মেম্বার অ্যাকাউন্ট খুঁজে পাওয়া যায়নি!' };
   };
 
   const logout = () => {
