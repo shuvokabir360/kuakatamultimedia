@@ -6,7 +6,8 @@ import {
   LogOut, 
   LayoutDashboard,
   Menu, 
-  X
+  X,
+  Crown
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -103,8 +104,8 @@ export default function Navbar({ onOpenAuthModal }) {
                 onClick={() => handleNavClick(user.role === 'admin' ? 'admin-dashboard' : 'member-portal')}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-r from-brand-red via-brand-flame to-brand-gold text-white shadow-md shadow-brand-red/30 hover:scale-105 transition-transform"
               >
-                <LayoutDashboard className="w-4 h-4" />
-                <span>{user.role === 'admin' ? 'অ্যাডমিন ড্যাশবোর্ড' : 'মেম্বার পোর্টাল'}</span>
+                {user.isSuperAdmin ? <Crown className="w-4 h-4 text-amber-300" /> : <LayoutDashboard className="w-4 h-4" />}
+                <span>{user.isSuperAdmin ? 'সুপার অ্যাডমিন ড্যাশবোর্ড' : user.role === 'admin' ? 'অ্যাডমিন ড্যাশবোর্ড' : 'মেম্বার পোর্টাল'}</span>
               </button>
 
               <button
@@ -119,21 +120,21 @@ export default function Navbar({ onOpenAuthModal }) {
           ) : (
             <div className="flex items-center gap-2">
               <button
+                id="btn-quick-superadmin"
+                onClick={() => switchRoleDemo('superadmin')}
+                className="px-3 py-2 rounded-xl text-[11px] font-bold text-amber-400 glass-panel hover:bg-amber-500/10 border border-amber-500/40 flex items-center gap-1.5"
+              >
+                <Crown className="w-3.5 h-3.5 text-amber-400" />
+                <span>সুপার অ্যাডমিন</span>
+              </button>
+
+              <button
                 id="btn-quick-admin"
                 onClick={() => switchRoleDemo('admin')}
                 className="px-3 py-2 rounded-xl text-[11px] font-semibold text-brand-red glass-panel hover:bg-brand-red/10 border border-brand-red/40 flex items-center gap-1.5"
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>অ্যাডমিন ডেমো</span>
-              </button>
-
-              <button
-                id="btn-quick-member"
-                onClick={() => switchRoleDemo('member')}
-                className="px-3 py-2 rounded-xl text-[11px] font-semibold text-brand-amber glass-panel hover:bg-brand-amber/10 border border-brand-amber/40 flex items-center gap-1.5"
-              >
-                <UserCheck className="w-3.5 h-3.5" />
-                <span>মেম্বার ডেমো</span>
+                <span>অ্যাডমিন</span>
               </button>
 
               <button
@@ -142,7 +143,7 @@ export default function Navbar({ onOpenAuthModal }) {
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-brand-red text-white hover:bg-white hover:text-dark-900 transition-colors shadow-md shadow-brand-red/30"
               >
                 <LogIn className="w-4 h-4" />
-                <span>লগইন</span>
+                <span>লগইন / Google</span>
               </button>
             </div>
           )}
@@ -180,21 +181,21 @@ export default function Navbar({ onOpenAuthModal }) {
                 onClick={() => handleNavClick(user.role === 'admin' ? 'admin-dashboard' : 'member-portal')}
                 className="w-full py-2.5 rounded-lg text-xs font-bold bg-brand-red text-white text-center"
               >
-                {user.role === 'admin' ? 'অ্যাডমিন ড্যাশবোর্ড' : 'মেম্বার পোর্টাল'}
+                {user.isSuperAdmin ? 'সুপার অ্যাডমিন ড্যাশবোর্ড' : user.role === 'admin' ? 'অ্যাডমিন ড্যাশবোর্ড' : 'মেম্বার পোর্টাল'}
               </button>
             ) : (
               <>
+                <button
+                  onClick={() => { switchRoleDemo('superadmin'); setMobileMenuOpen(false); }}
+                  className="w-full py-2.5 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 text-center"
+                >
+                  সুপার অ্যাডমিন (shuvokuakata27@gmail.com)
+                </button>
                 <button
                   onClick={() => { switchRoleDemo('admin'); setMobileMenuOpen(false); }}
                   className="w-full py-2.5 rounded-lg text-xs font-bold bg-brand-red/20 text-brand-red border border-brand-red/30 text-center"
                 >
                   অ্যাডমিন হিসেবে ডেমো লগইন
-                </button>
-                <button
-                  onClick={() => { switchRoleDemo('member'); setMobileMenuOpen(false); }}
-                  className="w-full py-2.5 rounded-lg text-xs font-bold bg-brand-amber/20 text-brand-amber border border-brand-amber/30 text-center"
-                >
-                  মেম্বার হিসেবে ডেমো লগইন
                 </button>
               </>
             )}

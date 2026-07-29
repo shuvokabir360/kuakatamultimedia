@@ -5,17 +5,34 @@ const DataContext = createContext();
 
 const INITIAL_MEMBERS = [
   {
+    id: 'super-admin-1',
+    name: 'শুভ (Shuvo)',
+    email: 'shuvokuakata27@gmail.com',
+    password: 'admin',
+    phone: '+880 1711-000000',
+    role: 'admin',
+    isSuperAdmin: true,
+    designation: 'চিফ সিইও & সুপার অ্যাডমিন',
+    dept: 'Executive Board',
+    basic_salary: 100000,
+    join_date: '2022-01-01',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
+    skills: ['Super Admin', 'Director', '3D Architecture', 'Unreal Engine 5'],
+    status: 'Active'
+  },
+  {
     id: '1',
     name: 'তানভীর আহমেদ',
     email: 'admin@kuakatamultimedia.com',
     password: 'admin',
     phone: '+880 1711-000001',
     role: 'admin',
-    designation: 'চিফ এনিমেশন ডিরেক্টর & সিইও',
+    isSuperAdmin: false,
+    designation: 'চিফ এনিমেশন ডিরেক্টর',
     dept: '3D & VFX',
     basic_salary: 85000,
     join_date: '2022-01-15',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop',
     skills: ['Three.js', 'Blender', 'Cinema 4D', 'Unreal Engine'],
     status: 'Active'
   },
@@ -30,7 +47,7 @@ const INITIAL_MEMBERS = [
     dept: '3D & VFX',
     basic_salary: 62000,
     join_date: '2022-06-10',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop',
     skills: ['After Effects', 'Blender', 'Octane Render'],
     status: 'Active'
   },
@@ -60,23 +77,8 @@ const INITIAL_MEMBERS = [
     dept: 'Video Production',
     basic_salary: 55000,
     join_date: '2023-05-20',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop',
-    skills: ['Premiere Pro', 'DaVinci Resolve', 'Nuke'],
-    status: 'Active'
-  },
-  {
-    id: '5',
-    name: 'সামিরা খান',
-    email: 'samira@kuakatamultimedia.com',
-    password: '123',
-    phone: '+880 1555-777888',
-    role: 'member',
-    designation: 'কনসেপ্ট আর্ট & ৩ডি ক্যারেক্টার মডেলার',
-    dept: '3D & VFX',
-    basic_salary: 58000,
-    join_date: '2023-09-12',
     avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&auto=format&fit=crop',
-    skills: ['ZBrush', 'Substance Painter', 'Maya'],
+    skills: ['Premiere Pro', 'DaVinci Resolve', 'Nuke'],
     status: 'Active'
   }
 ];
@@ -140,7 +142,7 @@ const generateSeedAttendance = () => {
     
     INITIAL_MEMBERS.forEach(member => {
       let status = 'Present';
-      const rand = (i + parseInt(member.id) * 3) % 10;
+      const rand = (i + parseInt(member.id || '1') * 3) % 10;
       if (rand === 8) status = 'Absent';
       else if (rand === 9) status = 'Leave';
       else if (rand === 7) status = 'Half-day';
@@ -186,9 +188,9 @@ const generateSeedSalaries = (members, attendanceRecords) => {
       leave_days: leaveCount,
       half_days: halfDayCount,
       net_salary: netSalary,
-      paid_status: parseInt(member.id) % 2 === 1 ? 'Paid' : 'Pending',
-      payment_date: parseInt(member.id) % 2 === 1 ? '2026-07-28' : null,
-      transaction_id: parseInt(member.id) % 2 === 1 ? `TXN-KM-${Math.floor(100000 + Math.random() * 900000)}` : null,
+      paid_status: 'Paid',
+      payment_date: '2026-07-28',
+      transaction_id: `TXN-KM-${Math.floor(100000 + Math.random() * 900000)}`,
       note: 'মাসিক পারফরম্যান্স অ্যালাউন্স সহ'
     });
   });
@@ -229,7 +231,6 @@ export const DataProvider = ({ children }) => {
         if (dbMembers && dbMembers.length > 0) {
           setMembers(dbMembers);
         } else if (!memErr) {
-          // Table empty, seed initial data to Supabase
           await supabase.from('members').upsert(INITIAL_MEMBERS);
         }
 
@@ -276,7 +277,70 @@ export const DataProvider = ({ children }) => {
     localStorage.setItem('km_salaries', JSON.stringify(salaries));
   }, [salaries]);
 
-  // Recalculate salary for a member
+  // Handle Google Auth Profile User Creation
+  const loginOrCreateGoogleUser = (googleProfile) => {
+    const isSuperAdminEmail = googleProfile.email.toLowerCase() === 'shuvokuakata27@gmail.com';
+    const existing = members.find(m => m.email.toLowerCase() === googleProfile.email.toLowerCase());
+
+    if (existing) {
+      // Update super admin flag if matching email
+      if (isSuperAdminEmail && !existing.isSuperAdmin) {
+        const updated = { ...existing, role: 'admin', isSuperAdmin: true };
+        setMembers(prev => prev.map(m => m.id === existing.id ? updated : m));
+        return updated;
+      }
+      return existing;
+    }
+
+    // Create new Google User
+    const newMember = {
+      id: `google-${Date.now()}`,
+      name: googleProfile.name || 'Google User',
+      email: googleProfile.email,
+      password: 'google-oauth-login',
+      phone: '+880 1700-000000',
+      role: isSuperAdminEmail ? 'admin' : 'member',
+      isSuperAdmin: isSuperAdminEmail,
+      designation: isSuperAdminEmail ? 'চিফ সিইও & সুপার অ্যাডমিন' : 'টিম ক্রিয়েটর',
+      dept: isSuperAdminEmail ? 'Executive Board' : '3D & VFX',
+      basic_salary: isSuperAdminEmail ? 100000 : 50000,
+      join_date: new Date().toISOString().split('T')[0],
+      avatar: googleProfile.picture || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop',
+      skills: isSuperAdminEmail ? ['Super Admin', 'Executive Director'] : ['3D Motion', 'Content Design'],
+      status: 'Active'
+    };
+
+    setMembers(prev => [...prev, newMember]);
+
+    const newSal = {
+      id: `sal-${newMember.id}-2026-07`,
+      user_id: newMember.id,
+      user_name: newMember.name,
+      month: 'জুলাই ২০২৬',
+      month_key: '2026-07',
+      basic_salary: newMember.basic_salary,
+      bonus: 0,
+      deductions: 0,
+      absent_days: 0,
+      leave_days: 0,
+      half_days: 0,
+      net_salary: newMember.basic_salary,
+      paid_status: 'Pending',
+      payment_date: null,
+      transaction_id: null,
+      note: 'গুগল মেম্বার স্যালারি অ্যাকাউন্ট'
+    };
+
+    setSalaries(prev => [...prev, newSal]);
+
+    if (isSupabaseConnected && supabase) {
+      supabase.from('members').insert([newMember]).then();
+      supabase.from('salaries').insert([newSal]).then();
+    }
+
+    return newMember;
+  };
+
   const recalculateMemberSalary = (userId, monthKey = '2026-07') => {
     const member = members.find(m => m.id === userId);
     if (!member) return;
@@ -505,6 +569,7 @@ export const DataProvider = ({ children }) => {
       recalculateMemberSalary,
       exportAllDataJSON,
       restoreAllDataJSON,
+      loginOrCreateGoogleUser,
       cloudSynced
     }}>
       {children}
