@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Users, Plus, ChevronRight, Search, Phone, Mail, Award, X } from 'lucide-react';
 import { useData, toBnNum } from '../../context/DataContext';
+import MemberProfileModal from './MemberProfileModal';
 
 export default function FinanceMembers() {
   const { getSortedMembers, addMember } = useData();
@@ -8,6 +9,9 @@ export default function FinanceMembers() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+
+  // Selected Member for Details & Edit Modal
+  const [selectedMember, setSelectedMember] = useState(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -52,7 +56,7 @@ export default function FinanceMembers() {
   return (
     <div className="space-y-6 pb-8 animate-fade-in">
       
-      {/* Header (Matching Screenshot 5) */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-black text-slate-900">সদস্য তালিকা</h2>
@@ -82,12 +86,13 @@ export default function FinanceMembers() {
         />
       </div>
 
-      {/* Member Cards List (Matching Screenshot 5) */}
+      {/* Member Cards List (Clicking opens MemberProfileModal) */}
       <div className="space-y-3">
         {filteredMembers.map((member) => (
           <div
             key={member.id}
-            className={`p-4 rounded-3xl bg-white border shadow-sm flex items-center justify-between transition-transform hover:scale-[1.01] ${
+            onClick={() => setSelectedMember(member)}
+            className={`p-4 rounded-3xl bg-white border shadow-sm flex items-center justify-between cursor-pointer transition-transform hover:scale-[1.01] active:scale-95 ${
               member.isPinnedTop ? 'border-amber-300 ring-2 ring-amber-400/30 bg-amber-50/30' : 'border-slate-200/80'
             }`}
           >
@@ -129,6 +134,13 @@ export default function FinanceMembers() {
           </div>
         ))}
       </div>
+
+      {/* MEMBER PROFILE & EDIT MODAL */}
+      <MemberProfileModal
+        member={selectedMember}
+        isOpen={Boolean(selectedMember)}
+        onClose={() => setSelectedMember(null)}
+      />
 
       {/* Add Member Modal */}
       {showAddModal && (
