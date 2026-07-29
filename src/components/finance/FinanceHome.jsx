@@ -1,9 +1,9 @@
 import React from 'react';
-import { Users, ArrowUpRight, ChevronRight, Plus, CloudRain, Sun, Moon } from 'lucide-react';
+import { Users, ArrowUpRight, ChevronRight, Plus } from 'lucide-react';
 import { useData, toBnNum } from '../../context/DataContext';
 
 export default function FinanceHome({ onNavigate }) {
-  const { members, clients } = useData();
+  const { members = [], clients = [] } = useData() || {};
 
   // Calculate dynamic greeting based on Bangladesh time
   const getGreeting = () => {
@@ -12,22 +12,25 @@ export default function FinanceHome({ onNavigate }) {
     if (hour >= 6 && hour < 12) return { text: 'শুভ সকাল', icon: '☀️' };
     if (hour >= 12 && hour < 15) return { text: 'শুভ দুপুর', icon: '🌤️' };
     if (hour >= 15 && hour < 18) return { text: 'শুভ বিকাল', icon: '⛅' };
-    if (hour >= 18 && hour < 20) return { text: 'শুভ সন্ধ্যা', icon: '🌆' };
+    if (hour >= 18 && hour < 20) return { text: 'শুভ সন্ধ্যা', icon: '<ctrl42>' };
     return { text: 'শুভ রাত্রি', icon: '🌙' };
   };
 
   const greeting = getGreeting();
 
-  // Total calculation
-  const totalDues = members.reduce((sum, m) => sum + (m.balance || 0), 0);
+  // Total calculation with safe optional chaining
+  const safeMembers = members || [];
+  const safeClients = clients || [];
+
+  const totalDues = safeMembers.reduce((sum, m) => sum + (m?.balance || 0), 0);
   const prevDues = 12500;
   const currentMonthDues = totalDues > prevDues ? totalDues - prevDues : 6000;
   const paidThisMonth = 163500;
 
   // Client calculations
-  const totalClientDues = clients.reduce((sum, c) => sum + (c.due_amount || 0), 0);
-  const totalClientReceivable = clients.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
-  const totalClientReceived = clients.reduce((sum, c) => sum + (c.received_amount || 0), 0);
+  const totalClientDues = safeClients.reduce((sum, c) => sum + (c?.due_amount || 0), 0);
+  const totalClientReceivable = safeClients.reduce((sum, c) => sum + (c?.contract_amount || 0), 0);
+  const totalClientReceived = safeClients.reduce((sum, c) => sum + (c?.received_amount || 0), 0);
 
   return (
     <div className="space-y-6 pb-8 animate-fade-in">

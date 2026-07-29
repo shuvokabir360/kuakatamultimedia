@@ -175,7 +175,7 @@ const INITIAL_PAYMENTS = [
     id: 'p1',
     member_name: 'Jakir Kalapara',
     method: 'বিকাশ',
-    account: '০১৬৪৩৩8৯১৯৫',
+    account: '০১৬৪৩৩8১৯৫',
     amount: 2000,
     date: '29/07/2026',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop'
@@ -209,44 +209,95 @@ const INITIAL_CLIENTS = [
   }
 ];
 
+// Initial Projects
+const INITIAL_PROJECTS = [
+  {
+    id: 'proj-1',
+    title: 'কুয়াকাটা বিচ ভার্চুয়াল ৩ডি ওয়াকথ্রু',
+    client: 'Kuakata Tourism Board',
+    category: '3D & Web',
+    description: 'কুয়াকাটা সমুদ্র সৈকতের অসামান্য ভার্চুয়াল ৩ডি ওয়াকথ্রু প্রজেক্ট।',
+    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop',
+    tags: ['Three.js', 'Blender', 'WebGL']
+  },
+  {
+    id: 'proj-2',
+    title: 'নেতার লিংক ভাইরাল - ৩ডি ভিএফএক্স মোশন',
+    client: 'Gazi Entertainment',
+    category: 'VFX & Motion',
+    description: 'হাই-কোয়ালিটি ৩ডি ভিএফএক্স ও সিনেমাটিক মোশন গ্রাফিক্স টাইটেল।',
+    image: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop',
+    tags: ['After Effects', 'Cinema 4D', 'VFX']
+  }
+];
+
 export const DataProvider = ({ children }) => {
   const [members, setMembers] = useState(() => {
-    const saved = localStorage.getItem('km_finance_members');
-    return saved ? JSON.parse(saved) : INITIAL_MEMBERS;
+    try {
+      const saved = localStorage.getItem('km_finance_members');
+      return saved ? JSON.parse(saved) : INITIAL_MEMBERS;
+    } catch (e) {
+      return INITIAL_MEMBERS;
+    }
   });
 
   const [shootings, setShootings] = useState(() => {
-    const saved = localStorage.getItem('km_finance_shootings');
-    return saved ? JSON.parse(saved) : INITIAL_SHOOTINGS;
+    try {
+      const saved = localStorage.getItem('km_finance_shootings');
+      return saved ? JSON.parse(saved) : INITIAL_SHOOTINGS;
+    } catch (e) {
+      return INITIAL_SHOOTINGS;
+    }
   });
 
   const [payments, setPayments] = useState(() => {
-    const saved = localStorage.getItem('km_finance_payments');
-    return saved ? JSON.parse(saved) : INITIAL_PAYMENTS;
+    try {
+      const saved = localStorage.getItem('km_finance_payments');
+      return saved ? JSON.parse(saved) : INITIAL_PAYMENTS;
+    } catch (e) {
+      return INITIAL_PAYMENTS;
+    }
   });
 
   const [clients, setClients] = useState(() => {
-    const saved = localStorage.getItem('km_finance_clients');
-    return saved ? JSON.parse(saved) : INITIAL_CLIENTS;
+    try {
+      const saved = localStorage.getItem('km_finance_clients');
+      return saved ? JSON.parse(saved) : INITIAL_CLIENTS;
+    } catch (e) {
+      return INITIAL_CLIENTS;
+    }
   });
 
-  const [attendanceLogs, setAttendanceLogs] = useState([]);
+  const [projects, setProjects] = useState(() => {
+    try {
+      const saved = localStorage.getItem('km_finance_projects');
+      return saved ? JSON.parse(saved) : INITIAL_PROJECTS;
+    } catch (e) {
+      return INITIAL_PROJECTS;
+    }
+  });
+
+  const [attendance, setAttendance] = useState([]);
 
   useEffect(() => {
-    localStorage.setItem('km_finance_members', JSON.stringify(members));
+    try { localStorage.setItem('km_finance_members', JSON.stringify(members)); } catch(e){}
   }, [members]);
 
   useEffect(() => {
-    localStorage.setItem('km_finance_shootings', JSON.stringify(shootings));
+    try { localStorage.setItem('km_finance_shootings', JSON.stringify(shootings)); } catch(e){}
   }, [shootings]);
 
   useEffect(() => {
-    localStorage.setItem('km_finance_payments', JSON.stringify(payments));
+    try { localStorage.setItem('km_finance_payments', JSON.stringify(payments)); } catch(e){}
   }, [payments]);
 
   useEffect(() => {
-    localStorage.setItem('km_finance_clients', JSON.stringify(clients));
+    try { localStorage.setItem('km_finance_clients', JSON.stringify(clients)); } catch(e){}
   }, [clients]);
+
+  useEffect(() => {
+    try { localStorage.setItem('km_finance_projects', JSON.stringify(projects)); } catch(e){}
+  }, [projects]);
 
   // Add Member
   const addMember = (newMem) => {
@@ -255,17 +306,17 @@ export const DataProvider = ({ children }) => {
       id: 'm-' + Date.now(),
       balance: newMem.balance || 0
     };
-    setMembers(prev => [...prev, memberObj]);
+    setMembers(prev => [...(prev || []), memberObj]);
   };
 
   // Update Member
   const updateMember = (updated) => {
-    setMembers(prev => prev.map(m => m.id === updated.id ? updated : m));
+    setMembers(prev => (prev || []).map(m => m.id === updated.id ? updated : m));
   };
 
   // Delete Member
   const deleteMember = (id) => {
-    setMembers(prev => prev.filter(m => m.id !== id));
+    setMembers(prev => (prev || []).filter(m => m.id !== id));
   };
 
   // Add Payment & Update Member Balance
@@ -276,11 +327,11 @@ export const DataProvider = ({ children }) => {
       date: new Date().toLocaleDateString('en-GB')
     };
 
-    setPayments(prev => [newPay, ...prev]);
+    setPayments(prev => [newPay, ...(prev || [])]);
 
     // Reduce member due balance
     if (paymentData.member_id) {
-      setMembers(prev => prev.map(m => {
+      setMembers(prev => (prev || []).map(m => {
         if (m.id === paymentData.member_id) {
           const newBal = Math.max(0, (m.balance || 0) - paymentData.amount);
           return { ...m, balance: newBal };
@@ -298,13 +349,14 @@ export const DataProvider = ({ children }) => {
       present_count: 0,
       absent_count: 0
     };
-    setShootings(prev => [newSh, ...prev]);
+    setShootings(prev => [newSh, ...(prev || [])]);
   };
 
   // Sorted members with Kabir Hossen Shuvo ALWAYS PINNED ON TOP
   const getSortedMembers = () => {
-    const shuvo = members.find(m => m.isPinnedTop || m.name.toLowerCase().includes('kabir hossen shuvo'));
-    const others = members.filter(m => !(m.isPinnedTop || m.name.toLowerCase().includes('kabir hossen shuvo')));
+    const safeMembers = members || INITIAL_MEMBERS;
+    const shuvo = safeMembers.find(m => m.isPinnedTop || (m.name && m.name.toLowerCase().includes('kabir hossen shuvo')));
+    const others = safeMembers.filter(m => !(m.isPinnedTop || (m.name && m.name.toLowerCase().includes('kabir hossen shuvo'))));
 
     others.sort((a, b) => (b.balance || 0) - (a.balance || 0));
 
@@ -313,17 +365,19 @@ export const DataProvider = ({ children }) => {
 
   return (
     <DataContext.Provider value={{
-      members,
+      members: members || INITIAL_MEMBERS,
       getSortedMembers,
       addMember,
       updateMember,
       deleteMember,
-      shootings,
+      shootings: shootings || INITIAL_SHOOTINGS,
       addShooting,
-      payments,
+      payments: payments || INITIAL_PAYMENTS,
       addPayment,
-      clients,
-      attendanceLogs,
+      clients: clients || INITIAL_CLIENTS,
+      projects: projects || INITIAL_PROJECTS,
+      attendance: attendance || [],
+      salaries: [],
       toBnNum
     }}>
       {children}
