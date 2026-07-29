@@ -19,9 +19,11 @@ import {
   Check,
   Server,
   Key,
-  RefreshCw
+  RefreshCw,
+  LogOut
 } from 'lucide-react';
 import { useData } from '../../context/DataContext';
+import { useAuth } from '../../context/AuthContext';
 import { SUPABASE_CONFIG, saveCloudCredentials, isCloudConnected } from '../../services/db';
 import { supabase, SUPABASE_SQL_SCHEMA } from '../../services/supabaseClient';
 import MemberManagement from './MemberManagement';
@@ -30,6 +32,7 @@ import SalaryPayrollManagement from './SalaryPayrollManagement';
 import ProjectManagement from './ProjectManagement';
 
 export default function AdminDashboard() {
+  const { logout } = useAuth();
   const { members, attendance, salaries, projects, exportAllDataJSON, restoreAllDataJSON } = useData();
   const [activeAdminSubTab, setActiveAdminSubTab] = useState('overview');
   
@@ -129,16 +132,26 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        {/* Quick Stats Pill */}
-        <div className="flex items-center gap-3">
-          <div className="glass-card px-4 py-2 rounded-2xl border border-emerald-500/30 text-right">
-            <span className="text-[10px] text-slate-400 uppercase font-semibold block">আজকের হাজিরা হার</span>
-            <span className="text-lg font-extrabold text-emerald-400">{attendanceRate}%</span>
+        {/* Quick Stats Pill & Logout Button */}
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+          <div className="flex items-center gap-3">
+            <div className="glass-card px-4 py-2 rounded-2xl border border-emerald-500/30 text-right">
+              <span className="text-[10px] text-slate-400 uppercase font-semibold block">আজকের হাজিরা হার</span>
+              <span className="text-lg font-extrabold text-emerald-400">{attendanceRate}%</span>
+            </div>
+            <div className="glass-card px-4 py-2 rounded-2xl border border-brand-red/30 text-right">
+              <span className="text-[10px] text-slate-400 uppercase font-semibold block">চলতি মাসের পে-রোল</span>
+              <span className="text-lg font-extrabold text-brand-red">৳ {totalPayrollBudget.toLocaleString()}</span>
+            </div>
           </div>
-          <div className="glass-card px-4 py-2 rounded-2xl border border-brand-red/30 text-right">
-            <span className="text-[10px] text-slate-400 uppercase font-semibold block">চলতি মাসের পে-রোল</span>
-            <span className="text-lg font-extrabold text-brand-red">৳ {totalPayrollBudget.toLocaleString()}</span>
-          </div>
+
+          <button
+            onClick={logout}
+            className="px-4 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-lg shadow-rose-600/30 flex items-center gap-1.5 transition-transform hover:scale-105"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>লগআউট (Logout)</span>
+          </button>
         </div>
       </div>
 

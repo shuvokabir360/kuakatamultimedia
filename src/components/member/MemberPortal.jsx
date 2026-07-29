@@ -15,13 +15,14 @@ import {
   Sparkles,
   Phone,
   Mail,
-  Building
+  Building,
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 
 export default function MemberPortal() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { attendance, salaries, updateMember } = useData();
 
   const [activeTab, setActiveTab] = useState('overview'); // overview, attendance, salary, profile
@@ -59,7 +60,8 @@ export default function MemberPortal() {
     e.preventDefault();
     updateMember({
       ...user,
-      phone
+      phone,
+      ...(password ? { password } : {})
     });
     setSavedMsg(true);
     setTimeout(() => setSavedMsg(false), 3000);
@@ -89,17 +91,27 @@ export default function MemberPortal() {
           </div>
         </div>
 
-        {/* Attendance Score Card */}
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="glass-card px-5 py-3 rounded-2xl border border-emerald-500/30 text-right w-full md:w-auto">
-            <span className="text-[10px] text-slate-400 font-bold uppercase block">মাসিক হাজিরার হার</span>
-            <span className="text-2xl font-extrabold text-emerald-400">{attendancePercentage}%</span>
+        {/* Attendance Score Card & Logout Button */}
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+          <div className="flex items-center gap-3">
+            <div className="glass-card px-5 py-3 rounded-2xl border border-emerald-500/30 text-right">
+              <span className="text-[10px] text-slate-400 font-bold uppercase block">মাসিক হাজিরার হার</span>
+              <span className="text-2xl font-extrabold text-emerald-400">{attendancePercentage}%</span>
+            </div>
+
+            <div className="glass-card px-5 py-3 rounded-2xl border border-brand-cyan/30 text-right">
+              <span className="text-[10px] text-slate-400 font-bold uppercase block">সর্বশেষ নিট স্যালারি</span>
+              <span className="text-2xl font-extrabold text-brand-cyan">৳ {latestSalary.net_salary.toLocaleString()}</span>
+            </div>
           </div>
 
-          <div className="glass-card px-5 py-3 rounded-2xl border border-brand-cyan/30 text-right w-full md:w-auto">
-            <span className="text-[10px] text-slate-400 font-bold uppercase block">সর্বশেষ নিট স্যালারি</span>
-            <span className="text-2xl font-extrabold text-brand-cyan">৳ {latestSalary.net_salary.toLocaleString()}</span>
-          </div>
+          <button
+            onClick={logout}
+            className="px-4 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-lg shadow-rose-600/30 flex items-center gap-1.5 transition-transform hover:scale-105"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>লগআউট (Logout)</span>
+          </button>
         </div>
       </div>
 

@@ -37,10 +37,10 @@ export default function Navbar({ onOpenAuthModal }) {
             </div>
           </div>
           <div>
-            <span className="text-xl font-black text-white tracking-wider flex items-center gap-1">
+            <span className="text-lg sm:text-xl font-black text-white tracking-wider flex items-center gap-1">
               KUAKATA <span className="text-gradient">MULTIMEDIA</span>
             </span>
-            <span className="block text-[10px] text-slate-400 font-semibold tracking-widest uppercase">
+            <span className="block text-[9px] sm:text-[10px] text-slate-400 font-semibold tracking-widest uppercase">
               www.kuakatamultimedia.com
             </span>
           </div>
@@ -97,30 +97,32 @@ export default function Navbar({ onOpenAuthModal }) {
           </button>
         </nav>
 
-        {/* Auth / Dashboard Controls */}
-        <div className="hidden lg:flex items-center gap-3">
+        {/* Auth / Dashboard Controls (Desktop & Mobile Quick Badge) */}
+        <div className="flex items-center gap-2">
           {user ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <button
                 id="btn-portal-access"
                 onClick={() => handleNavClick(user.role === 'admin' ? 'admin-dashboard' : 'member-portal')}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-r from-brand-red via-brand-flame to-brand-gold text-white shadow-md shadow-brand-red/30 hover:scale-105 transition-transform"
+                className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-r from-brand-red via-brand-flame to-brand-gold text-white shadow-md shadow-brand-red/30 hover:scale-105 transition-transform"
               >
-                {user.isSuperAdmin ? <Crown className="w-4 h-4 text-amber-300" /> : <LayoutDashboard className="w-4 h-4" />}
-                <span>{user.isSuperAdmin ? 'সুপার অ্যাডমিন ড্যাশবোর্ড' : user.role === 'admin' ? 'অ্যাডমিন ড্যাশবোর্ড' : 'মেম্বার পোর্টাল'}</span>
+                {user.isSuperAdmin ? <Crown className="w-4 h-4 text-amber-300 shrink-0" /> : <LayoutDashboard className="w-4 h-4 shrink-0" />}
+                <span className="hidden sm:inline">{user.isSuperAdmin ? 'সুপার অ্যাডমিন ড্যাশবোর্ড' : user.role === 'admin' ? 'অ্যাডমিন ড্যাশবোর্ড' : 'মেম্বার পোর্টাল'}</span>
+                <span className="sm:hidden">ড্যাশবোর্ড</span>
               </button>
 
               <button
                 id="btn-logout"
                 onClick={logout}
                 title="লগআউট"
-                className="p-2 rounded-xl glass-panel text-slate-400 hover:text-rose-400 hover:border-rose-500/40 transition-colors"
+                className="px-3 py-2 rounded-xl bg-rose-950/80 text-rose-400 border border-rose-500/40 hover:bg-rose-600 hover:text-white font-bold text-xs transition-colors flex items-center gap-1 shrink-0"
               >
                 <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">লগআউট</span>
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="hidden lg:flex items-center gap-2">
               <button
                 id="btn-login-page"
                 onClick={() => handleNavClick('login')}
@@ -135,16 +137,16 @@ export default function Navbar({ onOpenAuthModal }) {
               </button>
             </div>
           )}
-        </div>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          id="btn-mobile-menu"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 rounded-lg glass-panel text-slate-200 hover:text-white"
-        >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+          {/* Mobile Menu Toggle */}
+          <button
+            id="btn-mobile-menu"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-lg glass-panel text-slate-200 hover:text-white"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Drawer */}
@@ -162,9 +164,23 @@ export default function Navbar({ onOpenAuthModal }) {
           <button onClick={() => handleNavClick('contact')} className="w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800">
             যোগাযোগ (Contact)
           </button>
-          <button onClick={() => handleNavClick('login')} className="w-full text-left px-4 py-2.5 rounded-lg text-sm font-extrabold text-brand-red hover:bg-slate-800">
-            লগইন করুন (/login)
-          </button>
+
+          {user ? (
+            <button
+              onClick={() => {
+                logout();
+                setMobileMenuOpen(false);
+              }}
+              className="w-full text-left px-4 py-3 rounded-xl text-sm font-black bg-rose-600 text-white flex items-center justify-between"
+            >
+              <span>লগআউট করুন (Logout)</span>
+              <LogOut className="w-4 h-4" />
+            </button>
+          ) : (
+            <button onClick={() => handleNavClick('login')} className="w-full text-left px-4 py-2.5 rounded-lg text-sm font-extrabold text-brand-red hover:bg-slate-800">
+              লগইন করুন (/login)
+            </button>
+          )}
         </div>
       )}
     </header>
