@@ -5,42 +5,49 @@ import { supabase, isSupabaseConnected } from '../services/supabaseClient';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const { members } = useData();
+  const { members = [] } = useData() || {};
   
   const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('km_auth_user');
-    return savedUser ? JSON.parse(savedUser) : null;
+    try {
+      const savedUser = localStorage.getItem('km_auth_user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch (e) {
+      return null;
+    }
   });
 
   const [activeTab, setActiveTab] = useState('home');
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem('km_auth_user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('km_auth_user');
-    }
+    try {
+      if (user) {
+        localStorage.setItem('km_auth_user', JSON.stringify(user));
+      } else {
+        localStorage.removeItem('km_auth_user');
+      }
+    } catch (e) {}
   }, [user]);
 
   // Smart Admin Email & Password Authentication
   const login = (email, inputPassword) => {
-    const cleanEmail = email.trim().toLowerCase();
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const safeMembers = members || [];
     
     // Check if super admin email or common typo variation
     const isSuperAdminEmail = cleanEmail.includes('shuvokuakata') || cleanEmail.includes('shuvokuakatra');
 
-    let foundMember = members.find(m => m.email.trim().toLowerCase() === cleanEmail);
+    let foundMember = safeMembers.find(m => (m.email || '').trim().toLowerCase() === cleanEmail);
 
     if (!foundMember && isSuperAdminEmail) {
-      foundMember = members.find(m => m.email.trim().toLowerCase() === 'shuvokuakata27@gmail.com') || {
+      foundMember = safeMembers.find(m => (m.email || '').trim().toLowerCase() === 'shuvokuakata27@gmail.com') || {
         id: 'super-admin-shuvo',
-        name: 'শুভ (Shuvo)',
+        name: 'Kabir Hossen Shuvo',
         email: 'shuvokuakata27@gmail.com',
         password: 'admin',
         pin: '1234',
         role: 'admin',
         isSuperAdmin: true,
-        designation: 'চিফ সিইও & সুপার অ্যাডমিন',
+        designation: 'CEO',
         dept: 'Executive Board',
         avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop'
       };
@@ -67,10 +74,12 @@ export const AuthProvider = ({ children }) => {
 
   // Member Mobile Phone & Secret PIN Authentication
   const loginWithPhonePin = (inputPhone, inputPin) => {
-    const cleanPhone = inputPhone.replace(/\D/g, '');
-    const foundMember = members.find(m => {
+    const cleanPhone = (inputPhone || '').replace(/\D/g, '');
+    const safeMembers = members || [];
+    
+    const foundMember = safeMembers.find(m => {
       const mPhoneClean = (m.phone || '').replace(/\D/g, '');
-      return mPhoneClean === cleanPhone || m.phone === inputPhone;
+      return (mPhoneClean && mPhoneClean === cleanPhone) || m.phone === inputPhone;
     });
 
     if (!foundMember) {

@@ -330,7 +330,7 @@ export const DataProvider = ({ children }) => {
     return INITIAL_CLIENTS;
   });
 
-  // Always persist clean list
+  // Always sync to localStorage
   useEffect(() => {
     try { localStorage.setItem('km_finance_members', JSON.stringify(members)); } catch(e){}
   }, [members]);
@@ -340,7 +340,9 @@ export const DataProvider = ({ children }) => {
     const memberObj = {
       ...newMem,
       id: 'm-' + Date.now(),
-      balance: newMem.balance || 0
+      balance: newMem.balance || 0,
+      email: newMem.email || `user${Date.now()}@kuakatamultimedia.com`,
+      phone: newMem.phone || '01700000000'
     };
     setMembers(prev => [...(prev || []), memberObj]);
   };
@@ -394,7 +396,6 @@ export const DataProvider = ({ children }) => {
     const shuvo = safeMembers.find(m => m.isPinnedTop || (m.name && m.name.toLowerCase().includes('kabir hossen shuvo')));
     const others = safeMembers.filter(m => !(m.isPinnedTop || (m.name && m.name.toLowerCase().includes('kabir hossen shuvo'))));
 
-    // Sort remaining members strictly according to exact screenshot order
     const orderMap = {
       'SM Almas': 1,
       'Masud Parves Sagor': 2,
