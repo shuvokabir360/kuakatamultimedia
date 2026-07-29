@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tv, User, Search, ChevronRight, ShieldCheck, Briefcase, Plus, X, Check, Edit3, Trash2 } from 'lucide-react';
+import { Tv, User, Search, ChevronRight, ShieldCheck, Briefcase, Plus, X, Check, Edit3, Trash2, Upload, Image as ImageIcon } from 'lucide-react';
 import { useData, toBnNum } from '../../context/DataContext';
 
 export default function FinanceDirectory() {
@@ -29,6 +29,17 @@ export default function FinanceDirectory() {
     role: 'পরিচালক',
     avatar: ''
   });
+
+  // Image File Reader helper
+  const handleImageUpload = (e, callback) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      callback(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleAddChannelSubmit = (e) => {
     e.preventDefault();
@@ -360,13 +371,32 @@ export default function FinanceDirectory() {
               </div>
 
               <div>
-                <label className="block font-black text-slate-700 mb-1">লোগো ছবি (URL - অপশনাল)</label>
+                <label className="block font-black text-slate-700 mb-1">লোগো ছবি আপলোড বা URL</label>
+                
+                {/* Image Preview & Upload Row */}
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-12 h-12 rounded-full bg-slate-100 p-1 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                    <img src={channelForm.logo || '/logo.svg'} alt="Preview" className="w-full h-full object-cover rounded-full" />
+                  </div>
+
+                  <label className="flex-1 py-2 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer border border-slate-200 transition-colors">
+                    <Upload className="w-3.5 h-3.5 text-red-600" />
+                    <span>লোগো ফাইল সিলেক্ট করুন</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleImageUpload(e, (dataUrl) => setChannelForm({ ...channelForm, logo: dataUrl }))}
+                    />
+                  </label>
+                </div>
+
                 <input
                   type="text"
-                  placeholder="https://... (ফাঁকা রাখলে ডিফল্ট লোগো বসবে)"
+                  placeholder="বা ছবি লিংক (URL) লিখুন..."
                   value={channelForm.logo}
                   onChange={(e) => setChannelForm({ ...channelForm, logo: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 font-semibold text-slate-800"
+                  className="w-full px-4 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-[11px] font-semibold text-slate-700"
                 />
               </div>
 
@@ -426,13 +456,32 @@ export default function FinanceDirectory() {
               </div>
 
               <div>
-                <label className="block font-black text-slate-700 mb-1">লোগো ছবি (URL)</label>
+                <label className="block font-black text-slate-700 mb-1">লোগো ছবি আপলোড বা URL</label>
+
+                {/* Image Preview & Upload Row */}
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-12 h-12 rounded-full bg-slate-100 p-1 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                    <img src={editingChannel.logo || '/logo.svg'} alt="Preview" className="w-full h-full object-cover rounded-full" />
+                  </div>
+
+                  <label className="flex-1 py-2 px-3 rounded-2xl bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer border border-red-200 transition-colors">
+                    <Upload className="w-3.5 h-3.5 text-red-600" />
+                    <span>লোগো আপলোড করুন</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleImageUpload(e, (dataUrl) => setEditingChannel({ ...editingChannel, logo: dataUrl }))}
+                    />
+                  </label>
+                </div>
+
                 <input
                   type="text"
                   placeholder="https://..."
                   value={editingChannel.logo || ''}
                   onChange={(e) => setEditingChannel({ ...editingChannel, logo: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 font-semibold text-slate-800"
+                  className="w-full px-4 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-[11px] font-semibold text-slate-700"
                 />
               </div>
 
@@ -492,13 +541,34 @@ export default function FinanceDirectory() {
               </div>
 
               <div>
-                <label className="block font-black text-slate-700 mb-1">প্রোফাইল ছবি (URL - অপশনাল)</label>
+                <label className="block font-black text-slate-700 mb-1">প্রোফাইল ছবি আপলোড বা URL</label>
+
+                {/* Image Preview & Upload Row */}
+                <div className="flex items-center gap-3 mb-2">
+                  <img
+                    src={directorForm.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop'}
+                    alt="Preview"
+                    className="w-12 h-12 rounded-full object-cover border border-slate-200 shrink-0 shadow-sm"
+                  />
+
+                  <label className="flex-1 py-2 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer border border-slate-200 transition-colors">
+                    <Upload className="w-3.5 h-3.5 text-slate-700" />
+                    <span>ছবি ফাইল সিলেক্ট করুন</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleImageUpload(e, (dataUrl) => setDirectorForm({ ...directorForm, avatar: dataUrl }))}
+                    />
+                  </label>
+                </div>
+
                 <input
                   type="text"
-                  placeholder="https://... (ফাঁকা রাখলে ডিফল্ট অবতার বসবে)"
+                  placeholder="বা ছবি লিংক (URL) লিখুন..."
                   value={directorForm.avatar}
                   onChange={(e) => setDirectorForm({ ...directorForm, avatar: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 font-semibold text-slate-800"
+                  className="w-full px-4 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-[11px] font-semibold text-slate-700"
                 />
               </div>
 
@@ -556,13 +626,34 @@ export default function FinanceDirectory() {
               </div>
 
               <div>
-                <label className="block font-black text-slate-700 mb-1">প্রোফাইল ছবি (URL)</label>
+                <label className="block font-black text-slate-700 mb-1">প্রোফাইল ছবি আপলোড বা URL</label>
+
+                {/* Image Preview & Upload Row */}
+                <div className="flex items-center gap-3 mb-2">
+                  <img
+                    src={editingDirector.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop'}
+                    alt="Preview"
+                    className="w-12 h-12 rounded-full object-cover border border-slate-200 shrink-0 shadow-sm"
+                  />
+
+                  <label className="flex-1 py-2 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer border border-slate-200 transition-colors">
+                    <Upload className="w-3.5 h-3.5 text-slate-700" />
+                    <span>ছবি আপলোড করুন</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleImageUpload(e, (dataUrl) => setEditingDirector({ ...editingDirector, avatar: dataUrl }))}
+                    />
+                  </label>
+                </div>
+
                 <input
                   type="text"
                   placeholder="https://..."
                   value={editingDirector.avatar || ''}
                   onChange={(e) => setEditingDirector({ ...editingDirector, avatar: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 font-semibold text-slate-800"
+                  className="w-full px-4 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-[11px] font-semibold text-slate-700"
                 />
               </div>
 
