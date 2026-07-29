@@ -191,19 +191,38 @@ export default function FinanceHome({ onNavigate }) {
             </div>
           </div>
 
-          {/* Dynamic Client List Items with dues */}
+          {/* Dynamic Client Channels List with individual due amounts */}
           <div className="space-y-2">
-            {safeClients.filter(c => (c.due_amount || 0) > 0).length > 0 ? (
-              safeClients.filter(c => (c.due_amount || 0) > 0).map(c => (
-                <div key={c.id} className="p-3 rounded-2xl bg-slate-50 border border-slate-200/60 flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800">{c.name}</span>
-                  <span className="text-xs font-black text-red-600">৳ {toBnNum((c.due_amount || 0).toLocaleString())}</span>
-                </div>
-              ))
+            <span className="text-[11px] font-black text-slate-600 block px-1">ক্লায়েন্ট চ্যানেল তালিকা ({toBnNum(safeClients.length)})</span>
+
+            {safeClients.length > 0 ? (
+              <div className="space-y-2 max-h-48 overflow-y-auto no-scrollbar">
+                {safeClients.map(c => (
+                  <div key={c.id} className="p-3 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center justify-between transition-colors hover:bg-slate-100/80">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <img
+                        src={c.logo || '/logo.svg'}
+                        alt={c.name}
+                        className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0 bg-white p-0.5"
+                      />
+                      <div className="min-w-0">
+                        <span className="text-xs font-black text-slate-800 truncate block">{c.name}</span>
+                        <span className="text-[10px] text-slate-500 font-bold block">{toBnNum(c.shootingCount || 0)} টি শুটিং</span>
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <span className={`text-xs font-black block ${ (c.due_amount || 0) > 0 ? 'text-red-600' : 'text-emerald-600' }`}>
+                        ৳ {toBnNum((c.due_amount || 0).toLocaleString())}
+                      </span>
+                      <span className="text-[9px] font-bold text-slate-400 block">বকেয়া</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : (
-              <div className="p-3 rounded-2xl bg-emerald-50/60 border border-emerald-100 flex items-center justify-between text-xs font-bold text-emerald-700">
-                <span>কোনো ক্লায়েন্ট বকেয়া নেই</span>
-                <span className="text-emerald-600 font-extrabold">৳ ০</span>
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/60 text-center text-xs font-bold text-slate-500">
+                কোনো ক্লায়েন্ট চ্যানেল যোগ করা নেই
               </div>
             )}
           </div>
