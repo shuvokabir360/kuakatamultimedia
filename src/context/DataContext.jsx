@@ -357,6 +357,18 @@ export const DataProvider = ({ children }) => {
     setMembers(prev => (prev || []).filter(m => m.id !== id));
   };
 
+  // Reset User Password Service
+  const resetUserPassword = (emailOrPhone, newPass) => {
+    const target = (emailOrPhone || '').toLowerCase().trim();
+    setMembers(prev => (prev || []).map(m => {
+      if ((m.email || '').toLowerCase().trim() === target || m.phone === emailOrPhone) {
+        return { ...m, password: newPass, pin: newPass };
+      }
+      return m;
+    }));
+    return { success: true };
+  };
+
   // Add Payment & Update Member Balance
   const addPayment = (paymentData) => {
     const newPay = {
@@ -427,6 +439,7 @@ export const DataProvider = ({ children }) => {
       addMember,
       updateMember,
       deleteMember,
+      resetUserPassword,
       shootings: shootings || INITIAL_SHOOTINGS,
       addShooting,
       payments: payments || INITIAL_PAYMENTS,
