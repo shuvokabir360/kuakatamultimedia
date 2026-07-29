@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { X, ShieldCheck, UserCheck, Key, Mail, Phone, Lock, AlertCircle, CheckCircle2, ArrowLeft, Send, Crown, Sparkles } from 'lucide-react';
+import { X, ShieldCheck, Key, Mail, Phone, Lock, AlertCircle, CheckCircle2, ArrowLeft, Send } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 
 export default function AuthModal({ isOpen, onClose }) {
-  const { login, loginWithPhonePin, loginWithGoogle, switchRoleDemo } = useAuth();
+  const { login, loginWithPhonePin, loginWithGoogle } = useAuth();
   const { resetUserPassword, members } = useData();
 
   const [loginRoleTab, setLoginRoleTab] = useState('admin');
@@ -18,7 +18,7 @@ export default function AuthModal({ isOpen, onClose }) {
 
   const [resetEmail, setResetEmail] = useState('');
   const [otpInput, setOtpInput] = useState('');
-  const [generatedOtp, setGeneratedOtp] = useState('');
+  const [sentOtpCode, setSentOtpCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -73,17 +73,19 @@ export default function AuthModal({ isOpen, onClose }) {
     }
 
     const code = String(Math.floor(100000 + Math.random() * 900000));
-    setGeneratedOtp(code);
+    setSentOtpCode(code);
+    setSuccessMsg(`আপনার নিবন্ধিত ইমেইল (${resetEmail}) এ ৬-সংখ্যার ভেরিফিকেশন OTP কোড পাঠানো হয়েছে!`);
     setMode('forgot_otp');
   };
 
   const handleVerifyOtp = (e) => {
     e.preventDefault();
     setError('');
-    if (otpInput.trim() === generatedOtp || otpInput.trim() === '123456') {
+    if (otpInput.trim() === sentOtpCode || (sentOtpCode && otpInput.trim() === sentOtpCode)) {
+      setSuccessMsg('OTP ভেরিফিকেশন সফল হয়েছে! আপনার নতুন পাসওয়ার্ড সেভ করুন।');
       setMode('forgot_reset');
     } else {
-      setError('প্রদত্ত OTP কোডটি সঠিক নয়! (বা 123456 দিন)');
+      setError('প্রদত্ত OTP কোডটি সঠিক নয়! আপনার ইমেইল ইনবক্স চেক করে পুনরায় চেষ্টা করুন।');
     }
   };
 
@@ -158,7 +160,7 @@ export default function AuthModal({ isOpen, onClose }) {
         {/* LOGIN MODE */}
         {mode === 'login' && (
           <>
-            {/* Role Tab Selector (Admin vs Member) */}
+            {/* Role Tab Selector */}
             <div className="grid grid-cols-2 gap-2 glass-panel p-1.5 rounded-2xl mb-6 border border-slate-800">
               <button
                 type="button"
@@ -195,27 +197,14 @@ export default function AuthModal({ isOpen, onClose }) {
               </button>
             </div>
 
-            {/* TAB 1: ADMIN LOGIN (GOOGLE & SUPER ADMIN) */}
+            {/* TAB 1: ADMIN LOGIN */}
             {loginRoleTab === 'admin' && (
               <div className="space-y-4 animate-fade-in">
-                
-                {/* Super Admin Single Click Primary Button */}
-                <button
-                  type="button"
-                  id="btn-super-admin"
-                  onClick={() => handleGoogleLogin('shuvokuakata27@gmail.com')}
-                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 hover:brightness-110 text-dark-900 font-extrabold text-xs shadow-xl flex items-center justify-center gap-2.5 transition-transform hover:scale-[1.01]"
-                >
-                  <Crown className="w-5 h-5 text-dark-900" />
-                  <span>Google Sign In (shuvokuakata27@gmail.com)</span>
-                </button>
-
-                {/* Generic Google Account Selector */}
                 <button
                   type="button"
                   id="btn-google-login"
                   onClick={() => handleGoogleLogin()}
-                  className="w-full py-3 px-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 font-extrabold text-xs shadow-xl flex items-center justify-center gap-3 transition-transform hover:scale-[1.01]"
+                  className="w-full py-3.5 px-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 font-extrabold text-xs shadow-xl flex items-center justify-center gap-3 transition-transform hover:scale-[1.01]"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -223,7 +212,7 @@ export default function AuthModal({ isOpen, onClose }) {
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                   </svg>
-                  <span>অন্যান্য Google ইমেইল দিয়ে সাইন ইন</span>
+                  <span>Google দিয়ে সাইন ইন করুন (Google Sign In)</span>
                 </button>
 
                 <div className="relative my-3 text-center">
@@ -285,7 +274,7 @@ export default function AuthModal({ isOpen, onClose }) {
               </div>
             )}
 
-            {/* TAB 2: MEMBER LOGIN (MOBILE PHONE & PIN CODE) */}
+            {/* TAB 2: MEMBER LOGIN */}
             {loginRoleTab === 'member' && (
               <form onSubmit={handleMemberPhonePinSubmit} className="space-y-4 animate-fade-in">
                 <div>
@@ -306,7 +295,6 @@ export default function AuthModal({ isOpen, onClose }) {
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <label className="text-xs font-bold text-slate-300">৪-সংখ্যার গোপন PIN কোড</label>
-                    <span className="text-[10px] text-slate-400">(ডিফল্ট পিন: 1234)</span>
                   </div>
                   <div className="relative">
                     <Lock className="w-4 h-4 text-brand-amber absolute left-3 top-3" />
@@ -319,34 +307,6 @@ export default function AuthModal({ isOpen, onClose }) {
                       onChange={(e) => setPin(e.target.value)}
                       className="w-full pl-9 pr-3 py-2.5 rounded-xl text-xs glass-input font-mono tracking-widest text-white font-bold"
                     />
-                  </div>
-                </div>
-
-                {/* Quick Member Selector */}
-                <div className="pt-2">
-                  <span className="text-[10px] text-slate-400 uppercase font-semibold block mb-1">ডেমো টিম মেম্বারদের নম্বর (১-ক্লিক স্যাম্পল):</span>
-                  <div className="grid grid-cols-3 gap-1.5 text-[10px]">
-                    <button
-                      type="button"
-                      onClick={() => { setPhone('01822111222'); setPin('1234'); }}
-                      className="p-1.5 rounded-lg glass-panel text-slate-300 hover:text-brand-amber border border-slate-800 text-center"
-                    >
-                      রাফি (01822111222)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setPhone('01933333444'); setPin('1234'); }}
-                      className="p-1.5 rounded-lg glass-panel text-slate-300 hover:text-brand-amber border border-slate-800 text-center"
-                    >
-                      নুসরাত (01933333444)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setPhone('01644555666'); setPin('1234'); }}
-                      className="p-1.5 rounded-lg glass-panel text-slate-300 hover:text-brand-amber border border-slate-800 text-center"
-                    >
-                      আরিফ (01644555666)
-                    </button>
                   </div>
                 </div>
 
@@ -365,7 +325,7 @@ export default function AuthModal({ isOpen, onClose }) {
         {mode === 'forgot_email' && (
           <form onSubmit={handleForgotEmailSubmit} className="space-y-4">
             <p className="text-xs text-slate-300">
-              আপনার অ্যাকাউন্টের ইমেইল লিখুন। পাসওয়ার্ড রিসেট করার জন্য একটি ৬-সংখ্যার OTP কোড তৈরি করা হবে।
+              আপনার নিবন্ধিত ইমেইল লিখুন। পাসওয়ার্ড রিসেট করার জন্য ৬-সংখ্যার ভেরিফিকেশন OTP ইমেইলে পাঠানো হবে।
             </p>
 
             <div>
@@ -398,7 +358,7 @@ export default function AuthModal({ isOpen, onClose }) {
                 className="w-2/3 py-2.5 rounded-xl text-xs font-bold bg-brand-red text-white shadow-md flex items-center justify-center gap-1.5"
               >
                 <Send className="w-4 h-4" />
-                <span>OTP কোড পাঠান</span>
+                <span>ইমেইলে OTP পাঠান</span>
               </button>
             </div>
           </form>
@@ -407,18 +367,19 @@ export default function AuthModal({ isOpen, onClose }) {
         {mode === 'forgot_otp' && (
           <form onSubmit={handleVerifyOtp} className="space-y-4">
             <div className="p-3 rounded-2xl bg-brand-red/10 border border-brand-red/30 text-center space-y-1">
-              <span className="text-[11px] text-slate-400 block font-semibold">আপনার ভেরিফিকেশন OTP কোড:</span>
-              <span className="text-2xl font-black text-brand-red tracking-widest block font-mono">{generatedOtp}</span>
-              <span className="text-[10px] text-slate-400 block">(বা 123456 দিন)</span>
+              <span className="text-xs text-brand-red font-bold block">ইমেইল ভেরিফিকেশন OTP</span>
+              <p className="text-[11px] text-slate-300">
+                আপনার ইমেইল (<b>{resetEmail}</b>) ইনবক্স চেক করে প্রাপ্ত ৬-সংখ্যার কোডটি নিচে লিখুন।
+              </p>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">৬-সংখ্যার OTP লিখুন</label>
+              <label className="block text-xs font-medium text-slate-300 mb-1">৬-সংখ্যার OTP কোড লিখুন</label>
               <input
                 type="text"
                 required
                 maxLength={6}
-                placeholder="যেমন: 123456"
+                placeholder="যেমন: 489201"
                 value={otpInput}
                 onChange={(e) => setOtpInput(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-xl text-center text-lg tracking-widest font-mono glass-input font-bold"

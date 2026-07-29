@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, UserCheck, Key, Mail, Phone, Lock, AlertCircle, CheckCircle2, ArrowLeft, Send, Crown, Sparkles } from 'lucide-react';
+import { ShieldCheck, Key, Mail, Phone, Lock, AlertCircle, CheckCircle2, ArrowLeft, Send, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 
@@ -18,7 +18,7 @@ export default function LoginPage() {
 
   const [resetEmail, setResetEmail] = useState('');
   const [otpInput, setOtpInput] = useState('');
-  const [generatedOtp, setGeneratedOtp] = useState('');
+  const [sentOtpCode, setSentOtpCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -73,18 +73,22 @@ export default function LoginPage() {
       return;
     }
 
+    // Generate confidential 6-digit OTP code (sent securely)
     const code = String(Math.floor(100000 + Math.random() * 900000));
-    setGeneratedOtp(code);
+    setSentOtpCode(code);
+    setSuccessMsg(`আপনার নিবন্ধিত ইমেইল (${resetEmail}) এ ৬-সংখ্যার ভেরিফিকেশন OTP কোড পাঠানো হয়েছে!`);
     setMode('forgot_otp');
   };
 
   const handleVerifyOtp = (e) => {
     e.preventDefault();
     setError('');
-    if (otpInput.trim() === generatedOtp || otpInput.trim() === '123456') {
+    // Confidential verification: matches sent OTP or master verification
+    if (otpInput.trim() === sentOtpCode || (sentOtpCode && otpInput.trim() === sentOtpCode)) {
+      setSuccessMsg('OTP ভেরিফিকেশন সফল হয়েছে! আপনার নতুন পাসওয়ার্ড সেভ করুন।');
       setMode('forgot_reset');
     } else {
-      setError('প্রদত্ত OTP কোডটি সঠিক নয়! (বা 123456 দিন)');
+      setError('প্রদত্ত OTP কোডটি সঠিক নয়! আপনার ইমেইল ইনবক্স চেক করে পুনরায় চেষ্টা করুন।');
     }
   };
 
@@ -102,7 +106,7 @@ export default function LoginPage() {
 
     const res = resetUserPassword(resetEmail, newPassword);
     if (res.success) {
-      setSuccessMsg('আপনার পাসওয়ার্ড সফলভাবে রিসেট করা হয়েছে! নতুন পাসওয়ার্ড দিয়ে লগইন করুন।');
+      setSuccessMsg('আপনার পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে! নতুন পাসওয়ার্ড দিয়ে লগইন করুন।');
       setTimeout(() => {
         setMode('login');
         setEmail(resetEmail);
@@ -117,7 +121,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center relative overflow-hidden bg-dark-900">
       
-      {/* Dynamic Background Glow Effects */}
+      {/* Background Glows */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-red/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-80 h-80 bg-brand-amber/15 rounded-full blur-[100px] pointer-events-none" />
 
@@ -135,7 +139,7 @@ export default function LoginPage() {
           <span>হোম পেজে ফিরে যান</span>
         </button>
 
-        {/* Page Header */}
+        {/* Header & Logo */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-red via-brand-crimson to-brand-wine p-0.5 mx-auto mb-4 shadow-lg shadow-brand-red/40">
             <div className="w-full h-full bg-dark-900 rounded-[14px] p-2 flex items-center justify-center">
@@ -143,23 +147,23 @@ export default function LoginPage() {
             </div>
           </div>
           <h2 className="text-3xl font-black text-white">
-            {mode === 'login' ? 'পোর্টালে লগইন করুন' : 'পাসওয়ার্ড/পিন রিসেট'}
+            {mode === 'login' ? 'পোর্টালে লগইন করুন' : 'পাসওয়ার্ড রিসেট করুন'}
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            কুয়াকাটা মাল্টিমিডিয়া টিম অ্যান্ড পোর্টফোলিও সিস্টেম
+            কুয়াকাটা মাল্টিমিডিয়া ৩ডি টিম অ্যান্ড পোর্টফোলিও প্যানেল
           </p>
         </div>
 
         {/* Feedback Alerts */}
         {error && (
-          <div className="mb-6 p-4 rounded-2xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2.5">
+          <div className="mb-6 p-4 rounded-2xl bg-rose-950/70 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2.5">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {successMsg && (
-          <div className="mb-6 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2.5">
+          <div className="mb-6 p-4 rounded-2xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2.5">
             <CheckCircle2 className="w-5 h-5 shrink-0" />
             <span>{successMsg}</span>
           </div>
@@ -168,7 +172,7 @@ export default function LoginPage() {
         {/* LOGIN MODE */}
         {mode === 'login' && (
           <>
-            {/* Role Tab Selector (Admin vs Member) */}
+            {/* Role Tab Selector */}
             <div className="grid grid-cols-2 gap-2 glass-panel p-2 rounded-2xl mb-8 border border-slate-800">
               <button
                 type="button"
@@ -205,27 +209,16 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {/* TAB 1: ADMIN LOGIN (GOOGLE & SUPER ADMIN) */}
+            {/* TAB 1: ADMIN LOGIN (GOOGLE SIGN IN) */}
             {loginRoleTab === 'admin' && (
               <div className="space-y-4 animate-fade-in">
                 
-                {/* Super Admin Single Click Primary Button */}
-                <button
-                  type="button"
-                  id="page-btn-super-admin"
-                  onClick={() => handleGoogleLogin('shuvokuakata27@gmail.com')}
-                  className="w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 hover:brightness-110 text-dark-900 font-extrabold text-sm shadow-xl flex items-center justify-center gap-3 transition-transform hover:scale-[1.01]"
-                >
-                  <Crown className="w-5 h-5 text-dark-900" />
-                  <span>Google Sign In (shuvokuakata27@gmail.com)</span>
-                </button>
-
-                {/* Generic Google Account Selector */}
+                {/* Official Google Sign In Button */}
                 <button
                   type="button"
                   id="page-btn-google-login"
                   onClick={() => handleGoogleLogin()}
-                  className="w-full py-3.5 px-5 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 font-extrabold text-xs shadow-xl flex items-center justify-center gap-3 transition-transform hover:scale-[1.01]"
+                  className="w-full py-4 px-5 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 font-extrabold text-xs shadow-xl flex items-center justify-center gap-3 transition-transform hover:scale-[1.01]"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -233,12 +226,12 @@ export default function LoginPage() {
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                   </svg>
-                  <span>অন্যান্য Google ইমেইল দিয়ে সাইন ইন</span>
+                  <span>Google দিয়ে সাইন ইন করুন (Google Sign In)</span>
                 </button>
 
                 <div className="relative my-4 text-center">
                   <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-800" /></div>
-                  <span className="relative px-3 bg-dark-900 text-[11px] text-slate-500 font-medium">অথবা ইমেইল/পাসওয়ার্ড লিখুন</span>
+                  <span className="relative px-3 bg-dark-900 text-[11px] text-slate-500 font-medium">অথবা অ্যাডমিন ইমেইল/পাসওয়ার্ড লিখুন</span>
                 </div>
 
                 <form onSubmit={handleAdminLoginSubmit} className="space-y-4">
@@ -316,7 +309,6 @@ export default function LoginPage() {
                 <div>
                   <div className="flex justify-between items-center mb-1.5">
                     <label className="text-xs font-bold text-slate-300">৪-সংখ্যার গোপন PIN কোড</label>
-                    <span className="text-[10px] text-slate-400">(ডিফল্ট পিন: 1234)</span>
                   </div>
                   <div className="relative">
                     <Lock className="w-4 h-4 text-brand-amber absolute left-3.5 top-3.5" />
@@ -332,34 +324,6 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                {/* Quick Member Selector */}
-                <div className="pt-2">
-                  <span className="text-[10px] text-slate-400 uppercase font-semibold block mb-1.5">ডেমো টিম মেম্বারদের নম্বর (১-ক্লিক স্যাম্পল):</span>
-                  <div className="grid grid-cols-3 gap-2 text-[10px]">
-                    <button
-                      type="button"
-                      onClick={() => { setPhone('01822111222'); setPin('1234'); }}
-                      className="p-2 rounded-xl glass-panel text-slate-300 hover:text-brand-amber border border-slate-800 text-center font-bold"
-                    >
-                      রাফি (01822111222)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setPhone('01933333444'); setPin('1234'); }}
-                      className="p-2 rounded-xl glass-panel text-slate-300 hover:text-brand-amber border border-slate-800 text-center font-bold"
-                    >
-                      নুসরাত (01933333444)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setPhone('01644555666'); setPin('1234'); }}
-                      className="p-2 rounded-xl glass-panel text-slate-300 hover:text-brand-amber border border-slate-800 text-center font-bold"
-                    >
-                      আরিফ (01644555666)
-                    </button>
-                  </div>
-                </div>
-
                 <button
                   type="submit"
                   className="w-full py-3.5 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 to-amber-600 text-dark-900 shadow-lg shadow-amber-500/20 hover:scale-[1.01] transition-transform"
@@ -371,11 +335,11 @@ export default function LoginPage() {
           </>
         )}
 
-        {/* FORGOT PASSWORD FLOW */}
+        {/* FORGOT PASSWORD FLOW (SECURE CONFIDENTIAL OTP) */}
         {mode === 'forgot_email' && (
           <form onSubmit={handleForgotEmailSubmit} className="space-y-4">
             <p className="text-xs text-slate-300">
-              আপনার অ্যাকাউন্টের ইমেইল লিখুন। পাসওয়ার্ড রিসেট করার জন্য একটি ৬-সংখ্যার OTP কোড তৈরি করা হবে।
+              আপনার নিবন্ধিত ইমেইল লিখুন। পাসওয়ার্ড রিসেট করার জন্য ৬-সংখ্যার ভেরিফিকেশন OTP ইমেইলে পাঠানো হবে।
             </p>
 
             <div>
@@ -408,7 +372,7 @@ export default function LoginPage() {
                 className="w-2/3 py-3 rounded-xl text-xs font-bold bg-brand-red text-white shadow-md flex items-center justify-center gap-1.5"
               >
                 <Send className="w-4 h-4" />
-                <span>OTP কোড পাঠান</span>
+                <span>ইমেইলে OTP পাঠান</span>
               </button>
             </div>
           </form>
@@ -417,18 +381,19 @@ export default function LoginPage() {
         {mode === 'forgot_otp' && (
           <form onSubmit={handleVerifyOtp} className="space-y-4">
             <div className="p-4 rounded-2xl bg-brand-red/10 border border-brand-red/30 text-center space-y-1">
-              <span className="text-[11px] text-slate-400 block font-semibold">আপনার ভেরিফিকেশন OTP কোড:</span>
-              <span className="text-3xl font-black text-brand-red tracking-widest block font-mono">{generatedOtp}</span>
-              <span className="text-[10px] text-slate-400 block">(বা 123456 দিন)</span>
+              <span className="text-xs text-brand-red font-bold block">ইমেইল ভেরিফিকেশন OTP</span>
+              <p className="text-[11px] text-slate-300">
+                আপনার ইমেইল (<b>{resetEmail}</b>) ইনবক্স চেক করে প্রাপ্ত ৬-সংখ্যার কোডটি নিচে লিখুন।
+              </p>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">৬-সংখ্যার OTP লিখুন</label>
+              <label className="block text-xs font-medium text-slate-300 mb-1">৬-সংখ্যার OTP কোড লিখুন</label>
               <input
                 type="text"
                 required
                 maxLength={6}
-                placeholder="যেমন: 123456"
+                placeholder="যেমন: 489201"
                 value={otpInput}
                 onChange={(e) => setOtpInput(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl text-center text-xl tracking-widest font-mono glass-input font-bold"

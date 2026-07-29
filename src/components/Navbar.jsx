@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { 
   ShieldCheck, 
-  UserCheck, 
   LogIn, 
   LogOut, 
   LayoutDashboard,
@@ -12,7 +11,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar({ onOpenAuthModal }) {
-  const { user, activeTab, setActiveTab, logout, switchRoleDemo } = useAuth();
+  const { user, activeTab, setActiveTab, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleNavClick = (tabId) => {
@@ -123,25 +122,16 @@ export default function Navbar({ onOpenAuthModal }) {
           ) : (
             <div className="flex items-center gap-2">
               <button
-                id="btn-quick-superadmin"
-                onClick={() => switchRoleDemo('superadmin')}
-                className="px-3 py-2 rounded-xl text-[11px] font-bold text-amber-400 glass-panel hover:bg-amber-500/10 border border-amber-500/40 flex items-center gap-1.5"
-              >
-                <Crown className="w-3.5 h-3.5 text-amber-400" />
-                <span>সুপার অ্যাডমিন</span>
-              </button>
-
-              <button
                 id="btn-login-page"
                 onClick={() => handleNavClick('login')}
-                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md ${
+                className={`inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all shadow-md ${
                   activeTab === 'login'
                     ? 'bg-white text-dark-900 shadow-white/30'
-                    : 'bg-brand-red text-white hover:bg-white hover:text-dark-900 shadow-brand-red/30'
+                    : 'bg-gradient-to-r from-brand-red via-brand-crimson to-brand-flame text-white hover:brightness-110 shadow-brand-red/30'
                 }`}
               >
                 <LogIn className="w-4 h-4" />
-                <span>লগইন পেজ (/login)</span>
+                <span>লগইন করুন (/login)</span>
               </button>
             </div>
           )}
@@ -173,26 +163,8 @@ export default function Navbar({ onOpenAuthModal }) {
             যোগাযোগ (Contact)
           </button>
           <button onClick={() => handleNavClick('login')} className="w-full text-left px-4 py-2.5 rounded-lg text-sm font-extrabold text-brand-red hover:bg-slate-800">
-            লগইন পেজ (login.html)
+            লগইন করুন (/login)
           </button>
-
-          <div className="pt-3 border-t border-slate-800 flex flex-col gap-2">
-            {user ? (
-              <button
-                onClick={() => handleNavClick(user.role === 'admin' ? 'admin-dashboard' : 'member-portal')}
-                className="w-full py-2.5 rounded-lg text-xs font-bold bg-brand-red text-white text-center"
-              >
-                {user.isSuperAdmin ? 'সুপার অ্যাডমিন ড্যাশবোর্ড' : user.role === 'admin' ? 'অ্যাডমিন ড্যাশবোর্ড' : 'মেম্বার পোর্টাল'}
-              </button>
-            ) : (
-              <button
-                onClick={() => { switchRoleDemo('superadmin'); setMobileMenuOpen(false); }}
-                className="w-full py-2.5 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 text-center"
-              >
-                সুপার অ্যাডমিন (shuvokuakata27@gmail.com)
-              </button>
-            )}
-          </div>
         </div>
       )}
     </header>
