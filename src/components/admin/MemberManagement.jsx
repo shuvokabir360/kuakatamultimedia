@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, UserPlus, Edit3, Trash2, ShieldCheck, UserCheck, Search, DollarSign, X, Check } from 'lucide-react';
+import { Users, UserPlus, Edit3, Trash2, ShieldCheck, UserCheck, Search, DollarSign, X, Check, Phone, Lock } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 
 export default function MemberManagement() {
@@ -8,11 +8,12 @@ export default function MemberManagement() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingMember, setEditingMember] = useState(null);
 
-  // New Member Form State
+  // New Member Form State with default PIN '1234'
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
+    phone: '01822111222',
+    pin: '1234',
     role: 'member',
     designation: '৩ডি অ্যানিমেটর',
     dept: '3D & VFX',
@@ -23,6 +24,7 @@ export default function MemberManagement() {
   const filteredMembers = members.filter(m =>
     m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     m.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (m.phone && m.phone.includes(searchQuery)) ||
     m.dept.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -43,7 +45,8 @@ export default function MemberManagement() {
     setFormData({
       name: '',
       email: '',
-      phone: '',
+      phone: '01822111222',
+      pin: '1234',
       role: 'member',
       designation: '৩ডি অ্যানিমেটর',
       dept: '3D & VFX',
@@ -77,7 +80,7 @@ export default function MemberManagement() {
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
           <input
             type="text"
-            placeholder="মেম্বার নাম, ইমেইল বা বিভাগ..."
+            placeholder="মেম্বার নাম, মোবাইল বা ইমেইল..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 rounded-xl text-xs glass-input"
@@ -87,7 +90,7 @@ export default function MemberManagement() {
         <button
           id="btn-add-member"
           onClick={() => setShowAddModal(true)}
-          className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-brand-cyan to-brand-purple text-dark-900 shadow-md hover:scale-105 transition-transform flex items-center justify-center gap-2"
+          className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-brand-red via-brand-crimson to-brand-flame text-white shadow-md hover:scale-105 transition-transform flex items-center justify-center gap-2"
         >
           <UserPlus className="w-4 h-4" />
           <span>নতুন মেম্বার যুক্ত করুন</span>
@@ -101,10 +104,10 @@ export default function MemberManagement() {
             <thead className="bg-dark-800/80 text-slate-400 font-semibold border-b border-slate-800 uppercase tracking-wider">
               <tr>
                 <th className="p-4">মেম্বার নাম & প্রোফাইল</th>
+                <th className="p-4">মোবাইল & পিন (Login Creds)</th>
                 <th className="p-4">রোল (Role)</th>
                 <th className="p-4">ডিপার্টমেন্ট</th>
                 <th className="p-4">বেসিক বেতন</th>
-                <th className="p-4">যোগদানের তারিখ</th>
                 <th className="p-4 text-right">অ্যাকশন</th>
               </tr>
             </thead>
@@ -114,9 +117,9 @@ export default function MemberManagement() {
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <img
-                        src={member.avatar}
+                        src={member.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop'}
                         alt={member.name}
-                        className="w-10 h-10 rounded-full object-cover border border-brand-cyan/40"
+                        className="w-10 h-10 rounded-full object-cover border border-brand-red/40"
                       />
                       <div>
                         <span className="font-bold text-white block">{member.name}</span>
@@ -125,11 +128,22 @@ export default function MemberManagement() {
                     </div>
                   </td>
 
+                  <td className="p-4 font-mono">
+                    <div className="text-slate-200 font-bold flex items-center gap-1">
+                      <Phone className="w-3 h-3 text-brand-amber" />
+                      <span>{member.phone || 'N/A'}</span>
+                    </div>
+                    <div className="text-[11px] text-brand-amber font-semibold flex items-center gap-1">
+                      <Lock className="w-3 h-3" />
+                      <span>PIN: {member.pin || member.password || '1234'}</span>
+                    </div>
+                  </td>
+
                   <td className="p-4">
                     <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${
                       member.role === 'admin' 
-                        ? 'bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/30' 
-                        : 'bg-brand-purple/10 text-brand-purple border border-brand-purple/30'
+                        ? 'bg-brand-red/10 text-brand-red border border-brand-red/30' 
+                        : 'bg-brand-amber/10 text-brand-amber border border-brand-amber/30'
                     }`}>
                       {member.role === 'admin' ? <ShieldCheck className="w-3 h-3" /> : <UserCheck className="w-3 h-3" />}
                       {member.role === 'admin' ? 'অ্যাডমিন (Admin)' : 'টিম মেম্বার'}
@@ -139,16 +153,14 @@ export default function MemberManagement() {
                   <td className="p-4 text-slate-300 font-medium">{member.dept}</td>
 
                   <td className="p-4 font-bold text-emerald-400">
-                    ৳ {member.basic_salary.toLocaleString()}
+                    ৳ {(member.basic_salary || 0).toLocaleString()}
                   </td>
-
-                  <td className="p-4 text-slate-400">{member.join_date}</td>
 
                   <td className="p-4 text-right space-x-2">
                     <button
                       onClick={() => setEditingMember(member)}
                       title="সম্পাদনা"
-                      className="p-2 rounded-lg glass-panel text-slate-300 hover:text-brand-cyan hover:border-brand-cyan/40"
+                      className="p-2 rounded-lg glass-panel text-slate-300 hover:text-brand-red hover:border-brand-red/40"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
                     </button>
@@ -176,7 +188,7 @@ export default function MemberManagement() {
       {/* Add Member Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-md">
-          <div className="relative w-full max-w-lg glass-panel rounded-3xl p-6 border border-brand-cyan/40 shadow-2xl">
+          <div className="relative w-full max-w-lg glass-panel rounded-3xl p-6 border border-brand-red/40 shadow-2xl">
             <button onClick={() => setShowAddModal(false)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white">
               <X className="w-5 h-5" />
             </button>
@@ -185,15 +197,42 @@ export default function MemberManagement() {
             
             <form onSubmit={handleAddSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs text-slate-300 mb-1">পূর্ণ নাম</label>
+                <label className="block text-xs text-slate-300 mb-1 font-bold">পূর্ণ নাম (Member Full Name)</label>
                 <input
                   type="text"
                   required
                   placeholder="যেমন: সাকিবা ইসলাম"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl text-xs glass-input"
+                  className="w-full px-3 py-2.5 rounded-xl text-xs glass-input"
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-slate-300 mb-1 font-bold">মোবাইল নম্বর (Login Phone)</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="যেমন: 01822111222"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full px-3 py-2.5 rounded-xl text-xs glass-input font-mono font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs text-slate-300 mb-1 font-bold">গোপন PIN কোড (Login PIN)</label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    placeholder="যেমন: 1234"
+                    value={formData.pin}
+                    onChange={(e) => setFormData({ ...formData, pin: e.target.value })}
+                    className="w-full px-3 py-2.5 rounded-xl text-xs glass-input font-mono tracking-widest font-bold text-amber-400"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -205,22 +244,10 @@ export default function MemberManagement() {
                     placeholder="sakiba@kuakatamultimedia.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl text-xs glass-input"
+                    className="w-full px-3 py-2.5 rounded-xl text-xs glass-input"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs text-slate-300 mb-1">ফোন নম্বর</label>
-                  <input
-                    type="text"
-                    placeholder="+880 1700-000000"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl text-xs glass-input"
-                  />
-                </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs text-slate-300 mb-1">পদবি (Designation)</label>
                   <input
@@ -228,24 +255,25 @@ export default function MemberManagement() {
                     required
                     value={formData.designation}
                     onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl text-xs glass-input"
+                    className="w-full px-3 py-2.5 rounded-xl text-xs glass-input"
                   />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs text-slate-300 mb-1">ডিপার্টমেন্ট</label>
                   <select
                     value={formData.dept}
                     onChange={(e) => setFormData({ ...formData, dept: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl text-xs glass-input"
+                    className="w-full px-3 py-2.5 rounded-xl text-xs glass-input"
                   >
                     <option value="3D & VFX">3D & VFX</option>
                     <option value="Web Dev">Web Dev</option>
                     <option value="Video Production">Video Production</option>
                   </select>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs text-slate-300 mb-1">বেসিক বেতন (টাকা)</label>
                   <input
@@ -253,19 +281,8 @@ export default function MemberManagement() {
                     required
                     value={formData.basic_salary}
                     onChange={(e) => setFormData({ ...formData, basic_salary: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl text-xs glass-input"
+                    className="w-full px-3 py-2.5 rounded-xl text-xs glass-input"
                   />
-                </div>
-                <div>
-                  <label className="block text-xs text-slate-300 mb-1">রোল (Role)</label>
-                  <select
-                    value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl text-xs glass-input"
-                  >
-                    <option value="member">টিম মেম্বার</option>
-                    <option value="admin">অ্যাডমিন (Admin)</option>
-                  </select>
                 </div>
               </div>
 
@@ -275,7 +292,7 @@ export default function MemberManagement() {
                   type="text"
                   value={formData.skills}
                   onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl text-xs glass-input"
+                  className="w-full px-3 py-2.5 rounded-xl text-xs glass-input"
                 />
               </div>
 
@@ -283,13 +300,13 @@ export default function MemberManagement() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs glass-panel text-slate-300"
+                  className="px-4 py-2.5 rounded-xl text-xs glass-panel text-slate-300"
                 >
                   বাতিল
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-xs font-bold bg-brand-cyan text-dark-900"
+                  className="px-6 py-2.5 rounded-xl text-xs font-black bg-brand-red text-white shadow-lg shadow-brand-red/30"
                 >
                   মেম্বার সেভ করুন
                 </button>
@@ -302,23 +319,48 @@ export default function MemberManagement() {
       {/* Edit Member Modal */}
       {editingMember && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-md">
-          <div className="relative w-full max-w-lg glass-panel rounded-3xl p-6 border border-brand-cyan/40 shadow-2xl">
+          <div className="relative w-full max-w-lg glass-panel rounded-3xl p-6 border border-brand-red/40 shadow-2xl">
             <button onClick={() => setEditingMember(null)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white">
               <X className="w-5 h-5" />
             </button>
             
-            <h3 className="text-xl font-bold text-white mb-4">মেম্বার তথ্য আপডেট করুন</h3>
+            <h3 className="text-xl font-bold text-white mb-4">মেম্বার তথ্য & পিন আপডেট করুন</h3>
             
             <form onSubmit={handleEditSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs text-slate-300 mb-1">পূর্ণ নাম</label>
+                <label className="block text-xs text-slate-300 mb-1 font-bold">পূর্ণ নাম</label>
                 <input
                   type="text"
                   required
                   value={editingMember.name}
                   onChange={(e) => setEditingMember({ ...editingMember, name: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl text-xs glass-input"
+                  className="w-full px-3 py-2.5 rounded-xl text-xs glass-input"
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-slate-300 mb-1 font-bold">মোবাইল নম্বর (Login Phone)</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingMember.phone || ''}
+                    onChange={(e) => setEditingMember({ ...editingMember, phone: e.target.value })}
+                    className="w-full px-3 py-2.5 rounded-xl text-xs glass-input font-mono font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs text-slate-300 mb-1 font-bold">গোপন PIN কোড (Login PIN)</label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    value={editingMember.pin || editingMember.password || ''}
+                    onChange={(e) => setEditingMember({ ...editingMember, pin: e.target.value, password: e.target.value })}
+                    className="w-full px-3 py-2.5 rounded-xl text-xs glass-input font-mono tracking-widest font-bold text-amber-400"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -329,9 +371,10 @@ export default function MemberManagement() {
                     required
                     value={editingMember.designation}
                     onChange={(e) => setEditingMember({ ...editingMember, designation: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl text-xs glass-input"
+                    className="w-full px-3 py-2.5 rounded-xl text-xs glass-input"
                   />
                 </div>
+
                 <div>
                   <label className="block text-xs text-slate-300 mb-1">বেসিক বেতন (টাকা)</label>
                   <input
@@ -339,7 +382,7 @@ export default function MemberManagement() {
                     required
                     value={editingMember.basic_salary}
                     onChange={(e) => setEditingMember({ ...editingMember, basic_salary: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl text-xs glass-input"
+                    className="w-full px-3 py-2.5 rounded-xl text-xs glass-input"
                   />
                 </div>
               </div>
@@ -348,13 +391,13 @@ export default function MemberManagement() {
                 <button
                   type="button"
                   onClick={() => setEditingMember(null)}
-                  className="px-4 py-2 rounded-xl text-xs glass-panel text-slate-300"
+                  className="px-4 py-2.5 rounded-xl text-xs glass-panel text-slate-300"
                 >
                   বাতিল
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-xs font-bold bg-brand-cyan text-dark-900"
+                  className="px-6 py-2.5 rounded-xl text-xs font-black bg-brand-red text-white shadow-lg shadow-brand-red/30"
                 >
                   আপডেট সেভ করুন
                 </button>
