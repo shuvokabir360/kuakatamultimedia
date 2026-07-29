@@ -32,8 +32,8 @@ import SalaryPayrollManagement from './SalaryPayrollManagement';
 import ProjectManagement from './ProjectManagement';
 
 export default function AdminDashboard() {
-  const { logout } = useAuth();
-  const { members, attendance, salaries, projects, exportAllDataJSON, restoreAllDataJSON } = useData();
+  const { logout } = useAuth() || {};
+  const { members = [], attendance = [], salaries = [], projects = [], exportAllDataJSON, restoreAllDataJSON } = useData() || {};
   const [activeAdminSubTab, setActiveAdminSubTab] = useState('overview');
   
   const [showCloudConfig, setShowCloudConfig] = useState(false);
@@ -43,15 +43,20 @@ export default function AdminDashboard() {
   const [syncingCloud, setSyncingCloud] = useState(false);
   const [syncMsg, setSyncMsg] = useState('');
 
-  const totalMembers = members.length;
+  const safeMembers = members || [];
+  const safeAttendance = attendance || [];
+  const safeSalaries = salaries || [];
+  const safeProjects = projects || [];
+
+  const totalMembers = safeMembers.length;
   
   const todayStr = new Date().toISOString().split('T')[0];
-  const todayAttendance = attendance.filter(a => a.date === todayStr);
-  const presentCount = todayAttendance.filter(a => a.status === 'Present' || a.status === 'Half-day').length;
+  const todayAttendance = safeAttendance.filter(a => a && a.date === todayStr);
+  const presentCount = todayAttendance.filter(a => a && (a.status === 'Present' || a.status === 'Half-day')).length;
   const attendanceRate = totalMembers > 0 ? Math.round((presentCount / totalMembers) * 100) : 100;
 
-  const totalPayrollBudget = salaries.reduce((sum, s) => sum + (s.net_salary || 0), 0);
-  const paidCount = salaries.filter(s => s.paid_status === 'Paid').length;
+  const totalPayrollBudget = safeSalaries.reduce((sum, s) => sum + (s?.net_salary || 0), 0);
+  const paidCount = safeSalaries.filter(s => s && s.paid_status === 'Paid').length;
 
   const handleFileUpload = (e) => {
     const fileReader = new FileReader();
@@ -60,7 +65,7 @@ export default function AdminDashboard() {
       fileReader.onload = (e) => {
         try {
           const parsed = JSON.parse(e.target.result);
-          restoreAllDataJSON(parsed);
+          if (restoreAllDataJSON) restoreAllDataJSON(parsed);
           alert('ডাটা ব্যাকআপ সফলভাবে রিস্টোর করা হয়েছে!');
         } catch (err) {
           alert('ফাইলটি সঠিক JSON ব্যাকআপ ফাইল নয়!');
@@ -89,10 +94,10 @@ export default function AdminDashboard() {
     setSyncingCloud(true);
     setSyncMsg('');
     try {
-      if (members.length > 0) await supabase.from('members').upsert(members);
-      if (projects.length > 0) await supabase.from('projects').upsert(projects);
-      if (attendance.length > 0) await supabase.from('attendance').upsert(attendance);
-      if (salaries.length > 0) await supabase.from('salaries').upsert(salaries);
+      if (safeMembers.length > 0) await supabase.from('members').upsert(safeMembers);
+      if (safeProjects.length > 0) await supabase.from('projects').upsert(safeProjects);
+      if (safeAttendance.length > 0) await supabase.from('attendance').upsert(safeAttendance);
+      if (safeSalaries.length > 0) await supabase.from('salaries').upsert(safeSalaries);
 
       setSyncMsg('সমস্ত ডাটা (মেম্বার, হাজিরা, বেতন ও প্রজেক্ট) সফলভাবে Supabase এ লাইভ সেভ করা হয়েছে! 🎉');
     } catch (err) {
@@ -219,7 +224,7 @@ export default function AdminDashboard() {
           }`}
         >
           <Briefcase className="w-4 h-4" />
-          <span>প্রজেক্ট পোর্টফোলিও ({projects.length})</span>
+          <span>প্রজেক্ট পোর্টফোলিও ({safeProjects.length})</span>
         </button>
 
         <button
@@ -270,7 +275,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="text-3xl font-extrabold text-white">৳ {totalPayrollBudget.toLocaleString()}</div>
-              <p className="text-[11px] text-slate-400 mt-1">পরিশোধিত: {paidCount} / {salaries.length}</p>
+              <p className="text-[11px] text-slate-400 mt-1">পরিশোধিত: {paidCount} / {safeSalaries.length}</p>
             </div>
 
             <div className="glass-panel p-6 rounded-2xl border border-slate-800 hover:border-amber-500/40 transition-colors">
@@ -280,7 +285,7 @@ export default function AdminDashboard() {
                   <Briefcase className="w-6 h-6" />
                 </div>
               </div>
-              <div className="text-3xl font-extrabold text-white">{projects.length} টি</div>
+              <div className="text-3xl font-extrabold text-white">{safeProjects.length} টি</div>
               <p className="text-[11px] text-slate-400 mt-1">৩ডি পোর্টফোলিও শোকেস</p>
             </div>
           </div>

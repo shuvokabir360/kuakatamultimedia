@@ -5,8 +5,11 @@ import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 
 export default function HeroSection() {
-  const { setActiveTab, switchRoleDemo } = useAuth();
-  const { members, projects } = useData();
+  const { setActiveTab, switchRoleDemo } = useAuth() || {};
+  const { members = [], projects = [] } = useData() || {};
+
+  const safeMembers = members || [];
+  const safeProjects = projects || [];
 
   return (
     <section className="relative min-h-[calc(100vh-80px)] flex flex-col justify-between py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
@@ -41,7 +44,7 @@ export default function HeroSection() {
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <button
               id="btn-hero-portfolio"
-              onClick={() => setActiveTab('portfolio')}
+              onClick={() => setActiveTab && setActiveTab('portfolio')}
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-brand-red via-brand-crimson to-brand-flame text-white shadow-xl shadow-brand-red/30 hover:scale-105 transition-transform"
             >
               <span>পোর্টফোলিও দেখুন</span>
@@ -50,7 +53,7 @@ export default function HeroSection() {
 
             <button
               id="btn-hero-team"
-              onClick={() => setActiveTab('team')}
+              onClick={() => setActiveTab && setActiveTab('team')}
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm glass-panel text-white border border-slate-700 hover:border-brand-red/50 hover:bg-brand-red/10 transition-all"
             >
               <Users className="w-4 h-4 text-brand-red" />
@@ -59,7 +62,7 @@ export default function HeroSection() {
 
             <button
               id="btn-hero-admin-portal"
-              onClick={() => switchRoleDemo('admin')}
+              onClick={() => switchRoleDemo && switchRoleDemo('admin')}
               className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl font-bold text-xs bg-dark-800/80 text-slate-300 border border-slate-700 hover:text-brand-red hover:border-brand-red/40 transition-colors"
             >
               <ShieldCheck className="w-4 h-4 text-brand-amber" />
@@ -71,14 +74,14 @@ export default function HeroSection() {
           <div className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-800/80">
             <div>
               <div className="text-2xl font-extrabold text-white flex items-center gap-1">
-                <span className="text-brand-red">{projects.length}+</span>
+                <span className="text-brand-red">{safeProjects.length}+</span>
               </div>
               <p className="text-xs text-slate-400 font-medium">লাইভ ৩ডি প্রজেক্ট</p>
             </div>
 
             <div>
               <div className="text-2xl font-extrabold text-white flex items-center gap-1">
-                <span className="text-brand-amber">{members.length}</span>
+                <span className="text-brand-amber">{safeMembers.length}</span>
               </div>
               <p className="text-xs text-slate-400 font-medium">দক্ষ টিম মেম্বার</p>
             </div>
@@ -104,7 +107,7 @@ export default function HeroSection() {
       {/* Scroll Down Indicator */}
       <div className="text-center pt-8">
         <button
-          onClick={() => setActiveTab('team')}
+          onClick={() => setActiveTab && setActiveTab('team')}
           className="inline-flex items-center justify-center p-2 rounded-full glass-panel text-slate-400 hover:text-brand-red hover:border-brand-red/40 transition-all animate-bounce"
         >
           <ChevronDown className="w-5 h-5" />
