@@ -9,7 +9,7 @@ export default function LoginPage() {
   const { resetUserPassword, members } = useData();
 
   const [loginRoleTab, setLoginRoleTab] = useState('admin');
-  const [mode, setMode] = useState('login');
+  const [mode, setMode] = useState('login'); // 'login' | 'forgot_email' | 'forgot_otp' | 'forgot_reset'
 
   const [email, setEmail] = useState('shuvokuakata27@gmail.com');
   const [password, setPassword] = useState('');
@@ -27,13 +27,24 @@ export default function LoginPage() {
   const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Detect Supabase Email Recovery Link (type=recovery or access_token) from Gmail
+  useEffect(() => {
+    const hash = window.location.hash || '';
+    const search = window.location.search || '';
+
+    if (hash.includes('type=recovery') || hash.includes('access_token') || search.includes('type=recovery')) {
+      setMode('forgot_reset');
+      setSuccessMsg('ইমেইল ভেরিফিকেশন সফল হয়েছে! আপনার নতুন পাসওয়ার্ড ও গোপন পিন সেট করুন।');
+    }
+  }, []);
+
   // If already logged in, redirect to respective dashboard
   useEffect(() => {
-    if (user) {
+    if (user && mode === 'login') {
       if (user.role === 'admin') setActiveTab('admin-dashboard');
       else setActiveTab('member-portal');
     }
-  }, [user]);
+  }, [user, mode]);
 
   const handleAdminLoginSubmit = (e) => {
     e.preventDefault();
@@ -99,9 +110,9 @@ export default function LoginPage() {
     setLoading(false);
 
     if (sentRealMail) {
-      setSuccessMsg(`আপনার জিমেইল (${resetEmail}) ইনবক্সে অফিশিয়াল পাসওয়ার্ড রিসেট লিঙ্ক ইমেইল করা হয়েছে! জিমেইল ইনবক্স বা স্প্যাম ফোল্ডার চেক করুন।`);
+      setSuccessMsg(`আপনার জিমেইল (${resetEmail}) ইনবক্সে অফিশিয়াল "Reset password" লিঙ্ক পাঠানো হয়েছে! জিমেইল খুলে লিঙ্কে ক্লিক করুন।`);
     } else {
-      setSuccessMsg(`আপনার জিমেইল (${resetEmail}) এ ভেরিফিকেশন OTP পাঠাইয়া দেওয়া হয়েছে। জিমেইলে প্রাপ্ত ৬-সংখ্যার কোডটি নিচে দিন। (ডিফল্ট টেস্টিং OTP: ${code})`);
+      setSuccessMsg(`আপনার জিমেইল (${resetEmail}) এ ভেরিফিকেশন লিঙ্ক পাঠাইয়া দেওয়া হয়েছে। জিমেইলে প্রাপ্ত লিঙ্কে ক্লিক করুন।`);
     }
     
     setMode('forgot_otp');
@@ -111,10 +122,10 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     if (otpInput.trim() === sentOtpCode || otpInput.trim() === '123456' || (sentOtpCode && otpInput.trim() === sentOtpCode)) {
-      setSuccessMsg('OTP ভেরিফিকেশন সফল হয়েছে! আপনার নতুন পাসওয়ার্ড সেভ করুন।');
+      setSuccessMsg('ভেরিফিকেশন সফল হয়েছে! আপনার নতুন পাসওয়ার্ড সেভ করুন।');
       setMode('forgot_reset');
     } else {
-      setError('প্রদত্ত OTP কোডটি সঠিক নয়! জিমেইল ইনবক্স চেক করে ৬-সংখ্যার কোডটি লিখুন।');
+      setError('প্রদত্ত ভেরিফিকেশন কোডটি সঠিক নয়! জিমেইলের "Reset password" লিঙ্কে সরাসরি ক্লিক করুন।');
     }
   };
 
@@ -361,11 +372,11 @@ export default function LoginPage() {
           </>
         )}
 
-        {/* FORGOT PASSWORD FLOW (REAL EMAIL DISPATCH & OTP) */}
+        {/* FORGOT PASSWORD FLOW (REAL EMAIL DISPATCH & RECOVERY LINK) */}
         {mode === 'forgot_email' && (
           <form onSubmit={handleForgotEmailSubmit} className="space-y-4">
             <p className="text-xs text-slate-300">
-              আপনার নিবন্ধিত ইমেইল লিখুন। পাসওয়ার্ড রিসেট করার জন্য ভেরিফিকেশন ইমেইল ও OTP পাঠানো হবে।
+              আপনার নিবন্ধিত ইমেইল লিখুন। পাসওয়ার্ড রিসেট করার জন্য অফিশিয়াল রিসেট লিঙ্ক জিমেইলে পাঠানো হবে।
             </p>
 
             <div>
@@ -399,7 +410,7 @@ export default function LoginPage() {
                 className="w-2/3 py-3 rounded-xl text-xs font-bold bg-brand-red text-white shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50"
               >
                 <Send className="w-4 h-4" />
-                <span>{loading ? 'ইমেইল সেন্ডিং...' : 'ইমেইলে OTP পাঠান'}</span>
+                <span>{loading ? 'ইমেইল সেন্ডিং...' : 'ইমেইলে রিসেট লিঙ্ক পাঠান'}</span>
               </button>
             </div>
           </form>
@@ -407,18 +418,17 @@ export default function LoginPage() {
 
         {mode === 'forgot_otp' && (
           <form onSubmit={handleVerifyOtp} className="space-y-4">
-            <div className="p-4 rounded-2xl bg-brand-red/10 border border-brand-red/30 text-center space-y-1">
-              <span className="text-xs text-brand-red font-bold block">ইমেইল ভেরিফিকেশন OTP</span>
-              <p className="text-[11px] text-slate-300">
-                আপনার ইমেইল (<b>{resetEmail}</b>) ইনবক্স অথবা স্প্যাম ফোল্ডার চেক করে প্রাপ্ত ৬-সংখ্যার কোডটি নিচে লিখুন।
+            <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-2">
+              <span className="text-xs text-emerald-400 font-bold block">গুগল জিমেইল চেক করুন 📩</span>
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                আপনার ইমেইল (<b>{resetEmail}</b>) এ পাঠানো <b>"Reset password"</b> লিঙ্কে ক্লিক করলে সরাসরি নতুন পাসওয়ার্ড বক্সে নিয়ে যাবে।
               </p>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">৬-সংখ্যার OTP কোড লিখুন</label>
+              <label className="block text-xs font-medium text-slate-300 mb-1">অথবা ৬-সংখ্যার OTP লিখুন (যদি থাকে)</label>
               <input
                 type="text"
-                required
                 maxLength={6}
                 placeholder="যেমন: 489201"
                 value={otpInput}
@@ -440,7 +450,7 @@ export default function LoginPage() {
                 type="submit"
                 className="w-2/3 py-3 rounded-xl text-xs font-bold bg-brand-red text-white shadow-md"
               >
-                OTP ভেরিফাই করুন
+                ভেরিফাই করুন
               </button>
             </div>
           </form>
