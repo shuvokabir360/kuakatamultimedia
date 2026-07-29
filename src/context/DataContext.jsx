@@ -236,66 +236,9 @@ const EXACT_MEMBERS_LIST = [
   }
 ];
 
-// Initial Shootings History
-const INITIAL_SHOOTINGS = [
-  {
-    id: 'sh-1',
-    date: '2026-07-26',
-    title: 'উমাইয়া জামাই',
-    channel: 'Kuakata TV',
-    director: 'Kabir Hossen Shuvo',
-    present_count: 7,
-    absent_count: 13,
-    budget: 45000,
-    expenses: 12500
-  },
-  {
-    id: 'sh-2',
-    date: '2026-07-25',
-    title: 'নেতার লিংক ভাইরাল',
-    channel: 'Gazi Entertainment',
-    director: 'SM Almas',
-    present_count: 15,
-    absent_count: 5,
-    budget: 60000,
-    expenses: 18000
-  },
-  {
-    id: 'sh-3',
-    date: '2026-07-24',
-    title: 'চাচার নিহার বউ তালাক',
-    channel: 'Malbro TV',
-    director: 'Kabir Hossen Shuvo',
-    present_count: 12,
-    absent_count: 9,
-    budget: 50000,
-    expenses: 15000
-  }
-];
-
-// Initial Payments
-const INITIAL_PAYMENTS = [
-  {
-    id: 'p1',
-    member_name: 'Jakir Kalapara',
-    method: 'বিকাশ',
-    account: '০১৬৪৩৩8১৯৫',
-    amount: 2000,
-    date: '29/07/2026',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop'
-  },
-  {
-    id: 'p2',
-    member_name: 'Masud Parves Sagor',
-    method: 'ব্যাংক',
-    account: '২১৮১০৫০০২৩০৫৮',
-    amount: 20500,
-    date: '28/07/2026',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop'
-  }
-];
-
-// Initial Client Ledgers
+// Clean empty shootings and payments
+const INITIAL_SHOOTINGS = [];
+const INITIAL_PAYMENTS = [];
 const INITIAL_CLIENTS = [
   {
     id: 'c1',
@@ -332,8 +275,12 @@ export const DataProvider = ({ children }) => {
 
   // Always sync to localStorage
   useEffect(() => {
-    try { localStorage.setItem('km_finance_members', JSON.stringify(members)); } catch(e){}
-  }, [members]);
+    try {
+      localStorage.setItem('km_finance_members', JSON.stringify(members));
+      localStorage.setItem('km_finance_shootings', JSON.stringify(shootings));
+      localStorage.setItem('km_finance_payments', JSON.stringify(payments));
+    } catch(e){}
+  }, [members, shootings, payments]);
 
   // Add Member
   const addMember = (newMem) => {
@@ -440,9 +387,9 @@ export const DataProvider = ({ children }) => {
       updateMember,
       deleteMember,
       resetUserPassword,
-      shootings: shootings || INITIAL_SHOOTINGS,
+      shootings: shootings || [],
       addShooting,
-      payments: payments || INITIAL_PAYMENTS,
+      payments: payments || [],
       addPayment,
       clients: clients || INITIAL_CLIENTS,
       toBnNum
