@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase, isSupabaseConnected } from '../services/supabaseClient';
 
 const DataContext = createContext();
 
@@ -216,6 +217,36 @@ export const DataProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : generateSeedSalaries(INITIAL_MEMBERS, generateSeedAttendance());
   });
 
+  const [cloudSynced, setCloudSynced] = useState(isSupabaseConnected);
+
+  // Sync from Supabase on load if connected
+  useEffect(() => {
+    if (!isSupabaseConnected || !supabase) return;
+
+    const fetchFromSupabase = async () => {
+      try {
+        const { data: dbMembers } = await supabase.from('members').select('*');
+        if (dbMembers && dbMembers.length > 0) setMembers(dbMembers);
+
+        const { data: dbProjects } = await supabase.from('projects').select('*');
+        if (dbProjects && dbProjects.length > 0) setProjects(dbProjects);
+
+        const { data: dbAttendance } = await supabase.from('attendance').select('*');
+        if (dbAttendance && dbAttendance.length > 0) setAttendance(dbAttendance);
+
+        const { data: dbSalaries } = await supabase.from('salaries').select('*');
+        if (dbSalaries && dbSalaries.length > 0) setSalaries(dbSalaries);
+
+        setCloudSynced(true);
+      } catch (err) {
+        console.warn('Supabase fetch error, fallback to local:', err);
+      }
+    };
+
+    fetchFromSupabase();
+  }, []);
+
+  // Sync to LocalStorage & Supabase
   useEffect(() => {
     localStorage.setItem('km_members', JSON.stringify(members));
   }, [members]);
@@ -248,7 +279,7 @@ export const DataProvider = ({ children }) => {
     setSalaries(prev => prev.map(sal => {
       if (sal.user_id === userId && sal.month_key === monthKey) {
         const net = member.basic_salary + sal.bonus - deduction;
-        return {
+        const updated = {
           ...sal,
           basic_salary: member.basic_salary,
           absent_days: absentCount,
@@ -257,21 +288,31 @@ export const DataProvider = ({ children }) => {
           deductions: deduction,
           net_salary: net
         };
+
+        if (isSupabaseConnected && supabase) {
+          supabase.from('salaries').upsert([updated]).then();
+        }
+
+        return updated;
       }
       return sal;
     }));
   };
 
-  // Reset password for an email
   const resetUserPassword = (email, newPassword) => {
     const found = members.find(m => m.email.toLowerCase() === email.toLowerCase());
     if (!found) return { success: false, message: 'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি!' };
 
-    setMembers(prev => prev.map(m => m.email.toLowerCase() === email.toLowerCase() ? { ...m, password: newPassword } : m));
+    const updatedMember = { ...found, password: newPassword };
+    setMembers(prev => prev.map(m => m.email.toLowerCase() === email.toLowerCase() ? updatedMember : m));
+
+    if (isSupabaseConnected && supabase) {
+      supabase.from('members').upsert([updatedMember]).then();
+    }
+
     return { success: true, message: 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে!' };
   };
 
-  // Member CRUD
   const addMember = (newMemberData) => {
     const newId = String(Date.now());
     const member = {
@@ -304,10 +345,18 @@ export const DataProvider = ({ children }) => {
     };
 
     setSalaries(prev => [...prev, newSal]);
+
+    if (isSupabaseConnected && supabase) {
+      supabase.from('members').insert([member]).then();
+      supabase.from('salaries').insert([newSal]).then();
+    }
   };
 
   const updateMember = (updatedData) => {
     setMembers(prev => prev.map(m => m.id === updatedData.id ? { ...m, ...updatedData } : m));
+    if (isSupabaseConnected && supabase) {
+      supabase.from('members').upsert([updatedData]).then();
+    }
     recalculateMemberSalary(updatedData.id);
   };
 
@@ -315,31 +364,37 @@ export const DataProvider = ({ children }) => {
     setMembers(prev => prev.filter(m => m.id !== memberId));
     setSalaries(prev => prev.filter(s => s.user_id !== memberId));
     setAttendance(prev => prev.filter(a => a.user_id !== memberId));
+
+    if (isSupabaseConnected && supabase) {
+      supabase.from('members').delete().eq('id', memberId).then();
+    }
   };
 
   const setDailyAttendance = (userId, dateStr, status) => {
+    const recordId = `att-${userId}-${dateStr}`;
+    const newRecord = {
+      id: recordId,
+      user_id: userId,
+      date: dateStr,
+      status,
+      checkIn: status !== 'Absent' ? '09:30 AM' : '-',
+      checkOut: status !== 'Absent' ? '06:00 PM' : '-'
+    };
+
     setAttendance(prev => {
       const existingIdx = prev.findIndex(a => a.user_id === userId && a.date === dateStr);
       if (existingIdx >= 0) {
         const updated = [...prev];
-        updated[existingIdx] = {
-          ...updated[existingIdx],
-          status,
-          checkIn: status !== 'Absent' ? '09:30 AM' : '-',
-          checkOut: status !== 'Absent' ? '06:00 PM' : '-'
-        };
+        updated[existingIdx] = newRecord;
         return updated;
       } else {
-        return [...prev, {
-          id: `att-${userId}-${dateStr}`,
-          user_id: userId,
-          date: dateStr,
-          status,
-          checkIn: status !== 'Absent' ? '09:30 AM' : '-',
-          checkOut: status !== 'Absent' ? '06:00 PM' : '-'
-        }];
+        return [...prev, newRecord];
       }
     });
+
+    if (isSupabaseConnected && supabase) {
+      supabase.from('attendance').upsert([newRecord]).then();
+    }
 
     setTimeout(() => recalculateMemberSalary(userId), 50);
   };
@@ -351,7 +406,7 @@ export const DataProvider = ({ children }) => {
         const newNet = sal.basic_salary + updatedBonus - sal.deductions;
         const isPaid = newStatus === 'Paid';
 
-        return {
+        const updatedSal = {
           ...sal,
           bonus: updatedBonus,
           net_salary: newNet,
@@ -360,20 +415,33 @@ export const DataProvider = ({ children }) => {
           transaction_id: isPaid ? (sal.transaction_id || `TXN-KM-${Math.floor(100000 + Math.random() * 900000)}`) : null,
           note: note !== null ? note : sal.note
         };
+
+        if (isSupabaseConnected && supabase) {
+          supabase.from('salaries').upsert([updatedSal]).then();
+        }
+
+        return updatedSal;
       }
       return sal;
     }));
   };
 
   const addProject = (projectData) => {
-    setProjects(prev => [...prev, { ...projectData, id: `p-${Date.now()}` }]);
+    const newProj = { ...projectData, id: `p-${Date.now()}` };
+    setProjects(prev => [...prev, newProj]);
+
+    if (isSupabaseConnected && supabase) {
+      supabase.from('projects').insert([newProj]).then();
+    }
   };
 
   const deleteProject = (projectId) => {
     setProjects(prev => prev.filter(p => p.id !== projectId));
+    if (isSupabaseConnected && supabase) {
+      supabase.from('projects').delete().eq('id', projectId).then();
+    }
   };
 
-  // Full System Export & Import
   const exportAllDataJSON = () => {
     const fullBackup = {
       members,
@@ -398,6 +466,13 @@ export const DataProvider = ({ children }) => {
     if (importedObj.projects) setProjects(importedObj.projects);
     if (importedObj.attendance) setAttendance(importedObj.attendance);
     if (importedObj.salaries) setSalaries(importedObj.salaries);
+
+    if (isSupabaseConnected && supabase) {
+      if (importedObj.members) supabase.from('members').upsert(importedObj.members).then();
+      if (importedObj.projects) supabase.from('projects').upsert(importedObj.projects).then();
+      if (importedObj.attendance) supabase.from('attendance').upsert(importedObj.attendance).then();
+      if (importedObj.salaries) supabase.from('salaries').upsert(importedObj.salaries).then();
+    }
   };
 
   return (
@@ -416,7 +491,8 @@ export const DataProvider = ({ children }) => {
       resetUserPassword,
       recalculateMemberSalary,
       exportAllDataJSON,
-      restoreAllDataJSON
+      restoreAllDataJSON,
+      cloudSynced
     }}>
       {children}
     </DataContext.Provider>

@@ -15,24 +15,27 @@ import {
   ChevronRight,
   Sparkles,
   ExternalLink,
+  Copy,
   Check,
   Server,
   Key
 } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import { SUPABASE_CONFIG, saveCloudCredentials, isCloudConnected } from '../../services/db';
+import { SUPABASE_SQL_SCHEMA } from '../../services/supabaseClient';
 import MemberManagement from './MemberManagement';
 import AttendanceManagement from './AttendanceManagement';
 import SalaryPayrollManagement from './SalaryPayrollManagement';
 import ProjectManagement from './ProjectManagement';
 
 export default function AdminDashboard() {
-  const { members, attendance, salaries, projects, exportAllDataJSON, restoreAllDataJSON } = useData();
+  const { members, attendance, salaries, projects, exportAllDataJSON, restoreAllDataJSON, cloudSynced } = useData();
   const [activeAdminSubTab, setActiveAdminSubTab] = useState('overview');
   
   const [showCloudConfig, setShowCloudConfig] = useState(false);
   const [supabaseUrl, setSupabaseUrl] = useState(SUPABASE_CONFIG.url);
   const [supabaseKey, setSupabaseKey] = useState(SUPABASE_CONFIG.anonKey);
+  const [copiedSql, setCopiedSql] = useState(false);
 
   const totalMembers = members.length;
   
@@ -65,21 +68,39 @@ export default function AdminDashboard() {
     saveCloudCredentials(supabaseUrl, supabaseKey);
   };
 
+  const handleCopySql = () => {
+    navigator.clipboard.writeText(SUPABASE_SQL_SCHEMA);
+    setCopiedSql(true);
+    setTimeout(() => setCopiedSql(false), 3000);
+  };
+
   return (
     <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-8">
       
       {/* Header Banner */}
       <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-brand-red/30 shadow-[0_0_40px_rgba(255,0,51,0.15)] flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-red/10 text-brand-red border border-brand-red/30 text-xs font-bold mb-2">
-            <ShieldCheck className="w-4 h-4" />
-            <span>অ্যাডমিন ম্যানেজমেন্ট সেন্টার (Leader Dashboard)</span>
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-red/10 text-brand-red border border-brand-red/30 text-xs font-bold">
+              <ShieldCheck className="w-4 h-4" />
+              <span>অ্যাডমিন ম্যানেজমেন্ট সেন্টার (Leader Dashboard)</span>
+            </span>
+
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
+              isCloudConnected() 
+                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' 
+                : 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+            }`}>
+              <Cloud className="w-3.5 h-3.5" />
+              <span>{isCloudConnected() ? 'Supabase Cloud Live Database Connected 🟢' : 'Local Persistence Active 🟠'}</span>
+            </span>
           </div>
+
           <h1 className="text-3xl font-extrabold text-white">
             কুয়াকাটা মাল্টিমিডিয়া <span className="text-gradient">টিম পোর্টাল কন্ট্রোল</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            টিম মেম্বার, দৈনিক হাজিরা, বেতনের পে-রোল হিসাব, ক্লাউড ডাটাবেস ও ৩ডি পোর্টফোলিও পরিচালনা করুন।
+            টিম মেম্বার, দৈনিক হাজিরা, বেতনের পে-রোল হিসাব, সুপাবেস ক্লাউড ডাটাবেস ও ৩ডি পোর্টফোলিও পরিচালনা করুন।
           </p>
         </div>
 
@@ -173,7 +194,7 @@ export default function AdminDashboard() {
           }`}
         >
           <Database className="w-4 h-4" />
-          <span>অনলাইন ডাটাবেস (Cloud DB)</span>
+          <span>Supabase ক্লাউড ডাটাবেস</span>
         </button>
       </div>
 
@@ -266,150 +287,131 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Cloud Database & Backup Tab */}
+      {/* Supabase Cloud Database Setup Subtab */}
       {activeAdminSubTab === 'backup' && (
         <div className="space-y-6 animate-fade-in">
-          <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-brand-red/30 space-y-6">
+          <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-emerald-500/40 space-y-6">
             
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-6">
               <div>
-                <span className="text-xs text-brand-red font-bold uppercase tracking-wider block mb-1 flex items-center gap-1.5">
-                  <Cloud className="w-4 h-4" />
-                  অনলাইন ক্লাউড ডাটাবেস রেকমেন্ডেশন
+                <span className="text-xs text-emerald-400 font-bold uppercase tracking-wider block mb-1 flex items-center gap-1.5">
+                  <Database className="w-4 h-4" />
+                  Supabase (PostgreSQL) অনলাইন ডাটাবেস ইন্টিগ্রেশন
                 </span>
-                <h2 className="text-2xl font-black text-white">অনলাইনে ডাটা সেভ রাখার সেরা ডাটাবেস</h2>
+                <h2 className="text-2xl font-black text-white">Supabase ডাটাবেসের সাথে ২ মিনিটে কানেক্ট করার পদ্ধতি</h2>
                 <p className="text-xs text-slate-300 mt-1">
-                  যেখান থেকেই অ্যাক্সেস করুন না কেন, অনলাইনে সব সময় রিয়েল-টাইমে ডাটা সংরক্ষিত থাকবে।
+                  সুপাবেসে অ্যাকাউন্ট খুলে নিচের টেস্ট কি-গুলো বসিয়ে সেভ করুন।
                 </p>
               </div>
 
-              <button
-                onClick={() => setShowCloudConfig(!showCloudConfig)}
-                className="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-brand-red/20 text-brand-red border border-brand-red/40 hover:bg-brand-red hover:text-white transition-colors flex items-center gap-2"
+              <a
+                href="https://supabase.com/dashboard"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-emerald-500 text-dark-900 shadow-lg hover:scale-105 transition-transform flex items-center gap-2"
               >
-                <Key className="w-4 h-4" />
-                <span>Supabase / Cloud Keys সেটআপ</span>
-              </button>
+                <span>Supabase ড্যাশবোর্ডে যান</span>
+                <ExternalLink className="w-4 h-4" />
+              </a>
             </div>
 
-            {/* Cloud Database Options Recommendation Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              
-              {/* Option 1: Supabase (Recommended) */}
-              <div className="glass-card p-6 rounded-2xl border border-emerald-500/40 relative flex flex-col justify-between">
-                <div>
-                  <span className="px-3 py-1 rounded-full text-[10px] font-black bg-emerald-500 text-dark-900 absolute top-4 right-4">
-                    ১ম পছন্দ (Best Pick ⭐⭐⭐⭐⭐)
-                  </span>
-                  <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 w-fit mb-3">
-                    <Database className="w-7 h-7" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-1">১. Supabase (PostgreSQL)</h3>
-                  <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                    সম্পূর্ণ **ফ্রি (Free forever)** ক্লাউড ডাটাবেস। কোনো ক্রেডিট কার্ড লাগে না। রিয়েল-টাইম ডাটা সিঙ্ক ও অটোমেটেড টেবিল সাপোর্টেড।
-                  </p>
-                </div>
-                <a
-                  href="https://supabase.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-2.5 rounded-xl text-xs font-bold bg-emerald-500 text-dark-900 text-center flex items-center justify-center gap-1.5"
-                >
-                  <span>Supabase এ ফ্রি একাউন্ট খুলুন</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
+            {/* Step by Step Guide */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div className="glass-card p-4 rounded-xl space-y-2 border border-slate-800">
+                <span className="w-6 h-6 rounded-full bg-emerald-500 text-dark-900 font-black flex items-center justify-center">১</span>
+                <h4 className="font-bold text-white">Supabase এ অ্যাকাউন্ট খুলুন</h4>
+                <p className="text-slate-400">
+                  <a href="https://supabase.com/" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline">supabase.com</a> এ গিয়ে বিনামূল্যে অ্যাকাউন্ট খুলুন এবং ১টি নতুন প্রজেক্ট তৈরি করুন।
+                </p>
               </div>
 
-              {/* Option 2: Firebase Firestore */}
-              <div className="glass-card p-6 rounded-2xl border border-amber-500/30 flex flex-col justify-between">
-                <div>
-                  <div className="p-3 rounded-xl bg-amber-500/10 text-amber-400 w-fit mb-3">
-                    <Cloud className="w-7 h-7" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-1">২. Google Firebase</h3>
-                  <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                    গুগলের নিজস্ব ক্লাউড রিয়েল-টাইম ডাটাবেস। ফ্রন্টএন্ড থেকে সরাসরি ডাটা সেভ করার জন্য জনপ্রিয়।
-                  </p>
-                </div>
-                <a
-                  href="https://firebase.google.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-2.5 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40 text-center flex items-center justify-center gap-1.5"
-                >
-                  <span>Firebase ডেভ কনসোল</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
+              <div className="glass-card p-4 rounded-xl space-y-2 border border-slate-800">
+                <span className="w-6 h-6 rounded-full bg-emerald-500 text-dark-900 font-black flex items-center justify-center">২</span>
+                <h4 className="font-bold text-white">SQL টেবিল স্ক্রিপ্ট রান করুন</h4>
+                <p className="text-slate-400">
+                  Supabase এর <b>SQL Editor</b> এ গিয়ে নিচের SQL কোডটি Paste করে <b>RUN</b> বাটনে ক্লিক করুন।
+                </p>
               </div>
 
-              {/* Option 3: MongoDB Atlas */}
-              <div className="glass-card p-6 rounded-2xl border border-brand-red/30 flex flex-col justify-between">
-                <div>
-                  <div className="p-3 rounded-xl bg-brand-red/10 text-brand-red w-fit mb-3">
-                    <Server className="w-7 h-7" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-1">৩. MongoDB Atlas</h3>
-                  <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                    NoSQL ডকুমেন্টস ভিত্তিক ক্লাউড ডাটাবেস (512MB ফ্রি ক্লাস্টার)।
-                  </p>
-                </div>
-                <a
-                  href="https://www.mongodb.com/cloud/atlas"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-2.5 rounded-xl text-xs font-bold bg-brand-red/20 text-brand-red border border-brand-red/40 text-center flex items-center justify-center gap-1.5"
-                >
-                  <span>MongoDB Atlas ভিজিট</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
+              <div className="glass-card p-4 rounded-xl space-y-2 border border-slate-800">
+                <span className="w-6 h-6 rounded-full bg-emerald-500 text-dark-900 font-black flex items-center justify-center">৩</span>
+                <h4 className="font-bold text-white">Project URL & Key সেভ করুন</h4>
+                <p className="text-slate-400">
+                  Supabase <b>Project Settings ➔ API</b> থেকে URL ও anon key কপি করে নিচের বক্সে সেভ করুন।
+                </p>
               </div>
-
             </div>
 
-            {/* Cloud Config Modal / Form */}
-            {showCloudConfig && (
-              <form onSubmit={handleSaveCloudConfig} className="glass-panel p-6 rounded-2xl border border-brand-red/40 space-y-4">
-                <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Key className="w-4 h-4 text-brand-red" />
-                  Supabase ক্লাউড ডাটাবেস এপিআই কী সেটআপ
+            {/* Supabase Key Credentials Input */}
+            <form onSubmit={handleSaveCloudConfig} className="glass-card p-6 rounded-2xl border border-emerald-500/30 space-y-4">
+              <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                <Key className="w-4 h-4 text-emerald-400" />
+                আপনার Supabase এপিআই ক্রেডেনশিয়ালস (API Credentials)
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div>
+                  <label className="block text-slate-300 mb-1 font-semibold">Supabase Project URL</label>
+                  <input
+                    type="url"
+                    required
+                    placeholder="https://xyzabcdefg.supabase.co"
+                    value={supabaseUrl}
+                    onChange={(e) => setSupabaseUrl(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl glass-input text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 mb-1 font-semibold">Supabase Anon Public Key</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="eyJhbGciOiJIUzI1NiIsIn..."
+                    value={supabaseKey}
+                    onChange={(e) => setSupabaseKey(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl glass-input text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center pt-2">
+                <span className="text-xs text-slate-400">
+                  কানেক্টেড স্ট্যাটাস: <strong className={isCloudConnected() ? 'text-emerald-400' : 'text-amber-400'}>{isCloudConnected() ? 'অনলাইন সুপাবেস ডাটাবেস লাইভ 🟢' : 'অফলাইন মোড (Local Fallback) 🟠'}</strong>
+                </span>
+
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl text-xs font-black bg-emerald-500 text-dark-900 shadow-lg shadow-emerald-500/20 hover:scale-105 transition-transform"
+                >
+                  Supabase এপিআই সেভ করুন
+                </button>
+              </div>
+            </form>
+
+            {/* SQL Schema Copy Box */}
+            <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-3">
+              <div className="flex justify-between items-center">
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-brand-red" />
+                  Supabase SQL Editor স্ক্রিপ্ট (১-ক্লিক কপি)
                 </h4>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                  <div>
-                    <label className="block text-slate-300 mb-1">Supabase Project URL</label>
-                    <input
-                      type="url"
-                      placeholder="https://xyz.supabase.co"
-                      value={supabaseUrl}
-                      onChange={(e) => setSupabaseUrl(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl glass-input text-white"
-                    />
-                  </div>
+                <button
+                  onClick={handleCopySql}
+                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-red/20 text-brand-red border border-brand-red/40 hover:bg-brand-red hover:text-white transition-colors flex items-center gap-1.5"
+                >
+                  {copiedSql ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedSql ? 'কপি হয়েছে!' : 'SQL কোড কপি করুন'}</span>
+                </button>
+              </div>
 
-                  <div>
-                    <label className="block text-slate-300 mb-1">Supabase Anon Key</label>
-                    <input
-                      type="text"
-                      placeholder="eyJhbGciOiJIUzI1NiIsIn..."
-                      value={supabaseKey}
-                      onChange={(e) => setSupabaseKey(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl glass-input text-white"
-                    />
-                  </div>
-                </div>
+              <pre className="p-4 rounded-xl bg-dark-900/90 text-emerald-400 text-[11px] font-mono overflow-x-auto max-h-48 border border-slate-800">
+                {SUPABASE_SQL_SCHEMA}
+              </pre>
+            </div>
 
-                <div className="flex justify-end gap-2">
-                  <button
-                    type="submit"
-                    className="px-5 py-2 rounded-xl text-xs font-bold bg-brand-red text-white shadow-md"
-                  >
-                    ক্লাউড কী সেভ করুন
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* Offline JSON Export/Import fallback */}
+            {/* Backup fallback */}
             <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
                 <h4 className="text-sm font-bold text-white">অফলাইন JSON ফাইল ব্যাকআপ & রিস্টোর</h4>
