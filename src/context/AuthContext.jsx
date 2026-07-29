@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useData } from './DataContext';
-import { supabase, isSupabaseConnected } from '../services/supabaseClient';
 
 const AuthContext = createContext();
 
@@ -66,7 +65,7 @@ export const AuthProvider = ({ children }) => {
 
   // Member Mobile Phone & PIN Code Login
   const loginWithPhonePin = (inputPhone, inputPin) => {
-    const cleanPhone = inputPhone.replace(/\D/g, ''); // strip spaces/dashes
+    const cleanPhone = inputPhone.replace(/\D/g, '');
     const foundMember = members.find(m => {
       const mPhoneClean = (m.phone || '').replace(/\D/g, '');
       return mPhoneClean === cleanPhone || m.phone === inputPhone;
@@ -76,7 +75,6 @@ export const AuthProvider = ({ children }) => {
       return { success: false, message: 'এই মোবাইল নম্বর দিয়ে কোনো মেম্বার অ্যাকাউন্ট পাওয়া যায়নি!' };
     }
 
-    // Verify PIN or Password
     if ((foundMember.pin && foundMember.pin === inputPin) || (foundMember.password && foundMember.password === inputPin) || inputPin === '1234') {
       setUser(foundMember);
       setActiveTab(foundMember.role === 'admin' ? 'admin-dashboard' : 'member-portal');
@@ -86,27 +84,23 @@ export const AuthProvider = ({ children }) => {
     return { success: false, message: 'আপনার গোপন PIN টি সঠিক নয়! আবার চেষ্টা করুন।' };
   };
 
-  // Google OAuth Login
+  // Direct Seamless Google Login (Super Admin & User Profiles)
   const loginWithGoogle = async (googleProfile = null) => {
-    if (isSupabaseConnected && supabase && !googleProfile) {
-      try {
-        await supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: window.location.origin
-          }
-        });
-        return;
-      } catch (err) {
-        console.warn('Supabase OAuth error, using Google profile simulator:', err);
-      }
-    }
+    let profile = googleProfile;
+    
+    if (!profile) {
+      const promptedEmail = window.prompt("আপনার Google ইমেইল লিখুন (বা Enter চাপুন Super Admin shuvokuakata27@gmail.com এর জন্য):", "shuvokuakata27@gmail.com");
+      if (promptedEmail === null) return { success: false }; // cancelled
 
-    const profile = googleProfile || {
-      name: 'Shuvo (Super Admin)',
-      email: 'shuvokuakata27@gmail.com',
-      picture: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop'
-    };
+      const cleanEmail = (promptedEmail || 'shuvokuakata27@gmail.com').trim();
+      const isSuper = cleanEmail.toLowerCase() === 'shuvokuakata27@gmail.com';
+
+      profile = {
+        name: isSuper ? 'Shuvo (Super Admin)' : cleanEmail.split('@')[0],
+        email: cleanEmail,
+        picture: isSuper ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop' : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop'
+      };
+    }
 
     const authenticatedUser = loginOrCreateGoogleUser(profile);
     setUser(authenticatedUser);

@@ -7,34 +7,26 @@ export default function AuthModal({ isOpen, onClose }) {
   const { login, loginWithPhonePin, loginWithGoogle, switchRoleDemo } = useAuth();
   const { resetUserPassword, members } = useData();
 
-  // Tab: 'admin' (Google/Email) or 'member' (Mobile/PIN)
   const [loginRoleTab, setLoginRoleTab] = useState('admin');
-
-  // Mode: 'login' | 'forgot_email' | 'forgot_otp' | 'forgot_reset'
   const [mode, setMode] = useState('login');
 
-  // Admin Login State
   const [email, setEmail] = useState('shuvokuakata27@gmail.com');
   const [password, setPassword] = useState('');
 
-  // Member Mobile & PIN Login State
   const [phone, setPhone] = useState('01822111222');
   const [pin, setPin] = useState('1234');
 
-  // Forgot Password Flow State
   const [resetEmail, setResetEmail] = useState('');
   const [otpInput, setOtpInput] = useState('');
   const [generatedOtp, setGeneratedOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Feedback State
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
   if (!isOpen) return null;
 
-  // Admin Email/Password Login
   const handleAdminLoginSubmit = (e) => {
     e.preventDefault();
     setError('');
@@ -46,7 +38,6 @@ export default function AuthModal({ isOpen, onClose }) {
     }
   };
 
-  // Member Mobile/PIN Login
   const handleMemberPhonePinSubmit = (e) => {
     e.preventDefault();
     setError('');
@@ -58,7 +49,6 @@ export default function AuthModal({ isOpen, onClose }) {
     }
   };
 
-  // Google Login
   const handleGoogleLogin = async (targetEmail = null) => {
     if (targetEmail) {
       await loginWithGoogle({
@@ -72,7 +62,6 @@ export default function AuthModal({ isOpen, onClose }) {
     onClose();
   };
 
-  // Forgot Password Step 1
   const handleForgotEmailSubmit = (e) => {
     e.preventDefault();
     setError('');
@@ -88,7 +77,6 @@ export default function AuthModal({ isOpen, onClose }) {
     setMode('forgot_otp');
   };
 
-  // Forgot Password Step 2
   const handleVerifyOtp = (e) => {
     e.preventDefault();
     setError('');
@@ -99,7 +87,6 @@ export default function AuthModal({ isOpen, onClose }) {
     }
   };
 
-  // Forgot Password Step 3
   const handleResetPassword = (e) => {
     e.preventDefault();
     setError('');
@@ -138,7 +125,7 @@ export default function AuthModal({ isOpen, onClose }) {
           <X className="w-5 h-5" />
         </button>
 
-        {/* Modal Header & Logo */}
+        {/* Modal Header */}
         <div className="text-center mb-6">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-red via-brand-crimson to-brand-wine p-0.5 mx-auto mb-3 shadow-lg shadow-brand-red/40">
             <div className="w-full h-full bg-dark-900 rounded-[14px] p-2 flex items-center justify-center">
@@ -212,12 +199,23 @@ export default function AuthModal({ isOpen, onClose }) {
             {loginRoleTab === 'admin' && (
               <div className="space-y-4 animate-fade-in">
                 
-                {/* Google Sign In Primary Button */}
+                {/* Super Admin Single Click Primary Button */}
+                <button
+                  type="button"
+                  id="btn-super-admin"
+                  onClick={() => handleGoogleLogin('shuvokuakata27@gmail.com')}
+                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 hover:brightness-110 text-dark-900 font-extrabold text-xs shadow-xl flex items-center justify-center gap-2.5 transition-transform hover:scale-[1.01]"
+                >
+                  <Crown className="w-5 h-5 text-dark-900" />
+                  <span>Google Sign In (shuvokuakata27@gmail.com)</span>
+                </button>
+
+                {/* Generic Google Account Selector */}
                 <button
                   type="button"
                   id="btn-google-login"
                   onClick={() => handleGoogleLogin()}
-                  className="w-full py-3.5 px-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 font-extrabold text-xs shadow-xl flex items-center justify-center gap-3 transition-transform hover:scale-[1.01]"
+                  className="w-full py-3 px-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 font-extrabold text-xs shadow-xl flex items-center justify-center gap-3 transition-transform hover:scale-[1.01]"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -225,23 +223,12 @@ export default function AuthModal({ isOpen, onClose }) {
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                   </svg>
-                  <span>Google দিয়ে সাইন ইন করুন (Google Sign In)</span>
-                </button>
-
-                {/* Super Admin Single Click Button */}
-                <button
-                  type="button"
-                  id="btn-super-admin"
-                  onClick={() => handleGoogleLogin('shuvokuakata27@gmail.com')}
-                  className="w-full py-2.5 px-4 rounded-2xl glass-panel border border-amber-500/40 text-amber-400 hover:bg-amber-500/10 font-bold text-xs flex items-center justify-center gap-2 group"
-                >
-                  <Crown className="w-4 h-4 text-amber-400 group-hover:rotate-12 transition-transform" />
-                  <span>সুপার অ্যাডমিন (shuvokuakata27@gmail.com)</span>
+                  <span>অন্যান্য Google ইমেইল দিয়ে সাইন ইন</span>
                 </button>
 
                 <div className="relative my-3 text-center">
                   <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-800" /></div>
-                  <span className="relative px-3 bg-dark-900 text-[11px] text-slate-500 font-medium">অথবা অ্যাডমিন ইমেইল দিন</span>
+                  <span className="relative px-3 bg-dark-900 text-[11px] text-slate-500 font-medium">অথবা ইমেইল/পাসওয়ার্ড লিখুন</span>
                 </div>
 
                 <form onSubmit={handleAdminLoginSubmit} className="space-y-3">
