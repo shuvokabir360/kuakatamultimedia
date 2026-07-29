@@ -3,7 +3,7 @@ import { Calendar as CalendarIcon, CheckCircle2, XCircle, Film, History, Check, 
 import { useData, toBnNum } from '../../context/DataContext';
 
 export default function FinanceAttendance() {
-  const { shootings = [], members = [] } = useData();
+  const { shootings = [], members = [], updateShootingAttendance } = useData();
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedShooting, setSelectedShooting] = useState(shootings[0]?.id || '');
 
@@ -24,14 +24,40 @@ export default function FinanceAttendance() {
   };
 
   const presentCount = dailyAttendanceState.filter(m => m.status === 'present').length;
+  const absentCount = dailyAttendanceState.filter(m => m.status === 'absent').length;
+
+  const handleSaveAttendance = () => {
+    if (!selectedShooting) {
+      alert('অনুগ্রহ করে একটি শুটিং নির্বাচন করুন!');
+      return;
+    }
+
+    const presentMembers = dailyAttendanceState.filter(m => m.status === 'present');
+    const totalCalculatedExpense = presentMembers.reduce((sum, m) => sum + (m.daily_rate || 1500), 0);
+
+    updateShootingAttendance(selectedShooting, presentMembers.length, absentCount, totalCalculatedExpense);
+    alert(`হাজিরা সফলভাবে সম্পন্ন হয়েছে!\nমোট উপস্থিত: ${presentCount} জন\nমোট হাজিরা খরচ: ৳ ${totalCalculatedExpense.toLocaleString()}`);
+  };
 
   return (
     <div className="space-y-6 pb-8 animate-fade-in">
       
       {/* Header */}
-      <div>
-        <h2 className="text-2xl font-black text-slate-900">হাজিরা</h2>
-        <p className="text-xs text-slate-500 font-medium mt-0.5">দৈনিক কর্মীদের জন্য</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-black text-slate-900">হাজিরা</h2>
+          <p className="text-xs text-slate-500 font-medium mt-0.5">দৈনিক কর্মীদের জন্য</p>
+        </div>
+
+        {selectedShooting && (
+          <button
+            onClick={handleSaveAttendance}
+            className="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-md shadow-emerald-500/20 flex items-center gap-1.5 transition-transform active:scale-95"
+          >
+            <CheckCircle2 className="w-4 h-4" />
+            <span>হাজিরা সেভ করুন</span>
+          </button>
+        )}
       </div>
 
       {/* Date & Shooting Selection Form */}
@@ -79,54 +105,66 @@ export default function FinanceAttendance() {
 
       {/* Active Member Attendance Sheet */}
       {selectedShooting ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {dailyAttendanceState.map((member) => (
-            <div
-              key={member.id}
-              className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-sm flex items-center justify-between transition-transform hover:scale-[1.01]"
-            >
-              <div className="flex items-center gap-3.5">
-                <img
-                  src={member.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop'}
-                  alt={member.name}
-                  className="w-12 h-12 rounded-full object-cover border border-slate-200 shrink-0 shadow-sm"
-                />
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {dailyAttendanceState.map((member) => (
+              <div
+                key={member.id}
+                className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-sm flex items-center justify-between transition-transform hover:scale-[1.01]"
+              >
+                <div className="flex items-center gap-3.5">
+                  <img
+                    src={member.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop'}
+                    alt={member.name}
+                    className="w-12 h-12 rounded-full object-cover border border-slate-200 shrink-0 shadow-sm"
+                  />
 
-                <div>
-                  <h3 className="text-sm font-black text-slate-900">{member.name}</h3>
-                  <p className="text-[11px] text-slate-500 font-medium">{member.designation || member.type}</p>
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900">{member.name}</h3>
+                    <p className="text-[11px] text-slate-500 font-medium">{member.designation || member.type}</p>
 
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-xs text-slate-600 font-bold">
-                      বেতন: ৳{toBnNum(member.daily_rate || 1500)}
-                    </span>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className="text-xs text-slate-600 font-bold">
+                        বেতন: ৳{toBnNum(member.daily_rate || 1500)}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Attendance Toggle Button */}
-              <button
-                onClick={() => toggleAttendance(member.id)}
-                className={`px-4 py-2 rounded-full text-xs font-black transition-all flex items-center gap-1.5 border shrink-0 ${
-                  member.status === 'present'
-                    ? 'bg-emerald-50 text-emerald-600 border-emerald-500 hover:bg-emerald-100'
-                    : 'bg-rose-50 text-rose-600 border-rose-400 hover:bg-rose-100'
-                }`}
-              >
-                {member.status === 'present' ? (
-                  <>
-                    <Check className="w-4 h-4 text-emerald-600" />
-                    <span>উপস্থিত</span>
-                  </>
-                ) : (
-                  <>
-                    <X className="w-4 h-4 text-rose-500" />
-                    <span>অনুপস্থিত</span>
-                  </>
-                )}
-              </button>
-            </div>
-          ))}
+                {/* Attendance Toggle Button */}
+                <button
+                  onClick={() => toggleAttendance(member.id)}
+                  className={`px-4 py-2 rounded-full text-xs font-black transition-all flex items-center gap-1.5 border shrink-0 ${
+                    member.status === 'present'
+                      ? 'bg-emerald-50 text-emerald-600 border-emerald-500 hover:bg-emerald-100'
+                      : 'bg-rose-50 text-rose-600 border-rose-400 hover:bg-rose-100'
+                  }`}
+                >
+                  {member.status === 'present' ? (
+                    <>
+                      <Check className="w-4 h-4 text-emerald-600" />
+                      <span>উপস্থিত</span>
+                    </>
+                  ) : (
+                    <>
+                      <X className="w-4 h-4 text-rose-500" />
+                      <span>অনুপস্থিত</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <button
+              onClick={handleSaveAttendance}
+              className="w-full md:w-auto px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-transform active:scale-95"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              <span>হাজিরা ও খরচ সেভ করুন</span>
+            </button>
+          </div>
         </div>
       ) : (
         <div className="p-8 rounded-3xl bg-white border border-dashed border-slate-300 text-center space-y-2">

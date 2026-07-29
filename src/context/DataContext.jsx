@@ -464,15 +464,31 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // Add Shooting
+  // Add Shooting (expenses default to 0 until attendance is submitted)
   const addShooting = (shootingData) => {
     const newSh = {
       ...shootingData,
       id: 'sh-' + Date.now(),
       present_count: 0,
-      absent_count: 0
+      absent_count: 0,
+      expenses: 0
     };
     setShootings(prev => [newSh, ...(prev || [])]);
+  };
+
+  // Update Shooting Attendance & Expenses (called ONLY when director completes attendance)
+  const updateShootingAttendance = (shootingId, presentCount, absentCount, expenses) => {
+    setShootings(prev => (prev || []).map(sh => {
+      if (sh.id === shootingId) {
+        return {
+          ...sh,
+          present_count: presentCount,
+          absent_count: absentCount,
+          expenses: expenses || 0
+        };
+      }
+      return sh;
+    }));
   };
 
   // Sorted members with Kabir Hossen Shuvo ALWAYS PINNED ON TOP
@@ -513,8 +529,9 @@ export const DataProvider = ({ children }) => {
       updateMember,
       deleteMember,
       resetUserPassword,
-      shootings: shootings || [],
+      shootings: (shootings || []).map(sh => sh.present_count === 0 ? { ...sh, expenses: 0 } : sh),
       addShooting,
+      updateShootingAttendance,
       deleteShooting,
       payments: payments || [],
       addPayment,
