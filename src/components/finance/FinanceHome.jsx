@@ -4,7 +4,7 @@ import { useData, toBnNum } from '../../context/DataContext';
 import ShootingCalendar from './ShootingCalendar';
 
 export default function FinanceHome({ onNavigate }) {
-  const { members = [], clients = [] } = useData() || {};
+  const { members = [], clients = [], payments = [], shootings = [] } = useData() || {};
 
   // Calculate dynamic greeting based on Bangladesh time
   const getGreeting = () => {
@@ -13,7 +13,7 @@ export default function FinanceHome({ onNavigate }) {
     if (hour >= 6 && hour < 12) return { text: 'শুভ সকাল', icon: '☀️' };
     if (hour >= 12 && hour < 15) return { text: 'শুভ দুপুর', icon: '🌤️' };
     if (hour >= 15 && hour < 18) return { text: 'শুভ বিকাল', icon: '⛅' };
-    if (hour >= 18 && hour < 20) return { text: 'শুভ সন্ধ্যা', icon: '🌆' };
+    if (hour >= 18 && hour < 20) return { text: 'শুভ সন্ধ্যা', icon: '<ctrl42>' };
     return { text: 'শুভ রাত্রি', icon: '🌙' };
   };
 
@@ -21,16 +21,24 @@ export default function FinanceHome({ onNavigate }) {
 
   const safeMembers = members || [];
   const safeClients = clients || [];
+  const safePayments = payments || [];
+  const safeShootings = shootings || [];
 
-  const totalDues = safeMembers.reduce((sum, m) => sum + (m?.balance || 0), 0);
-  const prevDues = 12500;
-  const currentMonthDues = totalDues > prevDues ? totalDues - prevDues : 6000;
-  const paidThisMonth = 163500;
+  // All Dynamic ZERO Calculations
+  const totalDues = safeMembers.reduce((sum, m) => sum + Math.max(0, m?.balance || 0), 0);
+  const prevDues = 0;
+  const currentMonthDues = totalDues;
+  const paidThisMonth = safePayments.reduce((sum, p) => sum + (p?.amount || 0), 0);
 
   // Client calculations
   const totalClientDues = safeClients.reduce((sum, c) => sum + (c?.due_amount || 0), 0);
   const totalClientReceivable = safeClients.reduce((sum, c) => sum + (c?.contract_amount || 0), 0);
   const totalClientReceived = safeClients.reduce((sum, c) => sum + (c?.received_amount || 0), 0);
+
+  // Expense calculations
+  const totalExpenses = 0;
+  const attendanceExpense = 0;
+  const otherExpense = 0;
 
   return (
     <div className="space-y-6 pb-8 animate-fade-in">
@@ -53,7 +61,7 @@ export default function FinanceHome({ onNavigate }) {
         </div>
       </div>
 
-      {/* 1. MAIN CARD: মোট বকেয়া */}
+      {/* 1. MAIN CARD: মোট বকেয়া (Set to Zero 0) */}
       <div className="bg-gradient-to-br from-red-500 via-rose-600 to-red-600 text-white rounded-3xl p-5 shadow-xl shadow-red-500/20 space-y-4 relative overflow-hidden">
         
         <div className="flex items-center justify-between">
@@ -148,11 +156,11 @@ export default function FinanceHome({ onNavigate }) {
         {/* Client List Item */}
         <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/60 flex items-center justify-between">
           <span className="text-xs font-bold text-slate-800">Malbro Entertainment</span>
-          <span className="text-xs font-black text-red-600">৳ {toBnNum(24000)}</span>
+          <span className="text-xs font-black text-red-600">৳ {toBnNum(totalClientDues)}</span>
         </div>
       </div>
 
-      {/* 3. CARD: মোট খরচ (Matching Screenshot) */}
+      {/* 3. CARD: মোট খরচ (Set to Zero 0) */}
       <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-md space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -182,22 +190,22 @@ export default function FinanceHome({ onNavigate }) {
           </select>
         </div>
 
-        {/* Main Expense Breakdowns (Matching Screenshot) */}
+        {/* Main Expense Breakdowns (Set to Zero 0) */}
         <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-100 space-y-3">
           <div>
             <span className="text-[10px] text-slate-500 font-bold block mb-0.5">মোট খরচ</span>
-            <span className="text-2xl font-black text-red-600">৳ {toBnNum((102020).toLocaleString())}</span>
+            <span className="text-2xl font-black text-red-600">৳ {toBnNum(totalExpenses.toLocaleString())}</span>
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-2 border-t border-rose-200/60">
             <div className="bg-white p-2.5 rounded-xl border border-rose-100">
               <span className="text-[10px] text-slate-500 font-semibold block">হাজিরা খরচ</span>
-              <span className="text-xs font-extrabold text-slate-800">৳ {toBnNum((95200).toLocaleString())}</span>
+              <span className="text-xs font-extrabold text-slate-800">৳ {toBnNum(attendanceExpense.toLocaleString())}</span>
             </div>
 
             <div className="bg-white p-2.5 rounded-xl border border-rose-100">
               <span className="text-[10px] text-slate-500 font-semibold block">অন্যান্য খরচ</span>
-              <span className="text-xs font-extrabold text-slate-800">৳ {toBnNum((6820).toLocaleString())}</span>
+              <span className="text-xs font-extrabold text-slate-800">৳ {toBnNum(otherExpense.toLocaleString())}</span>
               <span className="text-[9px] font-bold text-red-500 block mt-0.5 cursor-pointer hover:underline">
                 বিস্তারিত দেখুন →
               </span>
@@ -205,13 +213,13 @@ export default function FinanceHome({ onNavigate }) {
           </div>
 
           <div className="text-[10px] text-slate-500 font-bold pt-1">
-            {toBnNum(9)} টি শুটিং অন্তর্ভুক্ত
+            {toBnNum(safeShootings.length)} টি শুটিং অন্তর্ভুক্ত
           </div>
         </div>
 
       </div>
 
-      {/* 4. SHOOTING CALENDAR & SUMMARY COMPONENT (Matching Screenshot) */}
+      {/* 4. SHOOTING CALENDAR & SUMMARY COMPONENT */}
       <ShootingCalendar />
 
     </div>

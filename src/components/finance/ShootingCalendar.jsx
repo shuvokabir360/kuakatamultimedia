@@ -8,23 +8,11 @@ export default function ShootingCalendar() {
   const [currentMonth, setCurrentMonth] = useState('2026-07');
   const [selectedShootingDetail, setSelectedShootingDetail] = useState(null);
 
-  // Mock Shooting Calendar Dates Data matching exact screenshot
-  const shootingDatesMap = {
-    '2026-07-01': [{ title: 'উমাইয়া জামাই (পার্ট ১)', channel: 'Kuakata TV', director: 'Kabir Hossen Shuvo', location: 'মুসুল্লিয়াবাদ', count: 1 }],
-    '2026-07-02': [{ title: 'চাচার নিহার বউ তালাক', channel: 'Malbro TV', director: 'Kabir Hossen Shuvo', location: 'কুয়াকাটা বিচ', count: 1 }],
-    '2026-07-12': [{ title: 'নেতার লিংক ভাইরাল', channel: 'Gazi Entertainment', director: 'SM Almas', location: 'মহিপুর', count: 1 }],
-    '2026-07-14': [{ title: 'ডিজিটাল জামাই', channel: 'Mehidi Multimedia', director: 'Kabir Hossen Shuvo', location: 'কলাপাড়া', count: 1 }],
-    '2026-07-23': [{ title: 'গ্রামের মেম্বার', channel: 'Kuakata TV', director: 'SM Almas', location: 'মুসুল্লিয়াবাদ', count: 1 }],
-    '2026-07-24': [
-      { title: 'নেতার লিংক ভাইরাল (পার্ট ২)', channel: 'Gazi Entertainment', director: 'SM Almas', location: 'মহিপুর', count: 1 },
-      { title: 'চাচার নিহার বউ তালাক (পার্ট ২)', channel: 'Malbro TV', director: 'Kabir Hossen Shuvo', location: 'কুয়াকাটা', count: 1 }
-    ],
-    '2026-07-25': [{ title: 'উমাইয়া জামাই (পার্ট ২)', channel: 'Kuakata TV', director: 'Kabir Hossen Shuvo', location: 'মুসুল্লিয়াবাদ', count: 1 }],
-    '2026-07-26': [{ title: 'উমাইয়া জামাই (বিশেষ পর্ব)', channel: 'Kuakata TV', director: 'Kabir Hossen Shuvo', location: 'মুসুল্লিয়াবাদ', count: 1 }]
-  };
+  // Dynamic Shooting Calendar Dates Map
+  const shootingDatesMap = {};
 
   // Add real added shootings dynamically into map
-  shootings.forEach(sh => {
+  (shootings || []).forEach(sh => {
     if (sh.date) {
       if (!shootingDatesMap[sh.date]) {
         shootingDatesMap[sh.date] = [];
@@ -62,10 +50,14 @@ export default function ShootingCalendar() {
     });
   }
 
+  const totalShootingsThisMonth = (shootings || []).length;
+  const attendanceExpensesThisMonth = (shootings || []).reduce((sum, s) => sum + (s.expenses || 0), 0);
+  const totalExpensesThisMonth = attendanceExpensesThisMonth;
+
   return (
     <div className="space-y-6">
       
-      {/* 1. SHOOTING CALENDAR CARD (Matching Screenshot) */}
+      {/* 1. SHOOTING CALENDAR CARD */}
       <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-md space-y-4">
         
         {/* Header with Navigation */}
@@ -135,7 +127,7 @@ export default function ShootingCalendar() {
           })}
         </div>
 
-        {/* Calendar Legend (Matching Screenshot) */}
+        {/* Calendar Legend */}
         <div className="flex items-center gap-4 text-[11px] font-bold text-slate-600 pt-2 border-t border-slate-100">
           <div className="flex items-center gap-1.5">
             <span className="w-3.5 h-3.5 rounded-md bg-rose-200 border border-rose-400 inline-block" />
@@ -150,7 +142,7 @@ export default function ShootingCalendar() {
 
       </div>
 
-      {/* 2. THIS MONTH'S SHOOTING SUMMARY CARD (Matching Screenshot) */}
+      {/* 2. THIS MONTH'S SHOOTING SUMMARY CARD (Set to Zero 0) */}
       <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-md space-y-4">
         
         <div className="flex items-center justify-between">
@@ -169,28 +161,28 @@ export default function ShootingCalendar() {
           <div>
             <span className="text-[10px] text-slate-500 font-bold block mb-0.5">শুটিং</span>
             <span className="text-base font-black text-red-600">
-              {toBnNum(9)} টি
+              {toBnNum(totalShootingsThisMonth)} টি
             </span>
           </div>
 
           <div className="border-x border-rose-200/80 px-1">
             <span className="text-[10px] text-slate-500 font-bold block mb-0.5">হাজিরা খরচ</span>
             <span className="text-xs font-black text-slate-800 block mt-1">
-              ৳ {toBnNum((95200).toLocaleString())}
+              ৳ {toBnNum(attendanceExpensesThisMonth.toLocaleString())}
             </span>
           </div>
 
           <div>
             <span className="text-[10px] text-slate-500 font-bold block mb-0.5">মোট খরচ</span>
             <span className="text-xs font-black text-red-600 block mt-1">
-              ৳ {toBnNum((102020).toLocaleString())}
+              ৳ {toBnNum(totalExpensesThisMonth.toLocaleString())}
             </span>
           </div>
         </div>
 
       </div>
 
-      {/* 3. SHOOTING DETAIL POPUP MODAL (When clicking any marked date) */}
+      {/* 3. SHOOTING DETAIL POPUP MODAL */}
       {selectedShootingDetail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
           <div className="relative w-full max-w-sm bg-white rounded-3xl p-6 border border-slate-200 shadow-2xl space-y-4">
